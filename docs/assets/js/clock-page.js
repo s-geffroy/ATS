@@ -347,17 +347,19 @@
       t.textContent = city.code;
       group.appendChild(t);
     }
-    // City legend list below the dial, with current UTC offsets
+    // City legend list below the dial, current UTC offsets, 4×2 CSS grid.
     if (cityListEl) {
-      const parts = CITIES.map(function (city) {
+      cityListEl.textContent = '';
+      CITIES.forEach(function (city) {
         const om = getTzOffsetMin(city.tz, today);
         const sign = om >= 0 ? '+' : '−';
         const h = Math.floor(Math.abs(om) / 60);
         const m = Math.abs(om) % 60;
         const off = sign + h + (m ? (':' + String(m).padStart(2, '0')) : '');
-        return city.code + ' ' + city.label + ' (UTC' + off + ')';
+        const span = document.createElement('span');
+        span.textContent = city.code + ' ' + city.label + ' (UTC' + off + ')';
+        cityListEl.appendChild(span);
       });
-      cityListEl.textContent = parts.join(' · ');
     }
   }
 
