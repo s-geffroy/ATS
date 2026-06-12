@@ -108,6 +108,14 @@ a:hover { text-decoration: underline; }
   background: color-mix(in oklab, Canvas 97%, CanvasText);
 }
 
+/* Center the headline of the card (label + big ATS + UTC time).
+   Scoped to direct children so the converter inside <details> stays left-aligned. */
+.clock-card > .label,
+.clock-card > .big,
+.clock-card > .secondary {
+  text-align: center;
+}
+
 .clock-card .label {
   text-transform: uppercase;
   font-size: 0.72rem;
