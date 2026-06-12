@@ -4,6 +4,17 @@ Toutes les modifications notables du projet ATS sont consignées ici.
 
 Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la nomenclature [SemVer](https://semver.org/lang/fr/).
 
+## [0.2.2] — 2026-06-12 (Δ 20.7.8.0/65)
+
+### Added — Mobile navigation
+- `docs/assets/js/site.js` : menu hamburger injecté automatiquement, état `aria-expanded`/`aria-controls`/`aria-label`, fermeture au clic sur un lien et à la touche `Esc`. Inclus sur les 21 pages.
+- CSS : sous 600 px, la nav passe en colonne sous un bouton ☰ ↔ ✕ avec re-ordonnancement (brand · lang · hamburger sur le rang du haut, nav déroulée en dessous).
+
+### Added — Security
+- **SRI** sur tous les assets CDN : `marked@13.0.3`, `dompurify@3.2.4`, `prismjs@1.29.0` (core, python, prism-tomorrow). `integrity="sha384-…"` + `crossorigin="anonymous"`.
+- **DOMPurify** : `marked.parse(md)` est désormais `DOMPurify.sanitize(marked.parse(md))` sur les 8 pages markdown (manifeste, philosophie, comparaison, FAQ × 2 langues).
+- **CSP** (`<meta http-equiv="Content-Security-Policy">`) sur les 21 pages : `default-src 'self'; script-src + style-src 'self' + cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' data:; connect-src 'self' raw.githubusercontent.com; object-src 'none'; base-uri 'self'; form-action 'self'`.
+
 ## [0.2.1] — 2026-06-12 (Δ 20.7.8.0/65)
 
 ### Fixed
