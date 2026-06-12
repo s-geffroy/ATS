@@ -242,20 +242,23 @@
   // -------- City "working day" arcs --------
   // 7 world cities, IANA tz, plus a 2-3 letter glyph drawn at the start of the arc.
   // West → East ordering, 8 cities total. 2 rows × 4 in the legend.
+  // Each city carries its own color; the slot pattern (dashed/solid/dotted)
+  // disambiguates morning/midday/evening within a single city.
   const CITIES = [
-    { code: 'LA',  tz: 'America/Los_Angeles', label: 'Los Angeles' },
-    { code: 'NYC', tz: 'America/New_York',    label: 'New York' },
-    { code: 'LDN', tz: 'Europe/London',       label: lang === 'fr' ? 'Londres'   : 'London' },
-    { code: 'PAR', tz: 'Europe/Paris',        label: 'Paris' },
-    { code: 'JER', tz: 'Asia/Jerusalem',      label: lang === 'fr' ? 'Jérusalem' : 'Jerusalem' },
-    { code: 'DXB', tz: 'Asia/Dubai',          label: lang === 'fr' ? 'Dubaï'     : 'Dubai' },
-    { code: 'BJG', tz: 'Asia/Shanghai',       label: lang === 'fr' ? 'Pékin'     : 'Beijing' },
-    { code: 'TKO', tz: 'Asia/Tokyo',          label: 'Tokyo' },
+    { code: 'LA',  tz: 'America/Los_Angeles', label: 'Los Angeles',                                 color: '#ef4444' }, // red
+    { code: 'NYC', tz: 'America/New_York',    label: 'New York',                                    color: '#f97316' }, // orange
+    { code: 'LDN', tz: 'Europe/London',       label: lang === 'fr' ? 'Londres'   : 'London',        color: '#eab308' }, // gold
+    { code: 'PAR', tz: 'Europe/Paris',        label: 'Paris',                                       color: '#22c55e' }, // green
+    { code: 'JER', tz: 'Asia/Jerusalem',      label: lang === 'fr' ? 'Jérusalem' : 'Jerusalem',     color: '#14b8a6' }, // teal
+    { code: 'DXB', tz: 'Asia/Dubai',          label: lang === 'fr' ? 'Dubaï'     : 'Dubai',         color: '#06b6d4' }, // cyan
+    { code: 'BJG', tz: 'Asia/Shanghai',       label: lang === 'fr' ? 'Pékin'     : 'Beijing',       color: '#8b5cf6' }, // purple
+    { code: 'TKO', tz: 'Asia/Tokyo',          label: 'Tokyo',                                       color: '#ec4899' }, // pink
   ];
+  // Pattern per slot: matin = dashed, midi = solid, soir = dotted (round caps).
   const SLOTS = [
-    { from:  8, to: 12, color: '#fbbf24' }, // matin / morning
-    { from: 12, to: 14, color: '#22c55e' }, // midi / midday
-    { from: 14, to: 18, color: '#f97316' }, // soir / evening
+    { from:  8, to: 12, dasharray: '6 2',    linecap: 'butt'  }, // matin / morning  — hachures
+    { from: 12, to: 14, dasharray: null,     linecap: 'butt'  }, // midi  / midday   — solid
+    { from: 14, to: 18, dasharray: '0.5 3.5', linecap: 'round' }, // soir  / evening  — pointillés
   ];
 
   function getTzOffsetMin(tz, date) {
@@ -313,11 +316,12 @@
         const f2 = localHourToDayFrac(city.tz, slot.to,   today);
         const path = document.createElementNS(NS, 'path');
         path.setAttribute('d', arcPath(r, f1, f2));
-        path.setAttribute('stroke', slot.color);
-        path.setAttribute('stroke-width', '2.5');
-        path.setAttribute('stroke-linecap', 'butt');
+        path.setAttribute('stroke', city.color);
+        path.setAttribute('stroke-width', '2.8');
+        path.setAttribute('stroke-linecap', slot.linecap);
         path.setAttribute('fill', 'none');
-        path.setAttribute('opacity', '0.85');
+        path.setAttribute('opacity', '0.95');
+        if (slot.dasharray) path.setAttribute('stroke-dasharray', slot.dasharray);
         group.appendChild(path);
       }
     }
@@ -347,7 +351,7 @@
       t.textContent = city.code;
       group.appendChild(t);
     }
-    // City legend list below the dial, current UTC offsets, 4×2 CSS grid.
+    // City legend below the dial, 4-col grid; each entry: colored dot + name + UTC offset.
     if (cityListEl) {
       cityListEl.textContent = '';
       CITIES.forEach(function (city) {
@@ -356,9 +360,14 @@
         const h = Math.floor(Math.abs(om) / 60);
         const m = Math.abs(om) % 60;
         const off = sign + h + (m ? (':' + String(m).padStart(2, '0')) : '');
-        const span = document.createElement('span');
-        span.textContent = city.code + ' ' + city.label + ' (UTC' + off + ')';
-        cityListEl.appendChild(span);
+        const row = document.createElement('span');
+        row.className = 'row';
+        const sw = document.createElement('span');
+        sw.className = 'swatch';
+        sw.style.background = city.color;
+        row.appendChild(sw);
+        row.appendChild(document.createTextNode(city.label + ' ' + off));
+        cityListEl.appendChild(row);
       });
     }
   }

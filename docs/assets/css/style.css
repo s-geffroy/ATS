@@ -225,7 +225,35 @@ a:hover { text-decoration: underline; }
   opacity: 0.85;
   margin-top: 0.75rem;
 }
-.city-legend .swatch {
+/* Pattern legend (matin/midi/soir) — colors come from per-city palette;
+   patterns differentiate the three time slots within each city. */
+.city-legend .pat {
+  display: inline-block;
+  width: 28px;
+  height: 0;
+  border-top-width: 2px;
+  border-top-color: currentColor;
+  vertical-align: middle;
+  margin-right: 0.35rem;
+}
+.city-legend .pat.matin { border-top-style: dashed; }
+.city-legend .pat.midi  { border-top-style: solid; }
+.city-legend .pat.soir  { border-top-style: dotted; border-top-width: 3px; }
+
+/* City legend below the dial — forced 4×2 grid. Each entry carries a
+   colored dot (one color per city). */
+.city-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.3rem 0.7rem;
+  font-size: 0.78rem;
+  opacity: 0.85;
+  margin-top: 0.5rem;
+  font-family: ui-monospace, monospace;
+  text-align: left;
+}
+.city-list .row { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.city-list .swatch {
   display: inline-block;
   width: 10px;
   height: 10px;
@@ -233,24 +261,10 @@ a:hover { text-decoration: underline; }
   vertical-align: middle;
   margin-right: 0.3rem;
 }
-.city-legend .swatch.matin { background: #fbbf24; }
-.city-legend .swatch.midi  { background: #22c55e; }
-.city-legend .swatch.soir  { background: #f97316; }
-.city-list {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.3rem 0.6rem;
-  font-size: 0.78rem;
-  opacity: 0.7;
-  margin-top: 0.5rem;
-  font-family: ui-monospace, monospace;
-  text-align: left;
+@media (max-width: 540px) {
+  .city-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-.city-list span { white-space: nowrap; }
-@media (max-width: 760px) {
-  .city-list { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 420px) {
+@media (max-width: 320px) {
   .city-list { grid-template-columns: 1fr; }
 }
 
