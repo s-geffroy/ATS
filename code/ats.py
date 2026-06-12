@@ -31,7 +31,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from decimal import Decimal, ROUND_FLOOR
+from decimal import ROUND_FLOOR, Decimal
 from zoneinfo import ZoneInfo
 
 ATS_SYMBOL = "Δ"

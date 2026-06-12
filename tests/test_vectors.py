@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "code"))
 
-from ats import gregorian_to_ats, ats_to_gregorian  # noqa: E402
+from ats import ats_to_gregorian, gregorian_to_ats  # noqa: E402
 
 VECTORS_PATH = ROOT / "docs" / "spec" / "test-vectors.json"
 
