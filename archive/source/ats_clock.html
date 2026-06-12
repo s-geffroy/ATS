@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Δ ATS Clock</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2.5rem; }
+    .row { margin: 1rem 0; }
+    .big { font-size: clamp(2rem, 5vw, 3.2rem); letter-spacing: 0.02em; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .label { opacity: 0.75; font-size: 0.9rem; }
+    .card { padding: 1.25rem 1.5rem; border: 1px solid color-mix(in oklab, currentColor 25%, transparent); border-radius: 12px; max-width: 880px; }
+  </style>
+</head>
+<body>
+  <h1>Δ ATS Clock</h1>
+
+  <div class="card">
+    <div class="row label">ATS (canonical)</div>
+    <div id="canonical" class="row big mono">—</div>
+
+    <div class="row label">ATS (short)</div>
+    <div id="short" class="row big mono">—</div>
+
+    <div class="row label">Gregorian (UTC)</div>
+    <div id="utc" class="row mono">—</div>
+
+    <div class="row label">Gregorian (local)</div>
+    <div id="local" class="row mono">—</div>
+  </div>
+
+<script>
+  // ATS epoch = first human step on the Moon: 1969-07-21T02:56:15Z
+  const ATS_EPOCH_MS = Date.parse('1969-07-21T02:56:15Z');
+
+  const ATS_DECIMALS = 5;
+  const ATS_SCALE = 10 ** ATS_DECIMALS;     // 100000
+  const MS_PER_DAY = 86400000;
+
+  function pad2(n) { return String(n).padStart(2, '0'); }
+
+  function atsFromNow(nowMs) {
+    const deltaMs = nowMs - ATS_EPOCH_MS;
+    const sign = (deltaMs >= 0) ? 'T+' : 'T-';
+    const absMs = Math.abs(deltaMs);
+
+    // Convert to days with integer division and strict truncation.
+    const integerDays = Math.floor(absMs / MS_PER_DAY);
+    const dayRemainderMs = absMs - integerDays * MS_PER_DAY;
+
+    // Fractional digits = floor( remainder / day * 100000 )
+    const frac = Math.floor((dayRemainderMs * ATS_SCALE) / MS_PER_DAY);
+
+    // Macro places
+    const myria = Math.floor(integerDays / 10000);
+    const rem1 = integerDays % 10000;
+    const kilo = Math.floor(rem1 / 1000);
+    const rem2 = rem1 % 1000;
+    const hecto = Math.floor(rem2 / 100);
+    const rem3 = rem2 % 100;
+    const deka = Math.floor(rem3 / 10);
+    const kin = rem3 % 10;
+
+    const fracStr = String(frac).padStart(ATS_DECIMALS, '0');
+    const canonical = `${sign} Δ ${myria}.${kilo}.${hecto}.${deka}.${kin}.${fracStr}`;
+
+    // Short format: Δ K.H.D | cc (cc = first two fraction digits)
+    const cc = Math.floor(frac / (10 ** (ATS_DECIMALS - 2)));
+    const short = `Δ ${kilo}.${hecto}.${deka} | ${pad2(cc)}`;
+
+    return { canonical, short };
+  }
+
+  function tick() {
+    const now = new Date();
+    const nowMs = now.getTime();
+
+    const ats = atsFromNow(nowMs);
+    document.getElementById('canonical').textContent = ats.canonical;
+    document.getElementById('short').textContent = ats.short;
+
+    document.getElementById('utc').textContent = now.toISOString();
+    document.getElementById('local').textContent = now.toString();
+  }
+
+  tick();
+  setInterval(tick, 100);
+</script>
+</body>
+</html>

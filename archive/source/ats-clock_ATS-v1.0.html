@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Δ ATS Clock (v1.0 — ATS/POSIX)</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2.5rem; }
+    .row { margin: 1rem 0; }
+    .big { font-size: clamp(1.8rem, 4.5vw, 3rem); letter-spacing: 0.02em; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .label { opacity: 0.75; font-size: 0.9rem; }
+    .card { padding: 1.25rem 1.5rem; border: 1px solid color-mix(in oklab, currentColor 25%, transparent); border-radius: 12px; max-width: 1040px; }
+    .hint { opacity: 0.75; font-size: 0.88rem; line-height: 1.45; margin-top: 1.25rem; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
+    @media (min-width: 980px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+    .small { font-size: 0.95rem; }
+    input, select, button, textarea {
+      font: inherit;
+      padding: 0.6rem 0.75rem;
+      border-radius: 10px;
+      border: 1px solid color-mix(in oklab, currentColor 22%, transparent);
+      background: color-mix(in oklab, Canvas 92%, transparent);
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button { width: auto; cursor: pointer; }
+    .actions { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; }
+    .ok { color: color-mix(in oklab, currentColor 85%, transparent); }
+    .warn { color: #c98a00; }
+    .err { color: #d34a4a; }
+    .pill { display: inline-flex; gap: 0.5rem; align-items: center; padding: 0.25rem 0.6rem; border-radius: 999px; border: 1px solid color-mix(in oklab, currentColor 20%, transparent); }
+    .kv { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+    .kv .k { opacity: 0.75; }
+  </style>
+</head>
+
+<body>
+  <h1>Δ ATS Clock (ATS v1.0)</h1>
+
+  <div class="card">
+    <!-- Profile / epoch -->
+    <div class="row kv mono small">
+      <span class="pill"><span class="k">Profile</span><strong id="profile">ATS/POSIX</strong></span>
+      <span class="pill"><span class="k">Epoch</span><span id="epoch">1969-07-21T00:00:00Z</span></span>
+      <span class="pill"><span class="k">First step (ref)</span><span id="firstStep">1969-07-21T02:56:15Z</span></span>
+    </div>
+
+    <!-- Inputs -->
+    <div class="grid">
+      <div>
+        <div class="row label">Input ATS (accepts LONG interop or SHORT UI)</div>
+        <input id="atsInput" class="mono" placeholder="e.g. Δ+2.0.6.4.4.000000000 (LONG) or Δ+20644.123 (SHORT UI)" />
+      </div>
+
+      <div>
+        <div class="row label">Input Gregorian (UTC ISO recommended)</div>
+        <input id="gregInput" class="mono" placeholder="e.g. 2026-01-27T00:00:00Z" />
+      </div>
+    </div>
+
+    <div class="row actions">
+      <button id="btnNow" type="button">Now (UTC)</button>
+      <label class="mono small">
+        SHORT digits:
+        <select id="shortDigits">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+        </select>
+      </label>
+      <span id="status" class="mono small ok">—</span>
+    </div>
+
+    <!-- Outputs -->
+    <div class="row label">ATS (LONG, interop)</div>
+    <div id="atsLong" class="row big mono">—</div>
+
+    <div class="row label">ATS (SHORT, UI)</div>
+    <div id="atsShort" class="row big mono">—</div>
+
+    <div class="grid">
+      <div>
+        <div class="row label">Gregorian (UTC)</div>
+        <div id="utc" class="row mono small">—</div>
+      </div>
+      <div>
+        <div class="row label">Gregorian (local)</div>
+        <div id="local" class="row mono small">—</div>
+      </div>
+    </div>
+
+    <div class="row label">ATS (canonical integer: ats_nd)</div>
+    <div id="atsNd" class="row mono small">—</div>
+
+    <div class="hint mono">
+      Interop rule: LONG only (exactly 9 fractional digits). SHORT is UI-only and truncated, never rounded.<br/>
+      Canon storage: <strong>ats_nd</strong> = signed integer nanodays since epoch. Truncation is toward zero.
+    </div>
+  </div>
+
+<script>
+  "use strict";
+
+  // =============================================================================
+  // ATS v1.0 — ATS/POSIX constants
+  // =============================================================================
+
+  const ATS_SYMBOL = "Δ";
+  const ATS_EPOCH_MS = Date.parse("1969-07-21T00:00:00Z"); // Δ0
+  const MS_PER_DAY = 86_400_000;
+  const ND_PER_DAY = 1_000_000_000n; // 1e9 nanodays per day
+
+  // LONG (interop):
+  //   Δ<sign><MYR>.<K>.<H>.<D>.<d>.<fffffffff>
+  const ATS_LONG_RE = /^\s*Δ([+-])(\d+)\.(\d)\.(\d)\.(\d)\.(\d)\.(\d{9})\s*$/;
+
+  // SHORT (UI-only):
+  //   Δ<sign><day_counter>[.<fracN>], N in 1..9
+  const ATS_SHORT_UI_RE = /^\s*Δ([+-])(\d+)(?:\.(\d{1,9}))?\s*$/;
+
+  // =============================================================================
+  // Math helpers
+  // =============================================================================
+
+  function padLeft(str, width, ch = "0") {
+    str = String(str);
+    return str.length >= width ? str : ch.repeat(width - str.length) + str;
+  }
+
+  function absBig(n) { return n >= 0n ? n : -n; }
+
+  function truncDivTowardZeroBigInt(n, d) {
+    // JS BigInt division truncates toward zero (normative).
+    if (d <= 0n) throw new Error("Divisor must be > 0");
+    return n / d;
+  }
+
+  // =============================================================================
+  // ATS formatting/parsing
+  // =============================================================================
+
+  function formatLongFromAtsNd(atsNd) {
+    const sign = (atsNd >= 0n) ? "+" : "-";
+    const a = absBig(atsNd);
+
+    const dayCounter = a / ND_PER_DAY;
+    const fracNd = a % ND_PER_DAY;
+
+    const myr = dayCounter / 10_000n;
+    const rem = dayCounter % 10_000n;
+
+    const k = rem / 1_000n;
+    const rem2 = rem % 1_000n;
+
+    const h = rem2 / 100n;
+    const rem3 = rem2 % 100n;
+
+    const d = rem3 / 10n;
+    const u = rem3 % 10n;
+
+    const fracStr = padLeft(fracNd.toString(), 9, "0");
+    return `${ATS_SYMBOL}${sign}${myr}.${k}.${h}.${d}.${u}.${fracStr}`;
+  }
+
+  function formatShortUiFromAtsNd(atsNd, fracDigits) {
+    if (fracDigits < 1 || fracDigits > 9) throw new Error("fracDigits must be 1..9");
+
+    const sign = (atsNd >= 0n) ? "+" : "-";
+    const a = absBig(atsNd);
+
+    const dayCounter = a / ND_PER_DAY;
+    const fracNd = a % ND_PER_DAY;
+
+    const scale = 10n ** BigInt(9 - fracDigits);
+    const fracN = fracNd / scale; // truncation
+    const fracStr = padLeft(fracN.toString(), fracDigits, "0");
+
+    return `${ATS_SYMBOL}${sign}${dayCounter}.${fracStr}`;
+  }
+
+  function parseAtsLongToNd(s) {
+    const m = ATS_LONG_RE.exec(s);
+    if (!m) return null;
+
+    const sign = m[1];
+    const myr = BigInt(m[2]);
+    const k = BigInt(m[3]);
+    const h = BigInt(m[4]);
+    const d = BigInt(m[5]);
+    const u = BigInt(m[6]);
+    const frac = BigInt(m[7]); // 9 digits already
+
+    // day_counter = myr*10000 + k*1000 + h*100 + d*10 + u
+    const dayCounter = myr * 10_000n + k * 1_000n + h * 100n + d * 10n + u;
+    const absNdVal = dayCounter * ND_PER_DAY + frac;
+
+    return (sign === "+") ? absNdVal : -absNdVal;
+  }
+
+  function parseAtsShortUiToNd(s) {
+    const m = ATS_SHORT_UI_RE.exec(s);
+    if (!m) return null;
+
+    const sign = m[1];
+    const dayCounter = BigInt(m[2]);
+
+    let fracNd = 0n;
+    if (m[3] !== undefined) {
+      const fracStr = m[3];
+      const n = fracStr.length; // 1..9
+      const fracN = BigInt(fracStr);
+      fracNd = fracN * (10n ** BigInt(9 - n)); // upscale by padding zeros (truncated precision)
+    }
+
+    const absNdVal = dayCounter * ND_PER_DAY + fracNd;
+    return (sign === "+") ? absNdVal : -absNdVal;
+  }
+
+  function parseAtsAnyToNd(s) {
+    const ndLong = parseAtsLongToNd(s);
+    if (ndLong !== null) return { atsNd: ndLong, source: "LONG" };
+
+    const ndShort = parseAtsShortUiToNd(s);
+    if (ndShort !== null) return { atsNd: ndShort, source: "SHORT" };
+
+    return null;
+  }
+
+  // =============================================================================
+  // Gregorian <-> ATS (ATS/POSIX via JS Date, millisecond precision)
+  // =============================================================================
+
+  function atsNdFromMs(ms) {
+    // ats_nd = trunc( delta_ms * 1e9 / 86400000 )
+    const deltaMs = BigInt(ms) - BigInt(ATS_EPOCH_MS);
+    const numerator = deltaMs * 1_000_000_000n;
+    const denominator = BigInt(MS_PER_DAY);
+    return truncDivTowardZeroBigInt(numerator, denominator);
+  }
+
+  function msFromAtsNd(atsNd) {
+    // delta_ms = trunc( ats_nd * 86400000 / 1e9 )
+    const numerator = atsNd * BigInt(MS_PER_DAY);
+    const denominator = 1_000_000_000n;
+    const deltaMs = truncDivTowardZeroBigInt(numerator, denominator);
+
+    // Safety for Number conversion
+    const maxSafe = BigInt(Number.MAX_SAFE_INTEGER);
+    if (absBig(deltaMs) > maxSafe) return { ok: false, reason: "delta_ms exceeds JS safe integer" };
+
+    const ms = Number(deltaMs) + ATS_EPOCH_MS;
+    return { ok: true, ms };
+  }
+
+  // =============================================================================
+  // UI wiring
+  // =============================================================================
+
+  const elAtsInput = document.getElementById("atsInput");
+  const elGregInput = document.getElementById("gregInput");
+  const elShortDigits = document.getElementById("shortDigits");
+  const elStatus = document.getElementById("status");
+
+  const elAtsLong = document.getElementById("atsLong");
+  const elAtsShort = document.getElementById("atsShort");
+  const elAtsNd = document.getElementById("atsNd");
+  const elUtc = document.getElementById("utc");
+  const elLocal = document.getElementById("local");
+
+  let currentAtsNd = null;     // BigInt | null
+  let lockUpdate = false;
+
+  function setStatus(kind, msg) {
+    elStatus.className = "mono small " + (kind === "err" ? "err" : kind === "warn" ? "warn" : "ok");
+    elStatus.textContent = msg;
+  }
+
+  function renderFromAtsNd(atsNd, sourceHint = null) {
+    currentAtsNd = atsNd;
+
+    const fracDigits = parseInt(elShortDigits.value, 10);
+
+    const longStr = formatLongFromAtsNd(atsNd);
+    const shortStr = formatShortUiFromAtsNd(atsNd, fracDigits);
+
+    elAtsLong.textContent = longStr;
+    elAtsShort.textContent = shortStr;
+    elAtsNd.textContent = atsNd.toString();
+
+    const msRes = msFromAtsNd(atsNd);
+    if (!msRes.ok) {
+      elUtc.textContent = "—";
+      elLocal.textContent = "—";
+      setStatus("warn", "ATS parsed, but cannot convert to JS Date: " + msRes.reason);
+      return;
+    }
+
+    const dt = new Date(msRes.ms);
+    elUtc.textContent = dt.toISOString();
+    elLocal.textContent = dt.toString();
+
+    // Keep inputs in sync (without fighting the user's typing)
+    if (!lockUpdate) {
+      lockUpdate = true;
+      try {
+        // Interop rule: when we serialize back into the ATS input automatically, use LONG.
+        if (document.activeElement !== elAtsInput) elAtsInput.value = longStr;
+        if (document.activeElement !== elGregInput) elGregInput.value = dt.toISOString();
+      } finally {
+        lockUpdate = false;
+      }
+    }
+
+    if (sourceHint === "SHORT") {
+      setStatus("warn", "Parsed SHORT (UI-only). Interop serialization is LONG only; output normalized to LONG.");
+    } else {
+      setStatus("ok", "OK (LONG interop normalized).");
+    }
+  }
+
+  function handleAtsInput() {
+    if (lockUpdate) return;
+    const s = elAtsInput.value.trim();
+    if (!s) { setStatus("ok", "—"); return; }
+
+    const parsed = parseAtsAnyToNd(s);
+    if (!parsed) {
+      setStatus("err", "Invalid ATS string. Expected LONG interop or SHORT UI.");
+      return;
+    }
+    renderFromAtsNd(parsed.atsNd, parsed.source);
+  }
+
+  function handleGregInput() {
+    if (lockUpdate) return;
+    const s = elGregInput.value.trim();
+    if (!s) { setStatus("ok", "—"); return; }
+
+    const ms = Date.parse(s);
+    if (Number.isNaN(ms)) {
+      setStatus("err", "Invalid Gregorian datetime for Date.parse(). Use ISO like 2026-01-27T00:00:00Z.");
+      return;
+    }
+
+    const atsNd = atsNdFromMs(ms);
+    renderFromAtsNd(atsNd, "GREGORIAN");
+  }
+
+  function setNow() {
+    const ms = Date.now();
+    const atsNd = atsNdFromMs(ms);
+    renderFromAtsNd(atsNd, "NOW");
+  }
+
+  // Event listeners
+  elAtsInput.addEventListener("input", handleAtsInput);
+  elGregInput.addEventListener("input", handleGregInput);
+  elShortDigits.addEventListener("change", () => {
+    if (currentAtsNd !== null) renderFromAtsNd(currentAtsNd, null);
+  });
+  document.getElementById("btnNow").addEventListener("click", setNow);
+
+  // Initial
+  setNow();
+</script>
+</body>
+</html>
