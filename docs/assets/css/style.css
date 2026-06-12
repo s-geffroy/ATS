@@ -266,8 +266,11 @@ a:hover { text-decoration: underline; }
   .units-grid { grid-template-columns: 1fr; gap: 1rem; }
 }
 
-/* Halo behind each city code on the analog dial (drawn before the text). */
-.city-halo { fill: var(--bg); opacity: 0.92; }
+/* Halo behind each city code on the analog dial (drawn before the text).
+   Halo is always white and text always black, regardless of the page theme,
+   so the codes stay legible over the colored arcs in both light and dark modes. */
+.city-halo  { fill: #ffffff; opacity: 0.95; }
+.city-code  { fill: #000000; }
 
 /* Options block at the end of the details panel */
 .options {

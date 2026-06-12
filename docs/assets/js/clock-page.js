@@ -343,7 +343,7 @@
       t.setAttribute('font-family', 'ui-monospace, Menlo, Consolas, monospace');
       t.setAttribute('font-size', '10');
       t.setAttribute('font-weight', '700');
-      t.setAttribute('fill', 'currentColor');
+      t.setAttribute('class', 'city-code');
       t.textContent = city.code;
       group.appendChild(t);
     }
