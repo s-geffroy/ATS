@@ -254,11 +254,16 @@
     { code: 'BJG', tz: 'Asia/Shanghai',       label: lang === 'fr' ? 'Pékin'     : 'Beijing',       color: '#8b5cf6' }, // purple
     { code: 'TKO', tz: 'Asia/Tokyo',          label: 'Tokyo',                                       color: '#ec4899' }, // pink
   ];
-  // Pattern per slot: matin = dashed, midi = solid, soir = dotted (round caps).
+  // Pattern per slot:
+  //   matin       08-12 — dashed (hachures)
+  //   midi        12-14 — solid
+  //   après-midi  14-18 — dotted (pointillés)
+  //   soir        18-22 — dash-dot
   const SLOTS = [
-    { from:  8, to: 12, dasharray: '6 2',    linecap: 'butt'  }, // matin / morning  — hachures
-    { from: 12, to: 14, dasharray: null,     linecap: 'butt'  }, // midi  / midday   — solid
-    { from: 14, to: 18, dasharray: '0.5 3.5', linecap: 'round' }, // soir  / evening  — pointillés
+    { from:  8, to: 12, dasharray: '6 2',       linecap: 'butt'  }, // matin
+    { from: 12, to: 14, dasharray: null,        linecap: 'butt'  }, // midi
+    { from: 14, to: 18, dasharray: '0.5 3.5',   linecap: 'round' }, // après-midi
+    { from: 18, to: 22, dasharray: '5 2 0.5 2', linecap: 'round' }, // soir
   ];
 
   function getTzOffsetMin(tz, date) {

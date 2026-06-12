@@ -225,20 +225,18 @@ a:hover { text-decoration: underline; }
   opacity: 0.85;
   margin-top: 0.75rem;
 }
-/* Pattern legend (matin/midi/soir) — colors come from per-city palette;
-   patterns differentiate the three time slots within each city. */
-.city-legend .pat {
+/* Pattern legend (matin/midi/après-midi/soir) — colors come from the
+   per-city palette; patterns differentiate the four time slots within
+   each city. Each legend uses an inline SVG line that mirrors exactly
+   the stroke-dasharray used on the arcs. */
+.city-legend .pat-svg {
   display: inline-block;
   width: 28px;
-  height: 0;
-  border-top-width: 2px;
-  border-top-color: currentColor;
+  height: 6px;
   vertical-align: middle;
   margin-right: 0.35rem;
+  color: currentColor;
 }
-.city-legend .pat.matin { border-top-style: dashed; }
-.city-legend .pat.midi  { border-top-style: solid; }
-.city-legend .pat.soir  { border-top-style: dotted; border-top-width: 3px; }
 
 /* City legend below the dial — forced 4×2 grid. Each entry carries a
    colored dot (one color per city). */
