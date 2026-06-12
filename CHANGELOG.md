@@ -4,6 +4,15 @@ Toutes les modifications notables du projet ATS sont consignées ici.
 
 Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la nomenclature [SemVer](https://semver.org/lang/fr/).
 
+## [0.3.0] — 2026-06-12 (Δ 20.7.8.0/65)
+
+### Added — Analog clock face
+- **Spec** : `docs/spec/analog-clock.{en,fr}.md` — 3 aiguilles (Bloc 1×, Centi 10×, Milli 100×), rotation horaire, longueurs Bloc > Centi > Milli (ATS-natif), couleurs Bloc=fg / Centi=accent / Milli=atténué, lecture centrale `Δ K.H.D.Kin`, mouvement hybride (Bloc + Centi sautent, Milli continu).
+- **Page d'accueil** (`/fr/`, `/en/`) : ajout d'un toggle segmenté `[Numérique | Analogique]` (`role="tablist"` ARIA, ←/→ pour basculer, choix sauvegardé dans `localStorage["ats-face"]`, défaut `numeric`).
+- **SVG analogique** dans `face-analog` : cercle, 10 graduations majeures + 90 mineures générées en JS, étiquettes 0–9 au radius 76, 3 aiguilles + pivot + date interne (`Δ K.H.D.Kin`).
+- **Mode strict** : case à cocher dans `<details>` (« Mode strict — Milli saute aussi ») qui force Milli à tronquer comme les deux autres aiguilles ; choix sauvegardé dans `localStorage["ats-strict-analog"]`.
+- CSS : `.face-toggle`, `.face-panel`, `.analog-dial`, `.options` ajoutés à `style.css`.
+
 ## [0.2.2] — 2026-06-12 (Δ 20.7.8.0/65)
 
 ### Added — Mobile navigation

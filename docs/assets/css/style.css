@@ -149,12 +149,74 @@ a:hover { text-decoration: underline; }
 }
 
 /* Center the headline of the card (label + big ATS + UTC time).
-   Scoped to direct children so the converter inside <details> stays left-aligned. */
-.clock-card > .label,
-.clock-card > .big,
-.clock-card > .secondary {
+   Applies to both face panels so the analog face is centered too;
+   the converter inside <details> stays left-aligned. */
+.face-panel > .label,
+.face-panel > .big,
+.face-panel > .secondary,
+.face-panel > svg {
   text-align: center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
+
+/* Numeric/Analog segmented toggle, on top of the clock card. */
+.face-toggle {
+  display: flex;
+  width: fit-content;
+  margin: 0 auto 1.25rem auto;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in oklab, Canvas 96%, CanvasText);
+}
+.face-toggle button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.35rem 1rem;
+  font: inherit;
+  font-size: 0.92rem;
+  color: var(--fg);
+  cursor: pointer;
+  opacity: 0.6;
+}
+.face-toggle button[aria-selected="true"] {
+  background: var(--accent);
+  color: #ffffff;
+  opacity: 1;
+}
+.face-toggle button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Analog dial */
+.analog-dial {
+  width: min(100%, 320px);
+  height: auto;
+  color: var(--fg);
+  margin-top: 0.5rem;
+}
+
+/* Options block at the end of the details panel */
+.options {
+  margin-top: 1.25rem;
+}
+.options h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+}
+.options label.opt {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+.options label.opt input { width: auto; }
 
 /* Click-to-copy affordance on the headline values. */
 .clock-card > .big:hover { opacity: 0.85; }

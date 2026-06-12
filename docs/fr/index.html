@@ -56,9 +56,30 @@
     </p>
 
     <section class="clock-card">
-      <div class="label">Δ ATS (court)</div>
-      <div id="shortDisplay" role="timer" aria-live="off" aria-atomic="true" class="big mono">—</div>
-      <div class="secondary" id="utcDisplay">—</div>
+      <div role="tablist" aria-label="Type d'horloge" class="face-toggle">
+        <button type="button" role="tab" id="tab-numeric" data-face="numeric" aria-controls="face-numeric" aria-selected="true" tabindex="0">Numérique</button>
+        <button type="button" role="tab" id="tab-analog" data-face="analog" aria-controls="face-analog" aria-selected="false" tabindex="-1">Analogique</button>
+      </div>
+
+      <div id="face-numeric" class="face-panel" role="tabpanel" aria-labelledby="tab-numeric">
+        <div class="label">Δ ATS (court)</div>
+        <div id="shortDisplay" role="timer" aria-live="off" aria-atomic="true" class="big mono">—</div>
+        <div class="secondary" id="utcDisplay">—</div>
+      </div>
+
+      <div id="face-analog" class="face-panel" role="tabpanel" aria-labelledby="tab-analog" hidden>
+        <div class="label">Δ ATS (analogique)</div>
+        <svg class="analog-dial" viewBox="-110 -110 220 220" role="img" aria-label="Horloge analogique ATS — 3 aiguilles (Bloc, Centi, Milli)">
+          <circle cx="0" cy="0" r="100" fill="none" stroke="currentColor" stroke-opacity="0.3" stroke-width="2"/>
+          <g id="analog-ticks"></g>
+          <line id="hand-bloc"  x1="0" y1="0" x2="0" y2="-88" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+          <line id="hand-centi" x1="0" y1="0" x2="0" y2="-70" stroke="#4a6cff" stroke-width="3" stroke-linecap="round"/>
+          <line id="hand-milli" x1="0" y1="0" x2="0" y2="-55" stroke="currentColor" stroke-opacity="0.5" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="0" cy="0" r="5" fill="currentColor"/>
+          <text id="analog-date" role="timer" aria-live="off" aria-atomic="true" x="0" y="64" text-anchor="middle" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="14" fill="currentColor" opacity="0.85">—</text>
+        </svg>
+        <div class="secondary" id="utcDisplayAnalog">—</div>
+      </div>
 
       <details>
         <summary>Détails complets (canonique, fuseau local, conversion)</summary>
@@ -95,6 +116,14 @@
           <button id="btnAtoG" type="button">ATS → Grégorien</button>
           <button id="btnNow" type="button">Maintenant</button>
           <span id="status" class="status ok">—</span>
+        </div>
+
+        <div class="options">
+          <h3>Options</h3>
+          <label class="opt">
+            <input type="checkbox" id="strictAnalog" />
+            Mode strict — l'aiguille Milli saute aussi (cohérent avec la spec, moins fluide)
+          </label>
         </div>
       </details>
     </section>

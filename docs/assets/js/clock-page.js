@@ -67,6 +67,19 @@
   const statusEl  = document.getElementById('status');
   const detailsEl = document.querySelector('.clock-card details');
 
+  // Analog face
+  const handBloc      = document.getElementById('hand-bloc');
+  const handCenti     = document.getElementById('hand-centi');
+  const handMilli     = document.getElementById('hand-milli');
+  const analogDateEl  = document.getElementById('analog-date');
+  const utcDisplayAnalogEl = document.getElementById('utcDisplayAnalog');
+  const tabNumeric    = document.getElementById('tab-numeric');
+  const tabAnalog     = document.getElementById('tab-analog');
+  const faceNumeric   = document.getElementById('face-numeric');
+  const faceAnalog    = document.getElementById('face-analog');
+  const faceToggleEl  = document.querySelector('.face-toggle');
+  const strictCb      = document.getElementById('strictAnalog');
+
   // -------- Toast --------
   let toastEl = null;
   function ensureToast() {
@@ -132,7 +145,112 @@
     const totalDays = ats.kilo * 1000 + ats.hecto * 100 + ats.deka * 10 + ats.kin;
     uTotalEl.textContent = totalDays.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-US') +
       (lang === 'fr' ? ' j' : ' d');
+    updateAnalog(ats, dateForDisplay);
   }
+
+  // -------- Analog face --------
+  const STRICT_KEY = 'ats-strict-analog';
+  let strictMode = false;
+  try { strictMode = localStorage.getItem(STRICT_KEY) === '1'; } catch (e) {}
+  if (strictCb) {
+    strictCb.checked = strictMode;
+    strictCb.addEventListener('change', function () {
+      strictMode = strictCb.checked;
+      try { localStorage.setItem(STRICT_KEY, strictMode ? '1' : '0'); } catch (e) {}
+    });
+  }
+
+  function buildAnalogTicks() {
+    const group = document.getElementById('analog-ticks');
+    if (!group || group.childElementCount > 0) return;
+    const NS = 'http://www.w3.org/2000/svg';
+    // 100 ticks (10 major + 90 minor)
+    for (let i = 0; i < 100; i++) {
+      const isMajor = i % 10 === 0;
+      const a = (i / 100) * Math.PI * 2 - Math.PI / 2;
+      const r1 = isMajor ? 84 : 91;
+      const t = document.createElementNS(NS, 'line');
+      t.setAttribute('x1', (Math.cos(a) * r1).toFixed(2));
+      t.setAttribute('y1', (Math.sin(a) * r1).toFixed(2));
+      t.setAttribute('x2', (Math.cos(a) * 96).toFixed(2));
+      t.setAttribute('y2', (Math.sin(a) * 96).toFixed(2));
+      t.setAttribute('stroke', 'currentColor');
+      t.setAttribute('stroke-width', isMajor ? '2' : '1');
+      t.setAttribute('opacity', isMajor ? '0.75' : '0.3');
+      group.appendChild(t);
+    }
+    // Labels 0..9 at radius 76 (between Centi tip 70 and Bloc tip 88)
+    for (let n = 0; n < 10; n++) {
+      const a = (n / 10) * Math.PI * 2 - Math.PI / 2;
+      const lab = document.createElementNS(NS, 'text');
+      lab.setAttribute('x', (Math.cos(a) * 76).toFixed(2));
+      lab.setAttribute('y', (Math.sin(a) * 76 + 4).toFixed(2));
+      lab.setAttribute('text-anchor', 'middle');
+      lab.setAttribute('font-family', 'ui-monospace, Menlo, Consolas, monospace');
+      lab.setAttribute('font-size', '12');
+      lab.setAttribute('fill', 'currentColor');
+      lab.setAttribute('opacity', '0.6');
+      lab.textContent = String(n);
+      group.appendChild(lab);
+    }
+  }
+
+  function updateAnalog(ats, d) {
+    if (!handBloc) return;
+    const f = ats.frac / 100000;            // day-fraction in [0, 1)
+    const blocPos  = Math.floor(f * 10);
+    const centiPos = Math.floor(f * 100) % 10;
+    const milliRaw = (f * 1000) % 10;
+    const milliPos = strictMode ? Math.floor(milliRaw) : milliRaw;
+    handBloc.setAttribute('transform',  'rotate(' + (blocPos  * 36).toFixed(3) + ')');
+    handCenti.setAttribute('transform', 'rotate(' + (centiPos * 36).toFixed(3) + ')');
+    handMilli.setAttribute('transform', 'rotate(' + (milliPos * 36).toFixed(3) + ')');
+    if (analogDateEl) {
+      analogDateEl.textContent = 'Δ ' + ats.kilo + '.' + ats.hecto + '.' + ats.deka + '.' + ats.kin;
+    }
+    if (utcDisplayAnalogEl) utcDisplayAnalogEl.textContent = fmtUTC(d);
+  }
+
+  // -------- Face toggle (numeric ↔ analog) --------
+  const FACE_KEY = 'ats-face';
+  let currentFace = 'numeric';
+  try {
+    const saved = localStorage.getItem(FACE_KEY);
+    if (saved === 'analog' || saved === 'numeric') currentFace = saved;
+  } catch (e) {}
+
+  function selectFace(face) {
+    if (face !== 'numeric' && face !== 'analog') face = 'numeric';
+    currentFace = face;
+    try { localStorage.setItem(FACE_KEY, face); } catch (e) {}
+    if (faceNumeric) faceNumeric.hidden = face !== 'numeric';
+    if (faceAnalog)  faceAnalog.hidden  = face !== 'analog';
+    if (tabNumeric) {
+      tabNumeric.setAttribute('aria-selected', face === 'numeric' ? 'true' : 'false');
+      tabNumeric.setAttribute('tabindex', face === 'numeric' ? '0' : '-1');
+    }
+    if (tabAnalog) {
+      tabAnalog.setAttribute('aria-selected', face === 'analog' ? 'true' : 'false');
+      tabAnalog.setAttribute('tabindex', face === 'analog' ? '0' : '-1');
+    }
+  }
+
+  if (tabNumeric) tabNumeric.addEventListener('click', function () { selectFace('numeric'); });
+  if (tabAnalog)  tabAnalog.addEventListener('click', function () { selectFace('analog'); });
+
+  if (faceToggleEl) {
+    faceToggleEl.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        const next = currentFace === 'numeric' ? 'analog' : 'numeric';
+        selectFace(next);
+        (next === 'numeric' ? tabNumeric : tabAnalog).focus();
+      }
+    });
+  }
+
+  buildAnalogTicks();
+  selectFace(currentFace);
 
   // -------- Frozen / live mode --------
   let frozenAtMs = null; // null = live
