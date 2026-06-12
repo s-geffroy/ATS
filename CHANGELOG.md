@@ -4,6 +4,33 @@ Toutes les modifications notables du projet ATS sont consignées ici.
 
 Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la nomenclature [SemVer](https://semver.org/lang/fr/).
 
+## [0.2.1] — 2026-06-12 (Δ 20.7.8.0/65)
+
+### Fixed
+- **Spec §12.3** (EN + FR) : la comparaison `memcmp` n'est PAS chronologique pour des comparaisons mixtes T+/T- (deux's complement). Reformulé avec la condition (T+ seul OU T- seul) + suggestion d'une variante biaisée (`days + 2^39`) pour usage futur.
+- **`docs/assets/js/ats-clock.js`** : garde-fou `Number.isFinite(raw)` sur `parseInt(updates-per-second)` ; évite la busy-loop `setInterval(fn, NaN)` quand l'attribut est non numérique.
+- **`docs/en/embed.html`** : 3ᵉ exemple `<ats-clock format="both" lang="fr">` corrigé en `lang="en"`.
+- **`docs/fr/cadrans.html`** : phrasing "entre les deux aiguilles" (vestige design 2-aiguilles) reformulé en "entre 12 h et l'aiguille".
+
+### Changed
+- **`package.json`** : `version` bumpé à `0.2.0` (était `0.1.2`).
+- **`pyproject.toml`** : ajout de la section `[project]` (name, version, description, license, urls) → publishable PyPI.
+- **`tests/__init__.py`** : ajouté pour rendre `tests/` un package importable propre.
+- **`.gitignore`** : ajout `node_modules/`, `dist/`, `build/`, `*.tgz`, `*.tar.gz`.
+- **CI** : cache `pip` et `npm` activés via `actions/setup-{python,node}`.
+- **`docs/{fr,en}/age.html`** : UID `.ics` utilise désormais `window.location.hostname` (multi-domaine, fork-friendly).
+- **`README.md`** : refonte complète (v0.2.0 — test-vectors, Web Component, embed, conformance, badge en hero).
+
+### Added — SEO & social
+- **`docs/sitemap.xml`** : 21 URLs avec alternances `hreflang`.
+- **`docs/robots.txt`** : autorise tout + pointe sitemap.
+- **Sur les 21 pages HTML** : `<meta name="description">`, `<link rel="canonical">`, `<link rel="alternate" hreflang>` (en/fr/x-default), Open Graph (`og:type/locale/title/description/url/image`), Twitter Card (`summary_large_image`).
+- **`docs/assets/og-card.svg`** : carte 1200×630 de partage social (Δ, titre, époque, URL).
+
+### Added — Accessibilité
+- Accent `#6c8cff` → `#4a6cff` (ratio WCAG AA ≥ 4.5:1 sur Canvas blanc).
+- `role="timer" aria-live="off" aria-atomic="true"` sur les afficheurs d'horloge live (FR/EN index + cadrans/dials) — empêche un lecteur d'écran de lire l'heure 10 fois par seconde.
+
 ## [0.2.0] — 2026-06-12 (Δ 20.7.8.0/65)
 
 ### Fixed
