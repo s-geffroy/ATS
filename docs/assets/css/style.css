@@ -148,14 +148,11 @@ a:hover { text-decoration: underline; }
   background: color-mix(in oklab, Canvas 97%, CanvasText);
 }
 
-/* Center the headline of the card (label + big ATS + UTC time).
-   Applies to both face panels so the analog face is centered too;
-   the converter inside <details> stays left-aligned. */
-.face-panel > .label,
-.face-panel > .big,
-.face-panel > .secondary,
+/* Center EVERYTHING inside the active face panel (analog dial card,
+   readouts, legends, city list). The converter and units-grid live in
+   <details>, outside .face-panel, so they keep their own alignment. */
+.face-panel { text-align: center; }
 .face-panel > svg {
-  text-align: center;
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -248,7 +245,7 @@ a:hover { text-decoration: underline; }
   opacity: 0.85;
   margin-top: 0.5rem;
   font-family: ui-monospace, monospace;
-  text-align: left;
+  text-align: center;
 }
 .city-list .row { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .city-list .swatch {
