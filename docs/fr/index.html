@@ -6,7 +6,7 @@
   <title>Δ ATS — Horloge</title>
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
-<body>
+<body data-lang="fr">
   <header class="site container">
     <a class="brand" href="./">Δ ATS</a>
     <nav>
@@ -14,8 +14,12 @@
       <a href="./manifeste.html">Manifeste</a>
       <a href="./philosophie.html">Philosophie</a>
       <a href="./comparaison.html">Comparaison</a>
+      <a href="./cadrans.html">Cadrans</a>
+      <a href="./timeline.html">Frise</a>
+      <a href="./faq.html">FAQ</a>
       <a href="./age.html">Mon âge</a>
       <a href="./code.html">Code</a>
+      <a href="./embed.html">Intégrer</a>
     </nav>
     <span class="lang-switch">
       <a class="active" href="./">FR</a> ·
@@ -80,78 +84,6 @@
   </footer>
 
   <script src="../assets/js/ats.js"></script>
-  <script>
-    (function () {
-      const shortEl = document.getElementById('shortDisplay');
-      const utcEl   = document.getElementById('utcDisplay');
-      const canonEl = document.getElementById('canonDisplay');
-      const utcFull = document.getElementById('utcFull');
-      const localEl = document.getElementById('localDisplay');
-      const uKiloEl  = document.getElementById('uKilo');
-      const uHectoEl = document.getElementById('uHecto');
-      const uDekaEl  = document.getElementById('uDeka');
-      const uKinEl   = document.getElementById('uKin');
-      const uTotalEl = document.getElementById('uTotal');
-
-      function fmtLocalUTC(d) {
-        return d.getUTCFullYear() + '-' +
-          String(d.getUTCMonth() + 1).padStart(2, '0') + '-' +
-          String(d.getUTCDate()).padStart(2, '0') + ' ' +
-          String(d.getUTCHours()).padStart(2, '0') + ':' +
-          String(d.getUTCMinutes()).padStart(2, '0') + ':' +
-          String(d.getUTCSeconds()).padStart(2, '0') + 'Z';
-      }
-
-      function tick() {
-        const now = new Date();
-        const ats = ATS.atsFromMs(now.getTime());
-        shortEl.textContent  = ATS.toShort(ats);
-        utcEl.textContent    = fmtLocalUTC(now);
-        canonEl.textContent  = ATS.toCanonical(ats);
-        utcFull.textContent  = now.toISOString();
-        localEl.textContent  = now.toString();
-        uKiloEl.textContent  = ats.kilo;
-        uHectoEl.textContent = ats.hecto;
-        uDekaEl.textContent  = ats.deka;
-        uKinEl.textContent   = ats.kin;
-        const totalDays = ats.kilo * 1000 + ats.hecto * 100 + ats.deka * 10 + ats.kin;
-        uTotalEl.textContent = totalDays.toLocaleString('fr-FR') + ' j';
-      }
-      tick();
-      setInterval(tick, 100);
-
-      // Converter
-      const gregInput = document.getElementById('gregInput');
-      const atsInput  = document.getElementById('atsInput');
-      const status    = document.getElementById('status');
-
-      function setStatus(msg, ok) {
-        status.textContent = msg;
-        status.className = 'status ' + (ok ? 'ok' : 'err');
-      }
-
-      document.getElementById('btnGtoA').addEventListener('click', function () {
-        const v = gregInput.value.trim();
-        const ms = Date.parse(v);
-        if (isNaN(ms)) { setStatus('Date grégorienne invalide.', false); return; }
-        const ats = ATS.atsFromMs(ms);
-        atsInput.value = ATS.toCanonical(ats);
-        setStatus('OK : converti vers ATS.', true);
-      });
-      document.getElementById('btnAtoG').addEventListener('click', function () {
-        const v = atsInput.value.trim();
-        const ms = ATS.canonicalToMs(v);
-        if (ms === null) { setStatus('ATS canonique invalide.', false); return; }
-        gregInput.value = new Date(ms).toISOString();
-        setStatus('OK : converti vers Grégorien (UTC).', true);
-      });
-      document.getElementById('btnNow').addEventListener('click', function () {
-        const now = new Date();
-        gregInput.value = now.toISOString();
-        atsInput.value  = ATS.toCanonical(ATS.atsFromMs(now.getTime()));
-        setStatus('Maintenant chargé.', true);
-      });
-    })();
-  </script>
+  <script src="../assets/js/clock-page.js" defer></script>
 </body>
 </html>

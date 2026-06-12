@@ -4,6 +4,46 @@ Toutes les modifications notables du projet ATS sont consignées ici.
 
 Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la nomenclature [SemVer](https://semver.org/lang/fr/).
 
+## [0.2.0] — 2026-06-12 (Δ 20.7.8.0/65)
+
+### Fixed
+- `docs/fr/age.html` : `Date.parse(v || (v.length === 10 ? v + 'T00:00:00Z' : v))` était une logique morte (`||` court-circuitait dès que `v` non-vide). Réécrit en ternaire propre.
+- `docs/fr/age.html` : variable `ats` inutilisée avec commentaire d'aveu "nope" → supprimée.
+- `docs/{fr,en}/age.html` : entrées au format `YYYY-MM-DD` désormais normalisées à `T00:00:00Z` (FR et EN cohérents).
+- `code/ats.py` : docstring du module aligné sur la spec v1.1 (forme courte `K.H.D.Kin/cc`, perte de fraction expliquée).
+
+### Added — Conformance & CI
+- `docs/spec/test-vectors.json` : 10 instants de référence (époque, Hiroshima, Mur de Berlin, Y2K, Y1 CE, etc.) avec sortie canonique + courte attendue.
+- `tests/test_vectors.py` (unittest) et `tests/test_vectors.mjs` (Node) — exécutent le contrat sur les deux implémentations.
+- `.github/workflows/ci.yml` — matrice Python 3.9/3.11/3.13 + Node 20/22, lint `ruff`, vérification d'arborescence Pages.
+- `pyproject.toml` — configuration `ruff`.
+
+### Added — JavaScript & npm
+- `docs/assets/js/ats-clock.js` — Web Component `<ats-clock>` (Shadow DOM, attributs `format`/`lang`/`updates-per-second`).
+- `package.json` — descripteur npm (`@s-geffroy/ats`, ESM, exports `.` et `./web-component`) prêt pour publication.
+- `docs/{fr,en}/embed.html` — page "Intégrer" avec one-liner d'embed, exemples, badge.
+
+### Added — UI sur la page horloge
+- Permalien : `?t=<canonique>` ou `?utc=<ISO>` fige l'horloge sur cet instant + URL nettoyée au retour au mode live.
+- Clic sur la valeur Δ courte ou canonique → copie dans le presse-papier + toast.
+- Raccourcis clavier : `C` court, `Maj+C` canonique, `D` détails, `N` now, `L` langue.
+- Logique extraite dans `docs/assets/js/clock-page.js` (partagée FR/EN, i18n par `data-lang`).
+
+### Added — Export & badge
+- `docs/{fr,en}/age.html` : bouton "Exporter prochains Kilo-versaires (.ics)" générant les 5 prochains Kilo + 10 prochaines Hecto.
+- `docs/assets/badge.svg` — badge "I run on Δ ATS" prêt à embed (README, shields.io style).
+
+### Added — Spec
+- Manifeste §11 (EN + FR) — **Durées (Δd)** : notation `Δd K.H.D.Kin.fffff` pour les deltas, distincte de l'instant.
+- Manifeste §12 (EN + FR) — **Encodage binaire** : layout 64-bit (int40 signé jours + uint24 fraction), round-trip sans perte par rapport au canonique 5 chiffres, ordre lexicographique = chronologique.
+- Annexes renumérotées (Annexes §14, Versionnement §15), test-vectors mentionnés.
+
+### Added — Pédagogie
+- `docs/spec/faq.{en,fr}.md` — FAQ ~15 Q/R (époque, base, fuseaux, leap, truncation, lecture orale…).
+- `docs/{fr,en}/faq.html` — rendu Markdown.
+- `docs/fr/timeline.html` / `docs/en/timeline.html` — frise historique avec 9 jalons en Δ (Wright, Hiroshima, Spoutnik, époque, Mur de Berlin, WWW, iPhone, COVID-19, ChatGPT).
+- `docs/fr/cadrans.html` / `docs/en/dials.html` — comparatif visuel SVG : cadran 24h vs cadran 10 Blocs, animés en temps réel.
+
 ## [0.1.2] — 2026-06-12 (Δ 20.7.8.0/63)
 
 ### Changed

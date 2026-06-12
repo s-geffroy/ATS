@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    name: Python (${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.9', '3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Lint with ruff
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff
+          ruff check code tests
+      - name: Run module demo
+        run: python code/ats.py
+      - name: Conformance tests (test-vectors.json)
+        run: python -m unittest tests.test_vectors -v
+
+  javascript:
+    name: JavaScript (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['20', '22']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Syntax check JS modules
+        run: |
+          node --check docs/assets/js/ats.js
+          for f in docs/assets/js/*.js; do node --check "$f"; done
+      - name: Conformance tests (test-vectors.json)
+        run: node tests/test_vectors.mjs
+
+  pages-preview:
+    name: Pages structure check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Required files exist
+        run: |
+          test -f docs/index.html
+          test -f docs/fr/index.html
+          test -f docs/en/index.html
+          test -f docs/spec/manifesto.en.md
+          test -f docs/spec/manifesto.fr.md
+          test -f docs/spec/test-vectors.json
+          test -f docs/assets/css/style.css
+          test -f docs/assets/js/ats.js
+          echo "Pages tree looks healthy."

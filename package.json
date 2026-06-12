@@ -1,0 +1,42 @@
+{
+  "name": "@s-geffroy/ats",
+  "version": "0.1.2",
+  "description": "Apollonian Time System — decimal/linear time standard anchored to Apollo 11 lunar touchdown (1969-07-20T20:17:40Z).",
+  "license": "MIT",
+  "author": "Sylvain Geffroy",
+  "homepage": "https://s-geffroy.github.io/ATS/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s-geffroy/ATS.git"
+  },
+  "bugs": {
+    "url": "https://github.com/s-geffroy/ATS/issues"
+  },
+  "type": "module",
+  "main": "./docs/assets/js/ats.js",
+  "exports": {
+    ".": "./docs/assets/js/ats.js",
+    "./web-component": "./docs/assets/js/ats-clock.js"
+  },
+  "files": [
+    "docs/assets/js/ats.js",
+    "docs/assets/js/ats-clock.js",
+    "docs/spec/manifesto.en.md",
+    "docs/spec/manifesto.fr.md",
+    "docs/spec/test-vectors.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "time",
+    "calendar",
+    "ats",
+    "apollonian",
+    "decimal",
+    "web-component",
+    "clock"
+  ],
+  "scripts": {
+    "test": "node tests/test_vectors.mjs"
+  }
+}

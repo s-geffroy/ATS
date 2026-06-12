@@ -116,6 +116,31 @@ a:hover { text-decoration: underline; }
   text-align: center;
 }
 
+/* Click-to-copy affordance on the headline values. */
+.clock-card > .big:hover { opacity: 0.85; }
+
+/* Toast — temporary feedback after a copy or shortcut action. */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translate(-50%, 0.5rem);
+  background: color-mix(in oklab, CanvasText 80%, transparent);
+  color: Canvas;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.9rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 1000;
+}
+.toast.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
 .clock-card .label {
   text-transform: uppercase;
   font-size: 0.72rem;

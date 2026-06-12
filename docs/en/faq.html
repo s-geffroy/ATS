@@ -1,32 +1,32 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Δ ATS — Philosophie</title>
+  <title>Δ ATS — FAQ</title>
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
 <body>
   <header class="site container">
     <a class="brand" href="./">Δ ATS</a>
     <nav>
-      <a href="./">Horloge</a>
-      <a href="./manifeste.html">Manifeste</a>
-      <a class="active" href="./philosophie.html">Philosophie</a>
-      <a href="./comparaison.html">Comparaison</a>
-      <a href="./age.html">Mon âge</a>
-      <a href="./code.html">Code</a>
-      <a href="./embed.html">Intégrer</a>
+      <a href="./">Clock</a>
+      <a href="./manifesto.html">Manifesto</a>
+      <a href="./philosophy.html">Philosophy</a>
+      <a href="./comparison.html">Comparison</a>
+      <a class="active" href="./faq.html">FAQ</a>
+      <a href="./age.html">My Age</a>
+      <a href="./embed.html">Embed</a>
     </nav>
     <span class="lang-switch">
-      <a class="active" href="./philosophie.html">FR</a> ·
-      <a href="../en/philosophy.html">EN</a>
+      <a href="../fr/faq.html">FR</a> ·
+      <a class="active" href="./faq.html">EN</a>
     </span>
   </header>
 
   <main class="container">
-    <article id="content" class="markdown">Chargement…</article>
-    <p class="muted">Source : <a href="../spec/philosophy.fr.md">philosophy.fr.md</a></p>
+    <article id="content" class="markdown">Loading…</article>
+    <p class="muted">Source: <a href="../spec/faq.en.md">faq.en.md</a></p>
   </main>
 
   <footer class="site">
@@ -35,10 +35,10 @@
 
   <script src="https://cdn.jsdelivr.net/npm/marked@13/marked.min.js"></script>
   <script>
-    fetch('../spec/philosophy.fr.md')
+    fetch('../spec/faq.en.md')
       .then(function (r) { return r.text(); })
       .then(function (md) { document.getElementById('content').innerHTML = marked.parse(md); })
-      .catch(function () { document.getElementById('content').textContent = 'Erreur de chargement.'; });
+      .catch(function () { document.getElementById('content').textContent = 'Failed to load.'; });
   </script>
 </body>
 </html>

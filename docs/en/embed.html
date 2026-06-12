@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Δ ATS — Embed the clock</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="site container">
+    <a class="brand" href="./">Δ ATS</a>
+    <nav>
+      <a href="./">Clock</a>
+      <a href="./manifesto.html">Manifesto</a>
+      <a href="./philosophy.html">Philosophy</a>
+      <a href="./comparison.html">Comparison</a>
+      <a href="./age.html">My Age</a>
+      <a href="./code.html">Code</a>
+      <a class="active" href="./embed.html">Embed</a>
+    </nav>
+    <span class="lang-switch">
+      <a href="../fr/embed.html">FR</a> ·
+      <a class="active" href="./embed.html">EN</a>
+    </span>
+  </header>
+
+  <main class="container">
+    <h1>Embed ATS in your site</h1>
+    <p>
+      Drop the Δ ATS clock anywhere with a single <code>&lt;script&gt;</code> and one element.
+    </p>
+
+    <h2>One-liner</h2>
+    <pre><code>&lt;script src="https://s-geffroy.github.io/ATS/assets/js/ats-clock.js" defer&gt;&lt;/script&gt;
+&lt;ats-clock&gt;&lt;/ats-clock&gt;</code></pre>
+
+    <p>Live example (this very page):</p>
+    <div class="clock-card" style="text-align:center;">
+      <ats-clock format="short" lang="en"></ats-clock>
+    </div>
+
+    <h2>Attributes</h2>
+    <table class="markdown">
+      <thead><tr><th>Attribute</th><th>Values</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td><code>format</code></td><td><code>short</code>, <code>canonical</code>, <code>both</code></td><td><code>short</code></td></tr>
+        <tr><td><code>lang</code></td><td><code>en</code>, <code>fr</code></td><td><code>en</code></td></tr>
+        <tr><td><code>updates-per-second</code></td><td>1–20</td><td>10</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Variants</h2>
+    <div class="clock-card" style="text-align:center;">
+      <ats-clock format="canonical" lang="en"></ats-clock>
+    </div>
+    <div class="clock-card" style="text-align:center;">
+      <ats-clock format="both" lang="fr"></ats-clock>
+    </div>
+
+    <h2>I run on Δ ATS</h2>
+    <p>
+      Show that your project measures time in ATS:
+    </p>
+    <p>
+      <img src="../assets/badge.svg" alt="I run on Δ ATS" width="160" height="28" />
+    </p>
+    <pre><code>[![I run on Δ ATS](https://s-geffroy.github.io/ATS/assets/badge.svg)](https://s-geffroy.github.io/ATS/)</code></pre>
+
+    <h2>npm (preview)</h2>
+    <p>
+      The reference JavaScript routines are exported as a package (not yet published):
+    </p>
+    <pre><code>// import { atsFromMs, toCanonical, toShort } from '@s-geffroy/ats';
+// import '@s-geffroy/ats/web-component'; // registers &lt;ats-clock&gt;</code></pre>
+  </main>
+
+  <footer class="site">
+    Δ ATS v1.1 RC · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
+  </footer>
+
+  <script src="../assets/js/ats-clock.js" defer></script>
+</body>
+</html>

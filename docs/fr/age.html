@@ -16,6 +16,7 @@
       <a href="./comparaison.html">Comparaison</a>
       <a class="active" href="./age.html">Mon âge</a>
       <a href="./code.html">Code</a>
+      <a href="./embed.html">Intégrer</a>
     </nav>
     <span class="lang-switch">
       <a class="active" href="./age.html">FR</a> ·
@@ -51,6 +52,7 @@
 
       <div class="actions">
         <button id="calc" type="button">Calculer</button>
+        <button id="exportIcs" type="button">Exporter prochains Kilo-versaires (.ics)</button>
         <span id="status" class="status ok">—</span>
       </div>
     </section>
@@ -92,7 +94,9 @@
 
       function compute() {
         const v = birth.value.trim();
-        const ms = Date.parse(v || (v.length === 10 ? v + 'T00:00:00Z' : v));
+        // Accept "YYYY-MM-DD" (treated as midnight UTC) and full ISO 8601.
+        const normalized = v.length === 10 ? v + 'T00:00:00Z' : v;
+        const ms = Date.parse(normalized);
         if (isNaN(ms)) {
           setStatus('Date de naissance invalide.', false);
           return;
@@ -103,8 +107,7 @@
           return;
         }
         const elapsedMs = now - ms;
-        const ats = ATS.atsFromMs(ms + elapsedMs); // gives ATS relative to birth: nope.
-        // Compute age-as-ATS-relative-to-birth:
+        // Compute age as ATS positions relative to birth (not to the epoch).
         const elapsedDaysFloat = elapsedMs / MS_DAY;
         const integerDays = Math.floor(elapsedDaysFloat);
         const fracDays = elapsedDaysFloat - integerDays;
@@ -136,6 +139,67 @@
 
       document.getElementById('calc').addEventListener('click', compute);
       birth.addEventListener('change', compute);
+
+      // ---- ICS export (next 5 Kilo + 10 Hecto milestones) ----
+      function ics2(n) { return String(n).padStart(2, '0'); }
+      function icsDate(d) {
+        return d.getUTCFullYear() + ics2(d.getUTCMonth() + 1) + ics2(d.getUTCDate());
+      }
+      function icsDateTime(d) {
+        return icsDate(d) + 'T' + ics2(d.getUTCHours()) + ics2(d.getUTCMinutes()) + ics2(d.getUTCSeconds()) + 'Z';
+      }
+      function buildIcs(birthMs) {
+        const now = new Date();
+        const stamp = icsDateTime(now);
+        const lines = [
+          'BEGIN:VCALENDAR',
+          'VERSION:2.0',
+          'PRODID:-//ATS//Apollonian Time System//FR',
+          'CALSCALE:GREGORIAN',
+          'METHOD:PUBLISH',
+        ];
+        function addEvent(milestoneDays, kind) {
+          const dateMs = birthMs + milestoneDays * MS_DAY;
+          const d = new Date(dateMs);
+          const next = new Date(dateMs + MS_DAY);
+          const labelFr = kind === 'kilo'
+            ? `Kilo-versaire (${milestoneDays.toLocaleString('fr-FR')} jours)`
+            : `Hecto-fête (${milestoneDays.toLocaleString('fr-FR')} jours)`;
+          lines.push('BEGIN:VEVENT');
+          lines.push(`UID:ats-${kind}-${milestoneDays}-${birthMs}@s-geffroy.github.io`);
+          lines.push(`DTSTAMP:${stamp}`);
+          lines.push(`DTSTART;VALUE=DATE:${icsDate(d)}`);
+          lines.push(`DTEND;VALUE=DATE:${icsDate(next)}`);
+          lines.push(`SUMMARY:Δ ATS — ${labelFr}`);
+          lines.push(`DESCRIPTION:${milestoneDays} jours depuis la naissance. Marqueur ATS.`);
+          lines.push('END:VEVENT');
+        }
+
+        const elapsed = Math.floor((Date.now() - birthMs) / MS_DAY);
+        const completedKilo = Math.floor(elapsed / 1000);
+        const completedHecto = Math.floor(elapsed / 100);
+        for (let i = 1; i <= 5; i++) addEvent((completedKilo + i) * 1000, 'kilo');
+        for (let i = 1; i <= 10; i++) addEvent((completedHecto + i) * 100, 'hecto');
+
+        lines.push('END:VCALENDAR');
+        return lines.join('\r\n');
+      }
+
+      document.getElementById('exportIcs').addEventListener('click', function () {
+        const v = birth.value.trim();
+        const normalized = v.length === 10 ? v + 'T00:00:00Z' : v;
+        const ms = Date.parse(normalized);
+        if (isNaN(ms)) { setStatus('Saisissez d\'abord une date de naissance valide.', false); return; }
+        const ics = buildIcs(ms);
+        const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ats-milestones.ics';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setStatus('Fichier .ics téléchargé (5 Kilo + 10 Hecto).', true);
+      });
     })();
   </script>
 </body>

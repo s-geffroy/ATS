@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Δ ATS — 24h vs 10 Blocs</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <style>
+    .dials {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      margin-top: 1.5rem;
+    }
+    @media (min-width: 720px) {
+      .dials { grid-template-columns: 1fr 1fr; }
+    }
+    .dial-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1rem;
+      background: color-mix(in oklab, Canvas 97%, CanvasText);
+      text-align: center;
+    }
+    .dial-card svg { width: min(100%, 320px); height: auto; }
+    .dial-card .title {
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-bottom: 0.5rem;
+    }
+    .dial-card .live-value {
+      font-family: ui-monospace, monospace;
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body data-lang="fr">
+  <header class="site container">
+    <a class="brand" href="./">Δ ATS</a>
+    <nav>
+      <a href="./">Horloge</a>
+      <a href="./manifeste.html">Manifeste</a>
+      <a href="./philosophie.html">Philosophie</a>
+      <a class="active" href="./cadrans.html">Cadrans</a>
+      <a href="./faq.html">FAQ</a>
+      <a href="./age.html">Mon âge</a>
+      <a href="./embed.html">Intégrer</a>
+    </nav>
+    <span class="lang-switch">
+      <a class="active" href="./cadrans.html">FR</a> ·
+      <a href="../en/dials.html">EN</a>
+    </span>
+  </header>
+
+  <main class="container">
+    <h1>24 heures vs 10 Blocs</h1>
+    <p class="muted">
+      Deux découpages d'une même journée — celui hérité de Babylone, et celui de l'ATS.
+      Tout ce qui est entre les deux aiguilles est <strong>déjà passé</strong>.
+    </p>
+
+    <section class="dials">
+      <div class="dial-card">
+        <div class="title">Grégorien — 24 heures</div>
+        <svg viewBox="-110 -110 220 220" aria-label="Cadran 24 heures">
+          <circle cx="0" cy="0" r="100" fill="none" stroke="currentColor" stroke-opacity="0.25" stroke-width="2"/>
+          <g id="dialHours-24"></g>
+          <path id="arc24" fill="currentColor" fill-opacity="0.18"/>
+          <line id="hand24" x1="0" y1="0" x2="0" y2="-92" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="0" cy="0" r="4" fill="currentColor"/>
+        </svg>
+        <div class="live-value" id="g24">—</div>
+      </div>
+
+      <div class="dial-card">
+        <div class="title">ATS — 10 Blocs</div>
+        <svg viewBox="-110 -110 220 220" aria-label="Cadran 10 Blocs">
+          <circle cx="0" cy="0" r="100" fill="none" stroke="#6c8cff" stroke-opacity="0.4" stroke-width="2"/>
+          <g id="dialBlocs"></g>
+          <path id="arcAts" fill="#6c8cff" fill-opacity="0.22"/>
+          <line id="handAts" x1="0" y1="0" x2="0" y2="-92" stroke="#6c8cff" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="0" cy="0" r="4" fill="#6c8cff"/>
+        </svg>
+        <div class="live-value" id="gAts">—</div>
+      </div>
+    </section>
+
+    <p class="muted" style="margin-top:1.5rem;">
+      Un Bloc dure ≈ 2 h 24 min. Le cadran de droite tourne donc plus vite à l'œil que celui de gauche
+      (10 tours d'unité par jour vs 24).
+    </p>
+  </main>
+
+  <footer class="site">
+    Δ ATS v1.1 RC · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
+  </footer>
+
+  <script src="../assets/js/ats.js"></script>
+  <script>
+    (function () {
+      const SVGNS = 'http://www.w3.org/2000/svg';
+      const dialHours = document.getElementById('dialHours-24');
+      const dialBlocs = document.getElementById('dialBlocs');
+
+      // Tick marks
+      for (let h = 0; h < 24; h++) {
+        const a = (h / 24) * Math.PI * 2 - Math.PI / 2;
+        const r1 = h % 6 === 0 ? 80 : 88;
+        const r2 = 96;
+        const t = document.createElementNS(SVGNS, 'line');
+        t.setAttribute('x1', (Math.cos(a) * r1).toFixed(2));
+        t.setAttribute('y1', (Math.sin(a) * r1).toFixed(2));
+        t.setAttribute('x2', (Math.cos(a) * r2).toFixed(2));
+        t.setAttribute('y2', (Math.sin(a) * r2).toFixed(2));
+        t.setAttribute('stroke', 'currentColor');
+        t.setAttribute('stroke-opacity', h % 6 === 0 ? '0.7' : '0.35');
+        t.setAttribute('stroke-width', '2');
+        dialHours.appendChild(t);
+        if (h % 6 === 0) {
+          const lab = document.createElementNS(SVGNS, 'text');
+          lab.setAttribute('x', (Math.cos(a) * 68).toFixed(2));
+          lab.setAttribute('y', (Math.sin(a) * 68 + 4).toFixed(2));
+          lab.setAttribute('text-anchor', 'middle');
+          lab.setAttribute('font-family', 'ui-sans-serif, sans-serif');
+          lab.setAttribute('font-size', '11');
+          lab.setAttribute('fill', 'currentColor');
+          lab.setAttribute('fill-opacity', '0.7');
+          lab.textContent = h === 0 ? '00' : String(h);
+          dialHours.appendChild(lab);
+        }
+      }
+      for (let b = 0; b < 10; b++) {
+        const a = (b / 10) * Math.PI * 2 - Math.PI / 2;
+        const t = document.createElementNS(SVGNS, 'line');
+        t.setAttribute('x1', (Math.cos(a) * 84).toFixed(2));
+        t.setAttribute('y1', (Math.sin(a) * 84).toFixed(2));
+        t.setAttribute('x2', (Math.cos(a) * 96).toFixed(2));
+        t.setAttribute('y2', (Math.sin(a) * 96).toFixed(2));
+        t.setAttribute('stroke', '#6c8cff');
+        t.setAttribute('stroke-width', '2');
+        dialBlocs.appendChild(t);
+        const lab = document.createElementNS(SVGNS, 'text');
+        lab.setAttribute('x', (Math.cos(a) * 68).toFixed(2));
+        lab.setAttribute('y', (Math.sin(a) * 68 + 4).toFixed(2));
+        lab.setAttribute('text-anchor', 'middle');
+        lab.setAttribute('font-family', 'ui-monospace, monospace');
+        lab.setAttribute('font-size', '12');
+        lab.setAttribute('fill', '#6c8cff');
+        lab.textContent = String(b);
+        dialBlocs.appendChild(lab);
+      }
+
+      function describeArc(angle) {
+        // Sweeps from -90° (top) clockwise to `angle` radians.
+        const r = 100;
+        const a = angle - Math.PI / 2;
+        const x = r * Math.cos(a);
+        const y = r * Math.sin(a);
+        const large = angle > Math.PI ? 1 : 0;
+        return `M 0 0 L 0 -${r} A ${r} ${r} 0 ${large} 1 ${x.toFixed(2)} ${y.toFixed(2)} Z`;
+      }
+
+      function tick() {
+        const now = new Date();
+        const utcMs = now.getTime();
+        const utc = new Date(utcMs);
+        const dayMs = (utc.getUTCHours() * 3600 + utc.getUTCMinutes() * 60 + utc.getUTCSeconds()) * 1000 + utc.getUTCMilliseconds();
+        const frac24 = dayMs / 86400000;
+
+        const angle24 = frac24 * Math.PI * 2;
+        document.getElementById('arc24').setAttribute('d', describeArc(angle24));
+        document.getElementById('hand24').setAttribute('transform', `rotate(${frac24 * 360})`);
+        document.getElementById('g24').textContent =
+          String(utc.getUTCHours()).padStart(2,'0') + ':' +
+          String(utc.getUTCMinutes()).padStart(2,'0') + ':' +
+          String(utc.getUTCSeconds()).padStart(2,'0') + ' UTC';
+
+        const ats = ATS.atsFromMs(utcMs);
+        const fracAts = ats.frac / 100000;
+        const angleAts = fracAts * Math.PI * 2;
+        document.getElementById('arcAts').setAttribute('d', describeArc(angleAts));
+        document.getElementById('handAts').setAttribute('transform', `rotate(${fracAts * 360})`);
+        document.getElementById('gAts').textContent = ATS.toShort(ats);
+      }
+      tick();
+      setInterval(tick, 100);
+    })();
+  </script>
+</body>
+</html>

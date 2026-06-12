@@ -195,7 +195,76 @@ Implementations decoding a short form into a precise Gregorian instant SHOULD la
 
 ---
 
-## 11. Non-goals
+## 11. Durations (Δd)
+
+ATS up to §10 describes **instants**. A separate notation is defined for **durations** (deltas between instants).
+
+### 11.1 Syntax
+
+```
+Δd K.H.D.Kin.fffff
+```
+
+- Always positive — durations are unsigned.
+- Same positional structure as an instant (Kilo unbounded; Hecto / Deka / Kin digits 0..9; fffff fractional digits).
+- Prefix `Δd` ("delta-duration") distinguishes a duration from an instant. `Δ` alone always denotes an instant.
+- Subtracting two ATS instants of the same sign yields a duration: `Δd = |Δ(a) − Δ(b)|`.
+
+### 11.2 Examples
+
+- One Hecto: `Δd 0.1.0.0.00000` (100 days).
+- One year of Gregorian usage (~365 days): `Δd 0.3.6.5.00000`.
+- "I have lived for 7 Kilos and 893 days" → `Δd 7.8.9.3.00000`.
+
+### 11.3 Constraints
+
+Durations are always written in canonical form; **no short form** is defined. Their precision matches the instants from which they are derived.
+
+---
+
+## 12. Binary encoding
+
+For storage, IoT and binary interchange, ATS defines a **fixed 64-bit** layout (big-endian, two's complement on the day count).
+
+```
+┌──────┬────────────────────────────────────────────────┬──────────────────────────────┐
+│ bit  │            high 40 bits (days, signed)         │   low 24 bits (fraction)     │
+│      │  T+ for ≥ 0, T- for < 0 (two's complement)    │  0 .. 16_777_215             │
+└──────┴────────────────────────────────────────────────┴──────────────────────────────┘
+```
+
+### 12.1 Fields
+
+- **`days`** (signed int40, two's complement, big-endian) — number of full ATS days elapsed since the epoch. Range: `−2^39 .. 2^39 − 1` (~ ±1.5 × 10¹¹ days, far beyond any astronomical horizon).
+- **`frac24`** (unsigned uint24, big-endian) — fraction of the current day, scaled to 24 bits: `frac24 = floor(day_fraction × 2^24)`. Yields ≈ 5.15 ms of resolution.
+
+### 12.2 Encoding
+
+Given an instant with sign `s ∈ {T+, T-}`, integer day count `D ≥ 0` and day-fraction `f ∈ [0, 1)`:
+
+```
+days = D if s == T+ else -D
+frac24 = floor(f × 16_777_216)
+out = (days << 24) | frac24      # arithmetic shift; 64 bits total
+```
+
+### 12.3 Properties
+
+- A canonical ATS value (5 fractional digits, ≈ 864 ms resolution) round-trips through the binary form **without loss**, because 24 bits (≈ 5.15 ms) is finer.
+- Bytewise comparison of two binary values is identical to chronological order.
+- The all-zeros value is the epoch (`T+ Δ 0.0.0.0.00000`).
+
+### 12.4 Reference octets (test vector)
+
+| Instant | Binary (hex, big-endian) |
+|---|---|
+| Epoch (`T+ Δ 0.0.0.0.00000`) | `00 00 00 00 00 00 00 00` |
+| Epoch + 1 day | `00 00 00 00 01 00 00 00` |
+| Epoch − 1 day | `FF FF FF FF FF 00 00 00` |
+
+---
+
+## 13. Non-goals
 
 - ATS does not preserve months, weekdays, or religious cycles.
 - ATS does not encode local solar noon directly.
@@ -204,14 +273,15 @@ Implementations decoding a short form into a precise Gregorian instant SHOULD la
 
 ---
 
-## 12. Annexes
+## 14. Annexes
 
 - **Philosophy** (`philosophy.md`) — why ATS: biological cycle alignment (circadian, social, project, generational); proposed rituals (Kilo-versary, Hecto-celebration).
 - **Comparison** (`comparison.md`) — ATS vs Holocene, International Fixed, Hanke-Henry, French Republican, Swatch Internet Time, Darian (Mars).
+- **Test vectors** (`test-vectors.json`) — machine-readable conformance set.
 
 ---
 
-## 13. Versioning
+## 15. Versioning
 
 This spec is **v1.1**. Changes from v1.0:
 
@@ -224,3 +294,5 @@ This spec is **v1.1**. Changes from v1.0:
 - Leap second policy explicitly aligned to POSIX.
 - Decoding rules for the short form documented (intentional lossiness).
 - Philosophy and comparison moved to annexes.
+- Added §11 (Durations / `Δd`) and §12 (Binary encoding, 64-bit).
+- Annexes renumbered §14, Versioning §15.

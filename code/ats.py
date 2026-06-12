@@ -9,11 +9,14 @@ Canonical format: "T+ Δ K.H.D.Kin.fffff"
   - H, D, Kin are digits 0..9 (Hecto, Deka, Kin).
   - fffff is 5 fractional digits (default precision; variable).
 
-Short format (UI): "Δ K.H.D / cc"
-  - K, H, D are Kilo (unbounded), Hecto, Deka.
+Short format (UI): "Δ K.H.D.Kin/cc"
+  - K, H, D, Kin are Kilo (unbounded), Hecto, Deka, Kin.
+  - Kin is always shown (even when zero) to keep the calendar reference
+    unambiguous. No spaces around `/`.
   - cc is two fractional digits (Bloc + Centi).
-  - Decoding the short form is intentionally lossy: Kin assumed 0,
-    remaining fraction assumed 0; sign assumed T+.
+  - Decoding the short form is intentionally lossy: lower fractional
+    digits (Milli/Beat/Blink) assumed 0; sign assumed T+. Parsers accept
+    optional whitespace around `/`.
 
 Rounding policy (spec §6): strict floor truncation (ROUND_FLOOR) is used
 when reducing precision for display. ATS is a counter of completed

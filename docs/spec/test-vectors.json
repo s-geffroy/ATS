@@ -1,0 +1,126 @@
+{
+  "epoch_utc": "1969-07-20T20:17:40Z",
+  "precision": 5,
+  "vectors": [
+    {
+      "label": "Epoch (Apollo 11 touchdown)",
+      "utc": "1969-07-20T20:17:40Z",
+      "canonical": "T+ Δ 0.0.0.0.00000",
+      "short": "Δ 0.0.0.0/00",
+      "sign": "T+",
+      "kilo": 0,
+      "hecto": 0,
+      "deka": 0,
+      "kin": 0,
+      "frac": 0
+    },
+    {
+      "label": "One full Kin after epoch",
+      "utc": "1969-07-21T20:17:40Z",
+      "canonical": "T+ Δ 0.0.0.1.00000",
+      "short": "Δ 0.0.0.1/00",
+      "sign": "T+",
+      "kilo": 0,
+      "hecto": 0,
+      "deka": 0,
+      "kin": 1,
+      "frac": 0
+    },
+    {
+      "label": "Hiroshima",
+      "utc": "1945-08-06T08:15:00Z",
+      "canonical": "T- Δ 8.7.4.9.50185",
+      "short": "Δ 8.7.4.9/50",
+      "sign": "T-",
+      "kilo": 8,
+      "hecto": 7,
+      "deka": 4,
+      "kin": 9,
+      "frac": 50185
+    },
+    {
+      "label": "Berlin Wall fall",
+      "utc": "1989-11-09T22:00:00Z",
+      "canonical": "T+ Δ 7.4.1.7.07106",
+      "short": "Δ 7.4.1.7/07",
+      "sign": "T+",
+      "kilo": 7,
+      "hecto": 4,
+      "deka": 1,
+      "kin": 7,
+      "frac": 7106
+    },
+    {
+      "label": "Unix epoch",
+      "utc": "1970-01-01T00:00:00Z",
+      "canonical": "T+ Δ 0.1.6.4.15439",
+      "short": "Δ 0.1.6.4/15",
+      "sign": "T+",
+      "kilo": 0,
+      "hecto": 1,
+      "deka": 6,
+      "kin": 4,
+      "frac": 15439
+    },
+    {
+      "label": "Y2K",
+      "utc": "2000-01-01T00:00:00Z",
+      "canonical": "T+ Δ 11.1.2.1.15439",
+      "short": "Δ 11.1.2.1/15",
+      "sign": "T+",
+      "kilo": 11,
+      "hecto": 1,
+      "deka": 2,
+      "kin": 1,
+      "frac": 15439
+    },
+    {
+      "label": "First step EVA",
+      "utc": "1969-07-21T02:56:15Z",
+      "canonical": "T+ Δ 0.0.0.0.27679",
+      "short": "Δ 0.0.0.0/27",
+      "sign": "T+",
+      "kilo": 0,
+      "hecto": 0,
+      "deka": 0,
+      "kin": 0,
+      "frac": 27679
+    },
+    {
+      "label": "Today reference",
+      "utc": "2026-06-12T12:00:00Z",
+      "canonical": "T+ Δ 20.7.8.0.65439",
+      "short": "Δ 20.7.8.0/65",
+      "sign": "T+",
+      "kilo": 20,
+      "hecto": 7,
+      "deka": 8,
+      "kin": 0,
+      "frac": 65439
+    },
+    {
+      "label": "Year 1 CE",
+      "utc": "0001-01-01T00:00:00Z",
+      "canonical": "T- Δ 718.9.9.7.84560",
+      "short": "Δ 718.9.9.7/84",
+      "sign": "T-",
+      "kilo": 718,
+      "hecto": 9,
+      "deka": 9,
+      "kin": 7,
+      "frac": 84560
+    },
+    {
+      "label": "Far future",
+      "utc": "2100-12-31T23:59:59Z",
+      "canonical": "T+ Δ 48.0.1.1.15438",
+      "short": "Δ 48.0.1.1/15",
+      "sign": "T+",
+      "kilo": 48,
+      "hecto": 0,
+      "deka": 1,
+      "kin": 1,
+      "frac": 15438
+    }
+  ]
+}

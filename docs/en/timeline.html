@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Δ ATS — Historical timeline</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <style>
+    .timeline { margin-top: 1.5rem; position: relative; }
+    .tl-event {
+      border-left: 2px solid var(--accent);
+      padding: 0.25rem 0 0.25rem 1rem;
+      margin: 0.4rem 0 0.4rem 0.5rem;
+    }
+    .tl-event .when { font-family: ui-monospace, monospace; opacity: 0.65; font-size: 0.85rem; }
+    .tl-event .ats { font-family: ui-monospace, monospace; font-weight: 700; }
+    .tl-event .label { font-size: 1.05rem; margin-top: 0.1rem; }
+    .tl-event.epoch { border-left-color: gold; background: color-mix(in oklab, gold 8%, transparent); border-radius: 0 8px 8px 0; padding: 0.55rem 1rem; }
+  </style>
+</head>
+<body>
+  <header class="site container">
+    <a class="brand" href="./">Δ ATS</a>
+    <nav>
+      <a href="./">Clock</a>
+      <a href="./manifesto.html">Manifesto</a>
+      <a href="./philosophy.html">Philosophy</a>
+      <a href="./comparison.html">Comparison</a>
+      <a href="./faq.html">FAQ</a>
+      <a class="active" href="./timeline.html">Timeline</a>
+      <a href="./age.html">My Age</a>
+      <a href="./embed.html">Embed</a>
+    </nav>
+    <span class="lang-switch">
+      <a href="../fr/timeline.html">FR</a> ·
+      <a class="active" href="./timeline.html">EN</a>
+    </span>
+  </header>
+
+  <main class="container">
+    <h1>Historical timeline in Δ</h1>
+    <p class="muted">A few human-history milestones, made tangible by their ATS value. Zero marks the Apollo 11 touchdown.</p>
+
+    <section class="timeline">
+      <div class="tl-event"><div class="when">1903-12-17 — 15:35 UTC</div><div class="ats">T- Δ 23.9.5.7.19629</div><div class="label">First powered flight (Wright)</div></div>
+      <div class="tl-event"><div class="when">1945-08-06 — 08:15 UTC</div><div class="ats">T- Δ 8.7.4.9.50185</div><div class="label">Hiroshima</div></div>
+      <div class="tl-event"><div class="when">1957-10-04 — 19:28 UTC</div><div class="ats">T- Δ 4.3.0.7.03409</div><div class="label">Sputnik 1</div></div>
+      <div class="tl-event epoch"><div class="when">1969-07-20 — 20:17:40 UTC</div><div class="ats">T+ Δ 0.0.0.0.00000</div><div class="label">Apollo 11 touchdown — ATS Epoch</div></div>
+      <div class="tl-event"><div class="when">1989-11-09 — 22:00 UTC</div><div class="ats">T+ Δ 7.4.1.7.07106</div><div class="label">Fall of the Berlin Wall</div></div>
+      <div class="tl-event"><div class="when">1991-08-06 — 00:00 UTC</div><div class="ats">T+ Δ 8.0.5.1.15439</div><div class="label">First public web page</div></div>
+      <div class="tl-event"><div class="when">2007-06-29 — 00:00 UTC</div><div class="ats">T+ Δ 13.8.5.7.15439</div><div class="label">iPhone launch</div></div>
+      <div class="tl-event"><div class="when">2020-12-30 — 00:00 UTC</div><div class="ats">T+ Δ 18.7.9.0.15439</div><div class="label">First COVID-19 vaccine authorized</div></div>
+      <div class="tl-event"><div class="when">2022-11-30 — 00:00 UTC</div><div class="ats">T+ Δ 19.4.9.0.15439</div><div class="label">ChatGPT launch</div></div>
+    </section>
+
+    <p class="muted" style="margin-top:1.5rem;">
+      You can <strong>click any Δ</strong> on the clock page or use the permalink
+      <code>?t=20.7.8.0.65439</code> to freeze the clock on any milestone.
+    </p>
+  </main>
+
+  <footer class="site">
+    Δ ATS v1.1 RC · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
+  </footer>
+</body>
+</html>

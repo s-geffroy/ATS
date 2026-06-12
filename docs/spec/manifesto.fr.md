@@ -195,7 +195,76 @@ Les implémentations qui décodent une forme courte en instant grégorien préci
 
 ---
 
-## 11. Non-objectifs
+## 11. Durées (Δd)
+
+Jusqu'au §10, l'ATS décrit des **instants**. Une notation séparée est définie pour les **durées** (deltas entre instants).
+
+### 11.1 Syntaxe
+
+```
+Δd K.H.D.Kin.fffff
+```
+
+- Toujours positive — les durées sont non signées.
+- Même structure positionnelle qu'un instant (Kilo non borné ; Hecto / Deka / Kin chiffres 0..9 ; fffff chiffres fractionnaires).
+- Le préfixe `Δd` ("delta-durée") distingue une durée d'un instant. `Δ` seul désigne toujours un instant.
+- Soustraire deux instants ATS de même signe produit une durée : `Δd = |Δ(a) − Δ(b)|`.
+
+### 11.2 Exemples
+
+- Un Hecto : `Δd 0.1.0.0.00000` (100 jours).
+- Une année grégorienne d'usage (~365 j) : `Δd 0.3.6.5.00000`.
+- "J'ai vécu 7 Kilos et 893 jours" → `Δd 7.8.9.3.00000`.
+
+### 11.3 Contraintes
+
+Les durées s'écrivent toujours en forme canonique ; **aucune forme courte** n'est définie. Leur précision suit celle des instants dont elles dérivent.
+
+---
+
+## 12. Encodage binaire
+
+Pour le stockage, l'IoT et l'interop binaire, l'ATS définit un format **64 bits fixes** (big-endian, complément à deux sur le compteur de jours).
+
+```
+┌──────┬────────────────────────────────────────────────┬──────────────────────────────┐
+│ bit  │            40 bits hauts (jours, signés)       │   24 bits bas (fraction)     │
+│      │  T+ pour ≥ 0, T- pour < 0 (compl. à deux)     │  0 .. 16_777_215             │
+└──────┴────────────────────────────────────────────────┴──────────────────────────────┘
+```
+
+### 12.1 Champs
+
+- **`days`** (int40 signé, complément à deux, big-endian) — nombre de jours ATS pleins écoulés depuis l'époque. Plage : `−2³⁹ .. 2³⁹ − 1` (~ ±1,5 × 10¹¹ jours, bien au-delà de tout horizon astronomique).
+- **`frac24`** (uint24 non signé, big-endian) — fraction du jour courant à l'échelle 24 bits : `frac24 = floor(fraction_jour × 2²⁴)`. Donne ≈ 5,15 ms de résolution.
+
+### 12.2 Encodage
+
+Pour un instant de signe `s ∈ {T+, T-}`, compteur entier `D ≥ 0`, fraction de jour `f ∈ [0, 1)` :
+
+```
+days = D si s == T+ sinon -D
+frac24 = floor(f × 16_777_216)
+out = (days << 24) | frac24      # décalage arithmétique ; 64 bits au total
+```
+
+### 12.3 Propriétés
+
+- Une valeur ATS canonique (5 chiffres frac, résolution ≈ 864 ms) fait un round-trip **sans perte** par cet encodage binaire, car 24 bits (≈ 5,15 ms) sont plus fins.
+- La comparaison byte-à-byte de deux valeurs binaires est identique à l'ordre chronologique.
+- La valeur tout-zéro est l'époque (`T+ Δ 0.0.0.0.00000`).
+
+### 12.4 Octets de référence (test vector)
+
+| Instant | Binaire (hex, big-endian) |
+|---|---|
+| Époque (`T+ Δ 0.0.0.0.00000`) | `00 00 00 00 00 00 00 00` |
+| Époque + 1 jour | `00 00 00 00 01 00 00 00` |
+| Époque − 1 jour | `FF FF FF FF FF 00 00 00` |
+
+---
+
+## 13. Non-objectifs
 
 - L'ATS ne préserve ni les mois, ni les jours de la semaine, ni les cycles religieux.
 - L'ATS n'encode pas directement le midi solaire local.
@@ -204,14 +273,15 @@ Les implémentations qui décodent une forme courte en instant grégorien préci
 
 ---
 
-## 12. Annexes
+## 14. Annexes
 
 - **Philosophie** (`philosophy.md`) — pourquoi l'ATS : alignement avec les cycles biologiques (circadien, social, projet, générationnel) ; rituels proposés (Kilo-versaire, Hecto-fête).
 - **Comparaison** (`comparison.md`) — l'ATS face à Holocene, International Fixed, Hanke-Henry, Calendrier Républicain, Swatch Internet Time, Darian (Mars).
+- **Test vectors** (`test-vectors.json`) — jeu de conformance machine-readable.
 
 ---
 
-## 13. Versionnement
+## 15. Versionnement
 
 Cette spec est en **v1.1**. Différences avec v1.0 :
 
@@ -224,3 +294,5 @@ Cette spec est en **v1.1**. Différences avec v1.0 :
 - Politique leap seconds explicitement alignée POSIX.
 - Règles de décodage de la forme courte documentées (perte d'information intentionnelle).
 - Philosophie et comparaison déplacées en annexes.
+- Ajout du §11 (Durées / `Δd`) et du §12 (Encodage binaire 64 bits).
+- Annexes renumérotées §14, Versionnement §15.

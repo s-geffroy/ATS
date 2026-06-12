@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Δ ATS — Frise historique</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <style>
+    .timeline { margin-top: 1.5rem; position: relative; }
+    .tl-event {
+      border-left: 2px solid var(--accent);
+      padding: 0.25rem 0 0.25rem 1rem;
+      margin: 0.4rem 0 0.4rem 0.5rem;
+    }
+    .tl-event .when { font-family: ui-monospace, monospace; opacity: 0.65; font-size: 0.85rem; }
+    .tl-event .ats { font-family: ui-monospace, monospace; font-weight: 700; }
+    .tl-event .label { font-size: 1.05rem; margin-top: 0.1rem; }
+    .tl-event.epoch { border-left-color: gold; background: color-mix(in oklab, gold 8%, transparent); border-radius: 0 8px 8px 0; padding: 0.55rem 1rem; }
+  </style>
+</head>
+<body>
+  <header class="site container">
+    <a class="brand" href="./">Δ ATS</a>
+    <nav>
+      <a href="./">Horloge</a>
+      <a href="./manifeste.html">Manifeste</a>
+      <a href="./philosophie.html">Philosophie</a>
+      <a href="./comparaison.html">Comparaison</a>
+      <a href="./faq.html">FAQ</a>
+      <a class="active" href="./timeline.html">Frise</a>
+      <a href="./age.html">Mon âge</a>
+      <a href="./embed.html">Intégrer</a>
+    </nav>
+    <span class="lang-switch">
+      <a class="active" href="./timeline.html">FR</a> ·
+      <a href="../en/timeline.html">EN</a>
+    </span>
+  </header>
+
+  <main class="container">
+    <h1>Frise historique en Δ</h1>
+    <p class="muted">
+      Quelques jalons rendus tangibles par leur valeur ATS. Le 0 marque l'alunissage d'Apollo 11.
+    </p>
+
+    <section class="timeline">
+      <div class="tl-event"><div class="when">1903-12-17 — 15:35 UTC</div><div class="ats">T- Δ 23.9.5.7.19629</div><div class="label">Premier vol motorisé (Wright)</div></div>
+      <div class="tl-event"><div class="when">1945-08-06 — 08:15 UTC</div><div class="ats">T- Δ 8.7.4.9.50185</div><div class="label">Hiroshima</div></div>
+      <div class="tl-event"><div class="when">1957-10-04 — 19:28 UTC</div><div class="ats">T- Δ 4.3.0.7.03409</div><div class="label">Spoutnik 1</div></div>
+      <div class="tl-event epoch"><div class="when">1969-07-20 — 20:17:40 UTC</div><div class="ats">T+ Δ 0.0.0.0.00000</div><div class="label">Alunissage Apollo 11 — Époque ATS</div></div>
+      <div class="tl-event"><div class="when">1989-11-09 — 22:00 UTC</div><div class="ats">T+ Δ 7.4.1.7.07106</div><div class="label">Chute du mur de Berlin</div></div>
+      <div class="tl-event"><div class="when">1991-08-06 — 00:00 UTC</div><div class="ats">T+ Δ 8.0.5.1.15439</div><div class="label">Première page Web publique</div></div>
+      <div class="tl-event"><div class="when">2007-06-29 — 00:00 UTC</div><div class="ats">T+ Δ 13.8.5.7.15439</div><div class="label">Lancement iPhone</div></div>
+      <div class="tl-event"><div class="when">2020-12-30 — 00:00 UTC</div><div class="ats">T+ Δ 18.7.9.0.15439</div><div class="label">Premier vaccin COVID-19 autorisé</div></div>
+      <div class="tl-event"><div class="when">2022-11-30 — 00:00 UTC</div><div class="ats">T+ Δ 19.4.9.0.15439</div><div class="label">Lancement de ChatGPT</div></div>
+    </section>
+
+    <p class="muted" style="margin-top:1.5rem;">
+      Tu peux <strong>cliquer un Δ</strong> sur la page d'horloge ou utiliser le permalien
+      <code>?t=20.7.8.0.65439</code> pour figer l'horloge sur n'importe quel jalon.
+    </p>
+  </main>
+
+  <footer class="site">
+    Δ ATS v1.1 RC · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
+  </footer>
+</body>
+</html>
