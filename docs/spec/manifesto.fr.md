@@ -137,14 +137,15 @@ Exemple :
 
 ## 6. Politique d'arrondi
 
-L'ATS utilise l'**arrondi du banquier (half-even, défaut IEEE 754)** lors de la réduction de précision pour affichage.
+L'ATS utilise la **troncature stricte (floor)** lors de la réduction de précision pour affichage.
 
-- Un chiffre se terminant en `.5` est arrondi au pair le plus proche.
-- Raison : évite le biais statistique sur les agrégations massives.
+- Un chiffre n'est affiché qu'**une fois l'unité correspondante entièrement écoulée**.
+- `0.99999` reste `0.99999` jusqu'à la fin du jour — jamais de retenue prématurée vers `1.00000`.
+- Raison : l'ATS est un compteur d'unités *complétées*. Arrondir vers le haut inventerait du temps non écoulé et briserait la monotonie.
 
-> **Compromis.** L'arrondi du banquier peut *occasionnellement* arrondir vers le haut (par ex. `…99500` → `…00000` avec retenue), ce qui contredit le principe v1.0 "ne jamais inventer de futur". Ce compromis est accepté pour la neutralité statistique. Les implémentations exigeant la monotonie stricte peuvent utiliser la **troncature (floor)** comme variante documentée.
+Le compteur interne (le `Decimal` de jours écoulés) reste toujours exact ; la troncature ne concerne que les chiffres *affichés*.
 
-Le compteur interne (le `Decimal` de jours écoulés) reste toujours exact ; l'arrondi ne concerne que les chiffres *affichés*.
+> **Pourquoi pas l'arrondi du banquier (half-even) ?** Le half-even convient à la moyenne de mesures (il évite le biais statistique à long terme). Il convient mal à un compteur monotone : un pas half-even peut faire dépasser brièvement la valeur affichée par rapport à l'instant réel. L'ATS privilégie la véracité monotone plutôt que la symétrie statistique.
 
 ---
 
@@ -219,7 +220,7 @@ Cette spec est en **v1.1**. Différences avec v1.0 :
 - Myriade retirée du format positionnel ; le Kilo devient non borné. "Génération" est rétrogradée au vocabulaire informel.
 - L'unité 0,1 jour est renommée `D-Day` → `Bloc`.
 - Séparateur de la forme courte changé de `|` à `/`.
-- Politique d'arrondi changée de troncature stricte à banker's half-even (compromis documenté).
+- Politique d'arrondi : troncature stricte (floor) réaffirmée. Une variante banker's half-even envisagée brièvement en v0.1.0 a été rejetée comme incompatible avec le principe "compteur d'unités complétées".
 - Couche Local Solar Time (LST) explicitement introduite.
 - Politique leap seconds explicitement alignée POSIX.
 - Règles de décodage de la forme courte documentées (perte d'information intentionnelle).

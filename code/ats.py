@@ -15,9 +15,10 @@ Short format (UI): "Δ K.H.D / cc"
   - Decoding the short form is intentionally lossy: Kin assumed 0,
     remaining fraction assumed 0; sign assumed T+.
 
-Rounding policy (spec §6): banker's rounding (ROUND_HALF_EVEN) is used
-when reducing precision for display. The internal Decimal counter is
-always exact.
+Rounding policy (spec §6): strict floor truncation (ROUND_FLOOR) is used
+when reducing precision for display. ATS is a counter of completed
+units; a digit is shown only once its unit has fully elapsed. The
+internal Decimal counter is always exact.
 
 Leap second policy (spec §8): aligned to POSIX — a day is 86 400 seconds.
 """
@@ -27,7 +28,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from decimal import Decimal, ROUND_HALF_EVEN
+from decimal import Decimal, ROUND_FLOOR
 from zoneinfo import ZoneInfo
 
 ATS_SYMBOL = "Δ"
@@ -99,28 +100,19 @@ def _timedelta_to_decimal_days(td: timedelta) -> Decimal:
 
 
 def _decimal_days_to_timedelta(days: Decimal) -> timedelta:
-    total_us = (days * Decimal(_US_PER_DAY)).to_integral_value(rounding=ROUND_HALF_EVEN)
+    total_us = (days * Decimal(_US_PER_DAY)).to_integral_value(rounding=ROUND_FLOOR)
     return timedelta(microseconds=int(total_us))
 
 
-def _split_abs_days_half_even(abs_days: Decimal) -> tuple[int, int]:
+def _split_abs_days_floor(abs_days: Decimal) -> tuple[int, int]:
     """Split a non-negative day count into (integer_days, frac_digits).
 
-    Uses banker's rounding (ROUND_HALF_EVEN) on the fractional part. May
-    carry into integer_days when fraction rounds up to ATS_SCALE.
+    Uses strict floor truncation. A digit is published only after its
+    unit has fully elapsed (no anticipation, no carry into a future day).
     """
-    integer_days = int(abs_days.to_integral_value(rounding=ROUND_HALF_EVEN))
-    integer_part = Decimal(integer_days)
-    if integer_part > abs_days:
-        # ROUND_HALF_EVEN rounded up; step back so frac is computed from
-        # the lower integer for monotonic consistency.
-        integer_days -= 1
-        integer_part -= 1
-    frac = abs_days - integer_part
-    frac_int = int((frac * Decimal(ATS_SCALE)).to_integral_value(rounding=ROUND_HALF_EVEN))
-    if frac_int >= ATS_SCALE:
-        frac_int = 0
-        integer_days += 1
+    integer_days = int(abs_days.to_integral_value(rounding=ROUND_FLOOR))
+    frac = abs_days - Decimal(integer_days)
+    frac_int = int((frac * Decimal(ATS_SCALE)).to_integral_value(rounding=ROUND_FLOOR))
     return integer_days, frac_int
 
 
@@ -146,7 +138,7 @@ def gregorian_to_ats(dt: datetime, *, assume_tz: str = "UTC") -> ATSDateTime:
     sign = "T+" if days >= 0 else "T-"
     abs_days = -days if days < 0 else days
 
-    integer_days, frac_int = _split_abs_days_half_even(abs_days)
+    integer_days, frac_int = _split_abs_days_floor(abs_days)
     kilo, hecto, deka, kin = _integer_days_to_places(integer_days)
 
     return ATSDateTime(sign=sign, kilo=kilo, hecto=hecto, deka=deka, kin=kin, frac=frac_int)

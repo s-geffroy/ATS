@@ -14,32 +14,19 @@
     return String(n).padStart(width, '0');
   }
 
-  // Banker's rounding (round-half-even).
-  function roundHalfEven(x) {
-    const floor = Math.floor(x);
-    const diff = x - floor;
-    if (diff < 0.5) return floor;
-    if (diff > 0.5) return floor + 1;
-    return floor % 2 === 0 ? floor : floor + 1;
-  }
-
   // Convert a millisecond timestamp (UTC epoch ms) to an ATS object.
+  // Strict floor truncation per spec §6 — a unit is published only once
+  // it has fully elapsed.
   function atsFromMs(ms) {
     const deltaMs = ms - ATS_EPOCH_MS;
     const sign = deltaMs >= 0 ? 'T+' : 'T-';
     const absMs = Math.abs(deltaMs);
 
-    const integerDays = Math.floor(absMs / MS_PER_DAY);
-    const dayRemainderMs = absMs - integerDays * MS_PER_DAY;
+    const intDays = Math.floor(absMs / MS_PER_DAY);
+    const dayRemainderMs = absMs - intDays * MS_PER_DAY;
 
-    // Fractional digits: scale to 5 places, banker's round.
-    const fracExact = (dayRemainderMs * ATS_SCALE) / MS_PER_DAY;
-    let frac = roundHalfEven(fracExact);
-    let intDays = integerDays;
-    if (frac >= ATS_SCALE) {
-      frac = 0;
-      intDays += 1;
-    }
+    // Fractional digits: scale to 5 places, floor.
+    const frac = Math.floor((dayRemainderMs * ATS_SCALE) / MS_PER_DAY);
 
     const kilo = Math.floor(intDays / 1000);
     let rem = intDays % 1000;

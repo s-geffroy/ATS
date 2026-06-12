@@ -137,14 +137,15 @@ Example:
 
 ## 6. Rounding policy
 
-ATS uses **banker's rounding (half-even, IEEE 754 default)** when reducing precision for display.
+ATS uses **strict floor truncation** when reducing precision for display.
 
-- A digit ending in `.5` rounds toward the nearest even.
-- Reason: avoids statistical bias when many timestamps are aggregated.
+- A digit is shown only once the corresponding unit is **fully elapsed**.
+- A value of `0.99999` stays `0.99999` until the day is over — it never carries to `1.00000` early.
+- Reason: ATS is a counter of *completed* units. Rounding forward would invent time that has not yet passed and break monotonicity.
 
-> **Trade-off.** Banker's rounding may *occasionally* round forward (e.g., `…99500` → `…00000` carry). This contradicts the v1.0 "never invent future time" principle, accepted as the price of statistical neutrality. Implementations needing strict monotonicity may use **floor truncation** as a documented variant.
+The internal counter (the elapsed-days `Decimal`) always remains exact; truncation applies only to *displayed* digits.
 
-The internal counter (the elapsed-days `Decimal`) always remains exact; rounding applies only to *displayed* digits.
+> **Why not half-even / "banker's" rounding?** Half-even is the right choice for averaging measurements (it avoids long-run statistical bias). It is the wrong choice for a monotonic counter: a half-even step can move the displayed value past the actual instant, even briefly. ATS prioritizes truthful monotonicity over averaging symmetry.
 
 ---
 
@@ -219,7 +220,7 @@ This spec is **v1.1**. Changes from v1.0:
 - Myriade removed from positional format; Kilo is now unbounded. "Generation" demoted to informal vocabulary.
 - 0.1-day unit renamed `D-Day` → `Bloc`.
 - Short form separator changed from `|` to `/`.
-- Rounding policy changed from strict floor to banker's half-even (trade-off documented).
+- Rounding policy: strict floor truncation reaffirmed. A banker's half-even variant briefly considered in v0.1.0 was rejected as incompatible with the "counter of completed units" principle.
 - Local Solar Time (LST) layer explicitly introduced.
 - Leap second policy explicitly aligned to POSIX.
 - Decoding rules for the short form documented (intentional lossiness).
