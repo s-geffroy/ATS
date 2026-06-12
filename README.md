@@ -20,9 +20,9 @@ Lecture : 2 Myriades, 0 Kilo, 6 Hecto, 4 Deka, 5 Kin, fraction de jour `.36806`.
 
 | Dossier | Contenu |
 |---|---|
-| `spec/` | Manifeste v1.1 (`manifesto.en.md`, `manifesto.fr.md`) — source de vérité |
 | `code/` | Module Python `ats.py` — conversion Grégorien ↔ ATS |
-| `docs/` | Site GitHub Pages (FR + EN, horloge interactive, manifeste, philosophie) |
+| `docs/` | Site GitHub Pages (FR + EN, horloge, manifeste, philosophie, comparaison, outil "Mon âge") |
+| `docs/spec/` | Manifeste v1.1 + annexes (philosophie, comparaison) — **source de vérité** |
 | `archive/source/` | Snapshot original du projet (historique, lecture seule) |
 
 ## Usage local du code

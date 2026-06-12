@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Δ ATS — Comparaison</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="site container">
+    <a class="brand" href="./">Δ ATS</a>
+    <nav>
+      <a href="./">Horloge</a>
+      <a href="./manifeste.html">Manifeste</a>
+      <a href="./philosophie.html">Philosophie</a>
+      <a class="active" href="./comparaison.html">Comparaison</a>
+      <a href="./age.html">Mon âge</a>
+      <a href="./code.html">Code</a>
+    </nav>
+    <span class="lang-switch">
+      <a class="active" href="./comparaison.html">FR</a> ·
+      <a href="../en/comparison.html">EN</a>
+    </span>
+  </header>
+
+  <main class="container">
+    <article id="content" class="markdown">Chargement…</article>
+    <p class="muted">Source : <a href="../spec/comparison.fr.md">comparison.fr.md</a></p>
+  </main>
+
+  <footer class="site">
+    Δ ATS v1.1 RC · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@13/marked.min.js"></script>
+  <script>
+    fetch('../spec/comparison.fr.md')
+      .then(function (r) { return r.text(); })
+      .then(function (md) { document.getElementById('content').innerHTML = marked.parse(md); })
+      .catch(function () { document.getElementById('content').textContent = 'Erreur de chargement.'; });
+  </script>
+</body>
+</html>

@@ -1,0 +1,297 @@
+/* ATS site — shared theme. Light/dark via color-scheme. */
+
+:root {
+  color-scheme: light dark;
+  --bg: Canvas;
+  --fg: CanvasText;
+  --muted: color-mix(in oklab, CanvasText 60%, transparent);
+  --border: color-mix(in oklab, CanvasText 22%, transparent);
+  --card: color-mix(in oklab, Canvas 96%, CanvasText);
+  --accent: #6c8cff;
+  --max: 1100px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+  color: var(--fg);
+  background: var(--bg);
+}
+
+main, header, footer { padding: 0 1.25rem; }
+
+.container {
+  max-width: var(--max);
+  margin: 0 auto;
+}
+
+header.site {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+header.site .brand {
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  color: var(--fg);
+}
+
+header.site nav a {
+  margin-left: 1rem;
+  text-decoration: none;
+  color: var(--fg);
+  opacity: 0.8;
+  font-size: 0.95rem;
+}
+
+header.site nav a:hover { opacity: 1; }
+
+header.site nav a.active {
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 2px;
+}
+
+.lang-switch {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.lang-switch a {
+  color: var(--fg);
+  text-decoration: none;
+  margin: 0 0.25rem;
+}
+
+.lang-switch a.active {
+  font-weight: 700;
+  opacity: 1;
+}
+
+main { padding-top: 1.5rem; padding-bottom: 3rem; }
+
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); margin-top: 0.25rem; }
+h2 { margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.35rem; }
+
+footer.site {
+  border-top: 1px solid var(--border);
+  padding: 1.25rem;
+  opacity: 0.7;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+a { color: var(--accent); }
+a:hover { text-decoration: underline; }
+
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.muted { opacity: 0.7; font-size: 0.9rem; }
+
+/* Clock card */
+.clock-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+  margin-top: 1.25rem;
+  background: color-mix(in oklab, Canvas 97%, CanvasText);
+}
+
+.clock-card .label {
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  opacity: 0.65;
+  margin-bottom: 0.25rem;
+}
+
+.clock-card .big {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  letter-spacing: 0.02em;
+  margin: 0.1rem 0 0.75rem 0;
+}
+
+.clock-card .secondary {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1.05rem;
+  opacity: 0.85;
+}
+
+.clock-card details {
+  margin-top: 1rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+.clock-card details summary {
+  cursor: pointer;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.clock-card details summary::marker { color: var(--accent); }
+
+.kv {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  gap: 0.35rem 1rem;
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.kv .k { opacity: 0.6; }
+.kv .v { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+/* Converter inputs */
+.converter {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+@media (min-width: 720px) {
+  .converter { grid-template-columns: 1fr 1fr; }
+}
+
+.converter label { display: block; }
+.converter label .lbl {
+  display: block;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.65;
+  margin-bottom: 0.3rem;
+}
+.converter input {
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+}
+.converter input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+button {
+  font: inherit;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, Canvas 90%, CanvasText);
+  color: var(--fg);
+  cursor: pointer;
+}
+button:hover { background: color-mix(in oklab, Canvas 80%, CanvasText); }
+
+.status {
+  font-size: 0.85rem;
+  opacity: 0.75;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.status.ok { color: color-mix(in oklab, CanvasText 75%, transparent); }
+.status.err { color: #d34a4a; }
+
+/* Markdown rendering */
+.markdown {
+  max-width: 80ch;
+  margin: 0 auto;
+}
+.markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+.markdown th, .markdown td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+.markdown th { background: color-mix(in oklab, Canvas 93%, CanvasText); }
+.markdown blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 0.25rem 1rem;
+  margin: 1rem 0;
+  opacity: 0.85;
+  background: color-mix(in oklab, Canvas 97%, CanvasText);
+}
+.markdown code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: color-mix(in oklab, Canvas 92%, CanvasText);
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.92em;
+}
+.markdown pre {
+  background: color-mix(in oklab, Canvas 92%, CanvasText);
+  padding: 1rem;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+.markdown pre code { background: transparent; padding: 0; }
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 4rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-top: 1rem;
+  background: color-mix(in oklab, Canvas 97%, CanvasText);
+}
+.hero .symbol {
+  font-size: clamp(4rem, 12vw, 8rem);
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+.hero .tagline {
+  font-size: 1.05rem;
+  opacity: 0.8;
+  max-width: 56ch;
+  margin: 0 auto 1.5rem auto;
+}
+.hero .actions {
+  justify-content: center;
+}
+.hero .lang-pick {
+  display: inline-flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hero .lang-pick a {
+  display: inline-block;
+  padding: 0.65rem 1.5rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--fg);
+  background: var(--bg);
+}
+.hero .lang-pick a:hover {
+  background: color-mix(in oklab, Canvas 88%, CanvasText);
+}

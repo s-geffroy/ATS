@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Δ ATS — Horloge</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="site container">
+    <a class="brand" href="./">Δ ATS</a>
+    <nav>
+      <a class="active" href="./">Horloge</a>
+      <a href="./manifeste.html">Manifeste</a>
+      <a href="./philosophie.html">Philosophie</a>
+      <a href="./comparaison.html">Comparaison</a>
+      <a href="./age.html">Mon âge</a>
+      <a href="./code.html">Code</a>
+    </nav>
+    <span class="lang-switch">
+      <a class="active" href="./">FR</a> ·
+      <a href="../en/">EN</a>
+    </span>
+  </header>
+
+  <main class="container">
+    <h1>Horloge ATS</h1>
+    <p class="muted">
+      Δ s'écoule depuis l'alunissage d'Apollo 11 (<span class="mono">1969‑07‑20T20:17:40Z</span>).
+      Affichage adaptatif : forme courte par défaut, détails complets sur demande.
+    </p>
+
+    <section class="clock-card">
+      <div class="label">Δ ATS (court)</div>
+      <div id="shortDisplay" class="big mono">—</div>
+      <div class="secondary" id="utcDisplay">—</div>
+
+      <details>
+        <summary>Détails complets (canonique, fuseau local, conversion)</summary>
+
+        <div class="kv">
+          <div class="k">Canonique</div><div class="v" id="canonDisplay">—</div>
+          <div class="k">UTC</div><div class="v" id="utcFull">—</div>
+          <div class="k">Local</div><div class="v" id="localDisplay">—</div>
+          <div class="k">Époque</div><div class="v">T+ Δ 0.0.0.0.00000 — 1969‑07‑20T20:17:40Z</div>
+        </div>
+
+        <h3 style="margin-top:1.5rem;">Convertisseur Grégorien ↔ ATS</h3>
+        <div class="converter">
+          <label>
+            <span class="lbl">Grégorien (UTC ISO)</span>
+            <input id="gregInput" class="mono" placeholder="2026-06-12T10:00:00Z" />
+          </label>
+          <label>
+            <span class="lbl">ATS canonique</span>
+            <input id="atsInput" class="mono" placeholder="T+ Δ 20.7.8.0.00000" />
+          </label>
+        </div>
+        <div class="actions">
+          <button id="btnGtoA" type="button">Grégorien → ATS</button>
+          <button id="btnAtoG" type="button">ATS → Grégorien</button>
+          <button id="btnNow" type="button">Maintenant</button>
+          <span id="status" class="status ok">—</span>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <footer class="site">
+    Δ ATS v1.1 RC · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
+  </footer>
+
+  <script src="../assets/js/ats.js"></script>
+  <script>
+    (function () {
+      const shortEl = document.getElementById('shortDisplay');
+      const utcEl   = document.getElementById('utcDisplay');
+      const canonEl = document.getElementById('canonDisplay');
+      const utcFull = document.getElementById('utcFull');
+      const localEl = document.getElementById('localDisplay');
+
+      function fmtLocalUTC(d) {
+        return d.getUTCFullYear() + '-' +
+          String(d.getUTCMonth() + 1).padStart(2, '0') + '-' +
+          String(d.getUTCDate()).padStart(2, '0') + ' ' +
+          String(d.getUTCHours()).padStart(2, '0') + ':' +
+          String(d.getUTCMinutes()).padStart(2, '0') + ':' +
+          String(d.getUTCSeconds()).padStart(2, '0') + 'Z';
+      }
+
+      function tick() {
+        const now = new Date();
+        const ats = ATS.atsFromMs(now.getTime());
+        shortEl.textContent  = ATS.toShort(ats);
+        utcEl.textContent    = fmtLocalUTC(now);
+        canonEl.textContent  = ATS.toCanonical(ats);
+        utcFull.textContent  = now.toISOString();
+        localEl.textContent  = now.toString();
+      }
+      tick();
+      setInterval(tick, 100);
+
+      // Converter
+      const gregInput = document.getElementById('gregInput');
+      const atsInput  = document.getElementById('atsInput');
+      const status    = document.getElementById('status');
+
+      function setStatus(msg, ok) {
+        status.textContent = msg;
+        status.className = 'status ' + (ok ? 'ok' : 'err');
+      }
+
+      document.getElementById('btnGtoA').addEventListener('click', function () {
+        const v = gregInput.value.trim();
+        const ms = Date.parse(v);
+        if (isNaN(ms)) { setStatus('Date grégorienne invalide.', false); return; }
+        const ats = ATS.atsFromMs(ms);
+        atsInput.value = ATS.toCanonical(ats);
+        setStatus('OK : converti vers ATS.', true);
+      });
+      document.getElementById('btnAtoG').addEventListener('click', function () {
+        const v = atsInput.value.trim();
+        const ms = ATS.canonicalToMs(v);
+        if (ms === null) { setStatus('ATS canonique invalide.', false); return; }
+        gregInput.value = new Date(ms).toISOString();
+        setStatus('OK : converti vers Grégorien (UTC).', true);
+      });
+      document.getElementById('btnNow').addEventListener('click', function () {
+        const now = new Date();
+        gregInput.value = now.toISOString();
+        atsInput.value  = ATS.toCanonical(ATS.atsFromMs(now.getTime()));
+        setStatus('Maintenant chargé.', true);
+      });
+    })();
+  </script>
+</body>
+</html>

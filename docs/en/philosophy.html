@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Δ ATS — Philosophy</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="site container">
+    <a class="brand" href="./">Δ ATS</a>
+    <nav>
+      <a href="./">Clock</a>
+      <a href="./manifesto.html">Manifesto</a>
+      <a class="active" href="./philosophy.html">Philosophy</a>
+      <a href="./comparison.html">Comparison</a>
+      <a href="./age.html">My Age</a>
+      <a href="./code.html">Code</a>
+    </nav>
+    <span class="lang-switch">
+      <a href="../fr/philosophie.html">FR</a> ·
+      <a class="active" href="./philosophy.html">EN</a>
+    </span>
+  </header>
+
+  <main class="container">
+    <article id="content" class="markdown">Loading…</article>
+    <p class="muted">Source: <a href="../spec/philosophy.en.md">philosophy.en.md</a></p>
+  </main>
+
+  <footer class="site">
+    Δ ATS v1.1 RC · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@13/marked.min.js"></script>
+  <script>
+    fetch('../spec/philosophy.en.md')
+      .then(function (r) { return r.text(); })
+      .then(function (md) { document.getElementById('content').innerHTML = marked.parse(md); })
+      .catch(function () { document.getElementById('content').textContent = 'Failed to load.'; });
+  </script>
+</body>
+</html>

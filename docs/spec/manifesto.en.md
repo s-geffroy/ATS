@@ -1,0 +1,226 @@
+# The Apollonian Time System (ATS)
+
+**Status:** Release Candidate v1.1
+**Symbol:** Δ
+**Authoritative language:** English (French is a translation)
+**Core idea:** Replace the Gregorian *year/month/week + local time* model with a single, universal, decimal, linear time standard anchored to a species-level technological milestone.
+
+---
+
+## 1. What ATS is
+
+ATS is a **continuous counter** anchored to a single epoch and expressed in **base‑10 positional units**.
+
+- **Linear:** time is measured as elapsed days (and day‑fractions) since the epoch.
+- **Decimal:** all subdivisions are powers of 10.
+- **Universal:** one time for everyone; no time zones inside the system.
+
+The result is a time representation that is easier to compute with, easier to compare statistically, and designed for a networked, multi‑site, and eventually multi‑planetary civilization.
+
+---
+
+## 2. Epoch (Point Zero)
+
+ATS uses a technological, species-level milestone as its reference point.
+
+- **Epoch event:** Apollo 11 Lunar Module *Eagle* touchdown.
+- **Epoch in UTC:** **1969‑07‑20T20:17:40Z**.
+- **ATS epoch value:** **`T+ Δ 0.0.0.0.00000`**.
+
+> **Rationale.** The touchdown — not the first step (1969‑07‑21T02:56:15Z) — is chosen as the species-level marker: it is the instant the human envelope first rested on another celestial body, and it is the date the world remembers as "July 20, 1969".
+
+### 2.1 Alternative anchors (rejected)
+
+For historical reference, other technological milestones were considered and rejected:
+
+| Candidate | UTC | Reason for rejection |
+|---|---|---|
+| Sputnik 1 launch | 1957‑10‑04T19:28:34Z | Robotic, no human presence beyond Earth |
+| Hiroshima | 1945‑08‑06T08:15:00Z | Civilization-marking but negative |
+| First powered flight (Wright) | 1903‑12‑17T15:35:00Z | Atmospheric only |
+| Apollo 11 launch | 1969‑07‑16T13:32:00Z | Beginning of journey, not arrival |
+| First step (EVA) | 1969‑07‑21T02:56:15Z | Symbolic, but landing comes first |
+
+---
+
+## 3. Directionality: T+ and T-
+
+ATS is symmetric around the epoch.
+
+- **T+**: elapsed time **after** the epoch.
+- **T-**: elapsed time **before** the epoch (a historical countdown).
+
+In everyday usage, the Δ symbol implies *T+* by default (most life occurs post-epoch), but **T- must always be explicit**.
+
+---
+
+## 4. Canonical representation (storage / interchange)
+
+### 4.1 Canonical syntax
+
+```
+[DIR] Δ [KIL].[HEC].[DEK].[KIN].[fffff]
+```
+
+- `DIR` is `T+` or `T-`.
+- `KIL` is **Kilo** — an **unbounded** non-negative integer.
+- `HEC`, `DEK`, `KIN` are digits `0..9` (Hecto, Deka, Kin).
+- `fffff` is the **fraction of the day** encoded on 5 decimal digits (0..99999) by default — see §4.4 for variable precision.
+
+Example (current era, ~57 years post-epoch):
+
+```
+T+ Δ 20.7.5.6.43210
+```
+
+### 4.2 Macro-time units (calendar)
+
+ATS counts **days** using fixed base-10 places:
+
+| Position | Name | Value | Function |
+|---|---|---|---|
+| `....X` | **Kin** | 1 day | The solar day |
+| `...X.` | **Deka** | 10 days | Work-rest cycle |
+| `..X..` | **Hecto** | 100 days | Season / planning quarter |
+| `X....` | **Kilo** | 1 000 days | Mandate / multi-year project |
+
+`Kilo` has no upper bound. As decades pass, the leading number grows freely (`20.x.x.x`, `100.x.x.x`, ...).
+
+> **Note — "Generation" (informal).** ~10 000 days (≈27.4 years) is colloquially called a **Generation**. It is **not** a positional digit in the canonical format — it lives only in social/philosophical discourse (see Philosophy annex).
+
+### 4.3 Micro-time units (clock)
+
+The fraction of the day is decomposed into named places:
+
+| Position | Name | Fraction | Approx. duration |
+|---|---|---|---|
+| `.X....` | **Bloc** | 0.1 day | 2 h 24 min |
+| `..X...` | **Centi** | 0.01 day | 14 min 24 s |
+| `...X..` | **Milli** | 0.001 day | 1 min 26.4 s |
+| `....X.` | **Beat** | 0.0001 day | 8.64 s |
+| `.....X` | **Blink** | 0.00001 day | 0.864 s |
+
+### 4.4 Precision (variable)
+
+The default canonical precision is **5 fractional digits** (down to Blink). Implementations may extend precision (e.g., 9 digits ≈ 0.0086 ms for scientific or network synchronization use cases), or shorten it for display.
+
+When precision is reduced for display, see §6 (rounding policy).
+
+---
+
+## 5. Conversational format (human UI)
+
+For everyday display (watches, apps, conversation), ATS defines a **short** form:
+
+```
+Δ K.H.D / cc
+```
+
+- `K`, `H`, `D` are the **Kilo**, **Hecto**, **Deka** digits (Kilo is shown in full — it may be multi-digit).
+- `cc` is two digits of day-fraction (Bloc + Centi).
+- `/` separates the date part from the fraction part.
+
+Example:
+
+```
+Δ 20.7.5 / 43
+```
+
+**When to use which:**
+
+- **Canonical:** logs, storage, cryptographic signing, cross-system interop. Always uses `.` as date/fraction separator (URL-safe, filename-safe).
+- **Short:** UI, watches, conversation. Uses `/` for visual clarity between date and clock.
+
+> **Note — `Kin` is omitted in short form.** The short form drops the Kin digit because the Bloc/Centi already carry enough intra-day precision for human scheduling. If Kin is needed for unambiguous calendar reference, use canonical.
+
+---
+
+## 6. Rounding policy
+
+ATS uses **banker's rounding (half-even, IEEE 754 default)** when reducing precision for display.
+
+- A digit ending in `.5` rounds toward the nearest even.
+- Reason: avoids statistical bias when many timestamps are aggregated.
+
+> **Trade-off.** Banker's rounding may *occasionally* round forward (e.g., `…99500` → `…00000` carry). This contradicts the v1.0 "never invent future time" principle, accepted as the price of statistical neutrality. Implementations needing strict monotonicity may use **floor truncation** as a documented variant.
+
+The internal counter (the elapsed-days `Decimal`) always remains exact; rounding applies only to *displayed* digits.
+
+---
+
+## 7. Time zones policy
+
+ATS has **no internal time zones**.
+
+- ATS timestamps are *global instants* expressed in UTC.
+- "Local Solar Time" (LST) may be presented as an **informational overlay** for human convenience (e.g., "in New York, sunrise is around `.55`"), but is **never stored** as part of an ATS value.
+
+Implementations and software interfaces SHOULD NOT carry a time-zone field on ATS timestamps.
+
+---
+
+## 8. Leap seconds
+
+ATS aligns with UTC POSIX semantics: **a day is exactly 86 400 seconds**.
+
+- UTC leap seconds are absorbed silently into the standard day (same behavior as Unix time).
+- A future variant aligned to TAI (no leap seconds) may be defined for aerospace use; it is not part of this spec.
+
+---
+
+## 9. Conversion definition
+
+Let `EPOCH = 1969‑07‑20T20:17:40Z`.
+
+1. Compute elapsed time: `delta = now_utc - EPOCH`.
+2. Convert to **decimal days**: `days = delta_seconds / 86400`.
+3. If `days >= 0` → `T+`, else `T-` with `abs(days)`.
+4. Integer part → Kilo/Hecto/Deka/Kin breakdown.
+5. Fractional part → `fffff` (multiply by 100000; round per §6).
+
+A reference Python implementation lives in `code/ats.py`.
+
+---
+
+## 10. Decoding the short form
+
+The short form `Δ K.H.D / cc` is intentionally lossy:
+
+- No sign (assumed `T+`).
+- No Kin digit (assumed `0` at decode time).
+- Two-digit fraction (rest assumed `0`).
+- Kilo is shown in full — there is **no Myriade context** to recover.
+
+Implementations decoding a short form into a precise Gregorian instant SHOULD label the result as approximate (precision: ±1 day, ±~14 minutes).
+
+---
+
+## 11. Non-goals
+
+- ATS does not preserve months, weekdays, or religious cycles.
+- ATS does not encode local solar noon directly.
+- ATS does not legislate a work-rest rhythm. The Deka (10 days) is a measurement unit, not a social mandate.
+- ATS is not "more spiritual"; it is a universal computational standard.
+
+---
+
+## 12. Annexes
+
+- **Philosophy** (`philosophy.md`) — why ATS: biological cycle alignment (circadian, social, project, generational); proposed rituals (Kilo-versary, Hecto-celebration).
+- **Comparison** (`comparison.md`) — ATS vs Holocene, International Fixed, Hanke-Henry, French Republican, Swatch Internet Time, Darian (Mars).
+
+---
+
+## 13. Versioning
+
+This spec is **v1.1**. Changes from v1.0:
+
+- Epoch moved from first step (21/07 02:56:15Z) to landing (20/07 20:17:40Z).
+- Myriade removed from positional format; Kilo is now unbounded. "Generation" demoted to informal vocabulary.
+- 0.1-day unit renamed `D-Day` → `Bloc`.
+- Short form separator changed from `|` to `/`.
+- Rounding policy changed from strict floor to banker's half-even (trade-off documented).
+- Local Solar Time (LST) layer explicitly introduced.
+- Leap second policy explicitly aligned to POSIX.
+- Decoding rules for the short form documented (intentional lossiness).
+- Philosophy and comparison moved to annexes.

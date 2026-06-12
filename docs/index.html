@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Δ ATS — Apollonian Time System</title>
+  <link rel="stylesheet" href="./assets/css/style.css" />
+</head>
+<body>
+  <main class="container">
+    <section class="hero">
+      <div class="symbol mono">Δ</div>
+      <h1>Apollonian Time System</h1>
+      <p class="tagline">
+        A decimal, linear, universal time standard — anchored to the Apollo 11 lunar touchdown
+        (1969‑07‑20T20:17:40Z).
+      </p>
+      <div class="lang-pick">
+        <a href="./en/" lang="en">English</a>
+        <a href="./fr/" lang="fr">Français</a>
+      </div>
+    </section>
+  </main>
+  <footer class="site">
+    <span>Δ ATS v1.1 RC · <a href="https://github.com/s-geffroy/ATS" rel="noopener">github.com/s-geffroy/ATS</a></span>
+  </footer>
+  <script>
+    // Auto-redirect based on browser language preference.
+    (function () {
+      try {
+        var langs = (navigator.languages || [navigator.language || 'en']).map(function (l) { return l.toLowerCase(); });
+        var pref = 'en';
+        for (var i = 0; i < langs.length; i++) {
+          if (langs[i].startsWith('fr')) { pref = 'fr'; break; }
+          if (langs[i].startsWith('en')) { pref = 'en'; break; }
+        }
+        // Only redirect on the very first visit; respect manual choice.
+        if (!sessionStorage.getItem('ats-lang-pick')) {
+          sessionStorage.setItem('ats-lang-pick', '1');
+          window.location.replace('./' + pref + '/');
+        }
+      } catch (e) { /* ignore */ }
+    })();
+  </script>
+</body>
+</html>

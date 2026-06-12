@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Δ ATS — Mon âge ATS</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="site container">
+    <a class="brand" href="./">Δ ATS</a>
+    <nav>
+      <a href="./">Horloge</a>
+      <a href="./manifeste.html">Manifeste</a>
+      <a href="./philosophie.html">Philosophie</a>
+      <a href="./comparaison.html">Comparaison</a>
+      <a class="active" href="./age.html">Mon âge</a>
+      <a href="./code.html">Code</a>
+    </nav>
+    <span class="lang-switch">
+      <a class="active" href="./age.html">FR</a> ·
+      <a href="../en/age.html">EN</a>
+    </span>
+  </header>
+
+  <main class="container">
+    <h1>Mon âge ATS</h1>
+    <p class="muted">
+      Saisissez votre date de naissance pour obtenir votre âge en Δ, votre prochain Kilo-versaire
+      et votre situation dans les trois grandes Générations (Apprentissage / Construction / Transmission).
+    </p>
+
+    <section class="clock-card">
+      <div class="converter">
+        <label>
+          <span class="lbl">Date de naissance (ISO, UTC)</span>
+          <input id="birth" class="mono" placeholder="1976-12-20T00:00:00Z" />
+        </label>
+        <label>
+          <span class="lbl">Âge ATS</span>
+          <input id="ageAts" class="mono" readonly />
+        </label>
+      </div>
+
+      <div class="kv" style="margin-top:1rem;">
+        <div class="k">Jours vécus</div><div class="v" id="ageDays">—</div>
+        <div class="k">Génération actuelle</div><div class="v" id="ageGen">—</div>
+        <div class="k">Prochain Kilo‑versaire</div><div class="v" id="nextKilo">—</div>
+        <div class="k">Prochaine Hecto‑fête</div><div class="v" id="nextHecto">—</div>
+      </div>
+
+      <div class="actions">
+        <button id="calc" type="button">Calculer</button>
+        <span id="status" class="status ok">—</span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site">
+    Δ ATS v1.1 RC · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
+  </footer>
+
+  <script src="../assets/js/ats.js"></script>
+  <script>
+    (function () {
+      const MS_DAY = 86400000;
+      const birth = document.getElementById('birth');
+      const ageAts = document.getElementById('ageAts');
+      const ageDays = document.getElementById('ageDays');
+      const ageGen  = document.getElementById('ageGen');
+      const nextKilo = document.getElementById('nextKilo');
+      const nextHecto = document.getElementById('nextHecto');
+      const status = document.getElementById('status');
+
+      function setStatus(msg, ok) {
+        status.textContent = msg;
+        status.className = 'status ' + (ok ? 'ok' : 'err');
+      }
+      function pad2(n) { return String(n).padStart(2, '0'); }
+      function fmtUTC(d) {
+        return d.getUTCFullYear() + '-' + pad2(d.getUTCMonth() + 1) + '-' + pad2(d.getUTCDate());
+      }
+      function nextMilestone(birthMs, mod) {
+        const now = Date.now();
+        const elapsedDays = Math.floor((now - birthMs) / MS_DAY);
+        const completed = Math.floor(elapsedDays / mod);
+        const nextDayIndex = (completed + 1) * mod;
+        const nextMs = birthMs + nextDayIndex * MS_DAY;
+        const days = Math.ceil((nextMs - now) / MS_DAY);
+        return { date: new Date(nextMs), in: days, milestone: nextDayIndex };
+      }
+
+      function compute() {
+        const v = birth.value.trim();
+        const ms = Date.parse(v || (v.length === 10 ? v + 'T00:00:00Z' : v));
+        if (isNaN(ms)) {
+          setStatus('Date de naissance invalide.', false);
+          return;
+        }
+        const now = Date.now();
+        if (ms > now) {
+          setStatus('La date de naissance est dans le futur.', false);
+          return;
+        }
+        const elapsedMs = now - ms;
+        const ats = ATS.atsFromMs(ms + elapsedMs); // gives ATS relative to birth: nope.
+        // Compute age-as-ATS-relative-to-birth:
+        const elapsedDaysFloat = elapsedMs / MS_DAY;
+        const integerDays = Math.floor(elapsedDaysFloat);
+        const fracDays = elapsedDaysFloat - integerDays;
+        const fracDigits = Math.floor(fracDays * 100000);
+
+        const kilo = Math.floor(integerDays / 1000);
+        let rem = integerDays % 1000;
+        const hecto = Math.floor(rem / 100);
+        rem = rem % 100;
+        const deka = Math.floor(rem / 10);
+        const kin = rem % 10;
+
+        ageAts.value = `${kilo}.${hecto}.${deka}.${kin}.${String(fracDigits).padStart(5,'0')}`;
+        ageDays.textContent = integerDays.toLocaleString('fr-FR') + ' j';
+
+        // Generation: ~10000 days each
+        const gen = Math.floor(integerDays / 10000) + 1;
+        const labels = ['Apprentissage', 'Construction', 'Transmission'];
+        const label = labels[gen - 1] || `Génération ${gen} (au-delà du modèle)`;
+        ageGen.textContent = `${gen}ᵉ Génération — ${label}`;
+
+        const nk = nextMilestone(ms, 1000);
+        const nh = nextMilestone(ms, 100);
+        nextKilo.textContent = `${fmtUTC(nk.date)} (dans ${nk.in} j, jalon ${nk.milestone})`;
+        nextHecto.textContent = `${fmtUTC(nh.date)} (dans ${nh.in} j, jalon ${nh.milestone})`;
+
+        setStatus('Calcul à jour.', true);
+      }
+
+      document.getElementById('calc').addEventListener('click', compute);
+      birth.addEventListener('change', compute);
+    })();
+  </script>
+</body>
+</html>

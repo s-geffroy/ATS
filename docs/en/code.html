@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Δ ATS — Python code</title>
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" />
+</head>
+<body>
+  <header class="site container">
+    <a class="brand" href="./">Δ ATS</a>
+    <nav>
+      <a href="./">Clock</a>
+      <a href="./manifesto.html">Manifesto</a>
+      <a href="./philosophy.html">Philosophy</a>
+      <a href="./comparison.html">Comparison</a>
+      <a href="./age.html">My Age</a>
+      <a class="active" href="./code.html">Code</a>
+    </nav>
+    <span class="lang-switch">
+      <a href="../fr/code.html">FR</a> ·
+      <a class="active" href="./code.html">EN</a>
+    </span>
+  </header>
+
+  <main class="container">
+    <h1>Reference Python implementation</h1>
+    <p>
+      The <code>ats.py</code> module: bidirectional Gregorian ↔ ATS conversion, banker's rounding,
+      POSIX-aligned (leap seconds absorbed). Compatible with Python ≥ 3.9.
+    </p>
+
+    <p>
+      <a href="https://raw.githubusercontent.com/s-geffroy/ATS/main/code/ats.py" download>
+        Download <code>ats.py</code>
+      </a>
+      ·
+      <a href="https://github.com/s-geffroy/ATS/blob/main/code/ats.py" rel="noopener">
+        View on GitHub
+      </a>
+    </p>
+
+    <h2>Quick usage</h2>
+    <pre><code class="language-python">from datetime import datetime, timezone
+from ats import gregorian_to_ats, ats_to_gregorian
+
+now = datetime.now(timezone.utc)
+ats = gregorian_to_ats(now)
+print(ats.to_canonical())   # T+ Δ 20.7.8.0.61137
+print(ats.to_short())       # Δ 20.7.8 / 61
+
+back = ats_to_gregorian(ats.to_canonical())
+print(back.isoformat())     # 2026-06-12T10:58:02+00:00 (±432 ms)
+</code></pre>
+
+    <h2>Full source</h2>
+    <pre><code id="src" class="language-python">Loading…</code></pre>
+  </main>
+
+  <footer class="site">
+    Δ ATS v1.1 RC · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+  <script>
+    fetch('https://raw.githubusercontent.com/s-geffroy/ATS/main/code/ats.py')
+      .then(function (r) { if (!r.ok) throw new Error('http'); return r.text(); })
+      .catch(function () { return fetch('../../code/ats.py').then(function (r) { return r.text(); }); })
+      .then(function (txt) {
+        var el = document.getElementById('src');
+        el.textContent = txt;
+        if (window.Prism) Prism.highlightElement(el);
+      })
+      .catch(function () { document.getElementById('src').textContent = 'Source unavailable.'; });
+  </script>
+</body>
+</html>
