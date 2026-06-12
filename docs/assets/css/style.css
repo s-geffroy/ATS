@@ -196,10 +196,55 @@ a:hover { text-decoration: underline; }
 
 /* Analog dial */
 .analog-dial {
-  width: min(100%, 320px);
+  width: min(100%, 360px);
   height: auto;
   color: var(--fg);
   margin-top: 0.5rem;
+}
+
+/* Pedagogical ATS readout (Bloc · Centi · …) under the dial. */
+.ats-readout {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1rem;
+  text-align: center;
+  margin-top: 0.75rem;
+  letter-spacing: 0.01em;
+}
+.ats-readout .frac {
+  opacity: 0.55;
+  margin-left: 0.4rem;
+}
+
+/* World-cities color legend (matin / midi / soir) and city list. */
+.city-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1rem;
+  font-size: 0.84rem;
+  opacity: 0.85;
+  margin-top: 0.75rem;
+}
+.city-legend .swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 0.3rem;
+}
+.city-legend .swatch.matin { background: #fbbf24; }
+.city-legend .swatch.midi  { background: #22c55e; }
+.city-legend .swatch.soir  { background: #f97316; }
+.city-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 0.9rem;
+  font-size: 0.78rem;
+  opacity: 0.65;
+  margin-top: 0.35rem;
+  font-family: ui-monospace, monospace;
 }
 
 /* Options block at the end of the details panel */

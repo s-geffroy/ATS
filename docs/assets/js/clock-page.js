@@ -73,6 +73,8 @@
   const handMilli     = document.getElementById('hand-milli');
   const analogDateEl  = document.getElementById('analog-date');
   const utcDisplayAnalogEl = document.getElementById('utcDisplayAnalog');
+  const atsReadoutEl  = document.getElementById('atsReadout');
+  const cityListEl    = document.getElementById('city-list');
   const tabNumeric    = document.getElementById('tab-numeric');
   const tabAnalog     = document.getElementById('tab-analog');
   const faceNumeric   = document.getElementById('face-numeric');
@@ -209,6 +211,130 @@
       analogDateEl.textContent = 'Δ ' + ats.kilo + '.' + ats.hecto + '.' + ats.deka + '.' + ats.kin;
     }
     if (utcDisplayAnalogEl) utcDisplayAnalogEl.textContent = fmtUTC(d);
+    if (atsReadoutEl) {
+      // Pedagogical breakdown: Bloc · Centi · Milli · Beat · Blink (.fffff)
+      const fr = ats.frac;
+      const bloc  = Math.floor(fr / 10000);
+      const centi = Math.floor(fr / 1000) % 10;
+      const milli = Math.floor(fr / 100)  % 10;
+      const beat  = Math.floor(fr / 10)   % 10;
+      const blink = fr % 10;
+      const fracStr = String(fr).padStart(5, '0');
+      atsReadoutEl.innerHTML =
+        'Bloc ' + bloc + ' · Centi ' + centi + ' · Milli ' + milli +
+        ' · Beat ' + beat + ' · Blink ' + blink +
+        '<span class="frac">.' + fracStr + '</span>';
+    }
+  }
+
+  // -------- City "working day" arcs --------
+  // 7 world cities, IANA tz, plus a 2-3 letter glyph drawn at the start of the arc.
+  const CITIES = [
+    { code: 'LA',  tz: 'America/Los_Angeles', label: lang === 'fr' ? 'Los Angeles' : 'Los Angeles' },
+    { code: 'NYC', tz: 'America/New_York',    label: lang === 'fr' ? 'New York'    : 'New York'    },
+    { code: 'LDN', tz: 'Europe/London',       label: lang === 'fr' ? 'Londres'     : 'London'      },
+    { code: 'PAR', tz: 'Europe/Paris',        label: lang === 'fr' ? 'Paris'       : 'Paris'       },
+    { code: 'JER', tz: 'Asia/Jerusalem',      label: lang === 'fr' ? 'Jérusalem'   : 'Jerusalem'   },
+    { code: 'BJG', tz: 'Asia/Shanghai',       label: lang === 'fr' ? 'Pékin'       : 'Beijing'     },
+    { code: 'TKO', tz: 'Asia/Tokyo',          label: 'Tokyo' },
+  ];
+  const SLOTS = [
+    { from:  8, to: 12, color: '#fbbf24' }, // matin / morning
+    { from: 12, to: 14, color: '#22c55e' }, // midi / midday
+    { from: 14, to: 18, color: '#f97316' }, // soir / evening
+  ];
+
+  function getTzOffsetMin(tz, date) {
+    try {
+      const fmt = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'longOffset' });
+      const tzn = fmt.formatToParts(date).find(p => p.type === 'timeZoneName').value;
+      const m = /GMT(?:([+-])(\d{1,2})(?::(\d{2}))?)?/.exec(tzn);
+      if (!m) return 0;
+      if (!m[1]) return 0;
+      const sign = m[1] === '-' ? -1 : 1;
+      const hours = parseInt(m[2], 10);
+      const minutes = parseInt(m[3] || '0', 10);
+      return sign * (hours * 60 + minutes);
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  function localHourToDayFrac(tz, hour, today) {
+    const offsetMin = getTzOffsetMin(tz, today);
+    let utcHourMin = hour * 60 - offsetMin;       // minutes from UTC midnight
+    utcHourMin = ((utcHourMin % 1440) + 1440) % 1440;
+    return utcHourMin / 1440;
+  }
+
+  function arcPath(r, startFrac, endFrac) {
+    const a1 = startFrac * 2 * Math.PI - Math.PI / 2;
+    const a2 = endFrac   * 2 * Math.PI - Math.PI / 2;
+    const x1 = r * Math.cos(a1);
+    const y1 = r * Math.sin(a1);
+    const x2 = r * Math.cos(a2);
+    const y2 = r * Math.sin(a2);
+    let delta = endFrac - startFrac;
+    if (delta < 0) delta += 1;
+    const large = delta > 0.5 ? 1 : 0;
+    return 'M ' + x1.toFixed(2) + ' ' + y1.toFixed(2) +
+           ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + x2.toFixed(2) + ' ' + y2.toFixed(2);
+  }
+
+  function buildCityArcs() {
+    const group = document.getElementById('city-arcs');
+    if (!group) return;
+    group.innerHTML = '';                       // idempotent on rebuild
+    const NS = 'http://www.w3.org/2000/svg';
+    const today = new Date();
+    const baseR = 104;
+    const stepR = 4;
+    for (let i = 0; i < CITIES.length; i++) {
+      const city = CITIES[i];
+      const r = baseR + i * stepR;
+      const startFrac = localHourToDayFrac(city.tz, 8, today);
+      // Three slot arcs
+      for (let s = 0; s < SLOTS.length; s++) {
+        const slot = SLOTS[s];
+        const f1 = localHourToDayFrac(city.tz, slot.from, today);
+        const f2 = localHourToDayFrac(city.tz, slot.to,   today);
+        const path = document.createElementNS(NS, 'path');
+        path.setAttribute('d', arcPath(r, f1, f2));
+        path.setAttribute('stroke', slot.color);
+        path.setAttribute('stroke-width', '2.5');
+        path.setAttribute('stroke-linecap', 'butt');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('opacity', '0.85');
+        group.appendChild(path);
+      }
+      // City code label at the 8h end, just outside the arc
+      const a = startFrac * 2 * Math.PI - Math.PI / 2;
+      const lx = (r + 7) * Math.cos(a);
+      const ly = (r + 7) * Math.sin(a);
+      const t = document.createElementNS(NS, 'text');
+      t.setAttribute('x', lx.toFixed(2));
+      t.setAttribute('y', ly.toFixed(2));
+      t.setAttribute('text-anchor', 'middle');
+      t.setAttribute('dominant-baseline', 'middle');
+      t.setAttribute('font-family', 'ui-monospace, Menlo, Consolas, monospace');
+      t.setAttribute('font-size', '8');
+      t.setAttribute('fill', 'currentColor');
+      t.setAttribute('opacity', '0.75');
+      t.textContent = city.code;
+      group.appendChild(t);
+    }
+    // City legend list below the dial, with current UTC offsets
+    if (cityListEl) {
+      const parts = CITIES.map(function (city) {
+        const om = getTzOffsetMin(city.tz, today);
+        const sign = om >= 0 ? '+' : '−';
+        const h = Math.floor(Math.abs(om) / 60);
+        const m = Math.abs(om) % 60;
+        const off = sign + h + (m ? (':' + String(m).padStart(2, '0')) : '');
+        return city.code + ' ' + city.label + ' (UTC' + off + ')';
+      });
+      cityListEl.textContent = parts.join(' · ');
+    }
   }
 
   // -------- Face toggle (numeric ↔ analog) --------
@@ -250,6 +376,7 @@
   }
 
   buildAnalogTicks();
+  buildCityArcs();
   selectFace(currentFace);
 
   // -------- Frozen / live mode --------

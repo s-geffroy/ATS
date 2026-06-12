@@ -4,6 +4,15 @@ Toutes les modifications notables du projet ATS sont consignées ici.
 
 Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la nomenclature [SemVer](https://semver.org/lang/fr/).
 
+## [0.3.1] — 2026-06-12 (Δ 20.7.8.0/65)
+
+### Added — Analog clock enrichments
+- **Lecture ATS pédagogique** sous le cadran : `Bloc 6 · Centi 5 · Milli 4 · Beat 3 · Blink 7 (.65437)` — nomme chaque sous-unité du jour-fraction conformément au manifeste §4.3, plus la fraction canonique en parenthèses.
+- **Arcs \"jouré active\"** de 7 grandes villes sur le pourtour extérieur du cadran (rayons 104-128, espacés de 4 u). Chaque arc s'étend de 8h à 18h local et est colorié en 3 tronçons : Matin 8-12h (jaune `#fbbf24`), Midi 12-14h (vert `#22c55e`), Soir 14-18h (orange `#f97316`).
+- **Villes** : LA, NYC, LDN, PAR, JER, BJG, TKO. Initiales affichées au début de chaque arc (position 8h). Légende sous le cadran avec nom complet + offset UTC courant.
+- **DST dynamique** via `Intl.DateTimeFormat` (`timeZoneName: 'longOffset'`) — les arcs des villes à DST (LA, NYC, London, Paris, Jerusalem) bougent de ±60 min selon la date ; Beijing et Tokyo restent fixes.
+- **viewBox** élargi `-110 -110 220 220` → `-140 -140 280 280` pour loger les arcs.
+
 ## [0.3.0] — 2026-06-12 (Δ 20.7.8.0/65)
 
 ### Added — Analog clock face

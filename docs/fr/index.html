@@ -69,16 +69,24 @@
 
       <div id="face-analog" class="face-panel" role="tabpanel" aria-labelledby="tab-analog" hidden>
         <div class="label">Δ ATS (analogique)</div>
-        <svg class="analog-dial" viewBox="-110 -110 220 220" role="img" aria-label="Horloge analogique ATS — 3 aiguilles (Bloc, Centi, Milli)">
+        <svg class="analog-dial" viewBox="-140 -140 280 280" role="img" aria-label="Horloge analogique ATS — 3 aiguilles (Bloc, Centi, Milli) et arcs de journée pour 7 grandes villes">
           <circle cx="0" cy="0" r="100" fill="none" stroke="currentColor" stroke-opacity="0.3" stroke-width="2"/>
           <g id="analog-ticks"></g>
+          <g id="city-arcs"></g>
           <line id="hand-bloc"  x1="0" y1="0" x2="0" y2="-88" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
           <line id="hand-centi" x1="0" y1="0" x2="0" y2="-70" stroke="#4a6cff" stroke-width="3" stroke-linecap="round"/>
           <line id="hand-milli" x1="0" y1="0" x2="0" y2="-55" stroke="currentColor" stroke-opacity="0.5" stroke-width="1.6" stroke-linecap="round"/>
           <circle cx="0" cy="0" r="5" fill="currentColor"/>
           <text id="analog-date" role="timer" aria-live="off" aria-atomic="true" x="0" y="64" text-anchor="middle" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="14" fill="currentColor" opacity="0.85">—</text>
         </svg>
+        <div class="ats-readout" id="atsReadout" role="timer" aria-live="off" aria-atomic="true">—</div>
         <div class="secondary" id="utcDisplayAnalog">—</div>
+        <div class="city-legend">
+          <span><span class="swatch matin"></span>Matin 08–12h</span>
+          <span><span class="swatch midi"></span>Midi 12–14h</span>
+          <span><span class="swatch soir"></span>Soir 14–18h</span>
+        </div>
+        <div class="city-list" id="city-list">—</div>
       </div>
 
       <details>
