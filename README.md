@@ -4,7 +4,7 @@
 
 **Symbole :** Δ
 **Statut :** Release Candidate v1.1
-**Site :** _à venir_ — `https://s-geffroy.github.io/ATS/`
+**Site :** https://s-geffroy.github.io/ATS/ (bilingue FR / EN)
 
 ## Qu'est-ce que l'ATS ?
 
