@@ -9,6 +9,13 @@ venv/
 # macOS
 .DS_Store
 
+# Node / packaging
+node_modules/
+dist/
+build/
+*.tgz
+*.tar.gz
+
 # Editor / IDE
 .vscode/
 .idea/

@@ -6,6 +6,23 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
+  <meta name="description" content="24 hours vs 10 Blocs — a live SVG comparison of the Gregorian clock face and the Δ ATS clock face." />
+  <link rel="canonical" href="https://s-geffroy.github.io/ATS/en/dials.html" />
+  <link rel="alternate" hreflang="en" href="https://s-geffroy.github.io/ATS/en/dials.html" />
+  <link rel="alternate" hreflang="fr" href="https://s-geffroy.github.io/ATS/fr/cadrans.html" />
+  <link rel="alternate" hreflang="x-default" href="https://s-geffroy.github.io/ATS/en/dials.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:title" content="Δ ATS — 24h vs 10 Blocs" />
+  <meta property="og:description" content="24 hours vs 10 Blocs — a live SVG comparison of the Gregorian clock face and the Δ ATS clock face." />
+  <meta property="og:url" content="https://s-geffroy.github.io/ATS/en/dials.html" />
+  <meta property="og:image" content="https://s-geffroy.github.io/ATS/assets/og-card.svg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Δ ATS — 24h vs 10 Blocs" />
+  <meta name="twitter:description" content="24 hours vs 10 Blocs — a live SVG comparison of the Gregorian clock face and the Δ ATS clock face." />
+  <meta name="twitter:image" content="https://s-geffroy.github.io/ATS/assets/og-card.svg" />
   <title>Δ ATS — 24h vs 10 Blocs</title>
   <link rel="stylesheet" href="../assets/css/style.css" />
   <style>
@@ -63,19 +80,19 @@
           <line id="hand24" x1="0" y1="0" x2="0" y2="-92" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
           <circle cx="0" cy="0" r="4" fill="currentColor"/>
         </svg>
-        <div class="live-value" id="g24">—</div>
+        <div role="timer" aria-live="off" aria-atomic="true" class="live-value" id="g24">—</div>
       </div>
 
       <div class="dial-card">
         <div class="title">ATS — 10 Blocs</div>
         <svg viewBox="-110 -110 220 220" aria-label="10-Bloc dial">
-          <circle cx="0" cy="0" r="100" fill="none" stroke="#6c8cff" stroke-opacity="0.4" stroke-width="2"/>
+          <circle cx="0" cy="0" r="100" fill="none" stroke="#4a6cff" stroke-opacity="0.4" stroke-width="2"/>
           <g id="dialBlocs"></g>
-          <path id="arcAts" fill="#6c8cff" fill-opacity="0.22"/>
-          <line id="handAts" x1="0" y1="0" x2="0" y2="-92" stroke="#6c8cff" stroke-width="3" stroke-linecap="round"/>
-          <circle cx="0" cy="0" r="4" fill="#6c8cff"/>
+          <path id="arcAts" fill="#4a6cff" fill-opacity="0.22"/>
+          <line id="handAts" x1="0" y1="0" x2="0" y2="-92" stroke="#4a6cff" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="0" cy="0" r="4" fill="#4a6cff"/>
         </svg>
-        <div class="live-value" id="gAts">—</div>
+        <div role="timer" aria-live="off" aria-atomic="true" class="live-value" id="gAts">—</div>
       </div>
     </section>
 
@@ -127,7 +144,7 @@
         t.setAttribute('y1', (Math.sin(a) * 84).toFixed(2));
         t.setAttribute('x2', (Math.cos(a) * 96).toFixed(2));
         t.setAttribute('y2', (Math.sin(a) * 96).toFixed(2));
-        t.setAttribute('stroke', '#6c8cff');
+        t.setAttribute('stroke', '#4a6cff');
         t.setAttribute('stroke-width', '2');
         dialBlocs.appendChild(t);
         const lab = document.createElementNS(SVGNS, 'text');
@@ -136,7 +153,7 @@
         lab.setAttribute('text-anchor', 'middle');
         lab.setAttribute('font-family', 'ui-monospace, monospace');
         lab.setAttribute('font-size', '12');
-        lab.setAttribute('fill', '#6c8cff');
+        lab.setAttribute('fill', '#4a6cff');
         lab.textContent = String(b);
         dialBlocs.appendChild(lab);
       }

@@ -76,7 +76,9 @@
 
     _startTimer() {
       if (this._timer) clearInterval(this._timer);
-      const ups = Math.max(1, Math.min(20, parseInt(this.getAttribute('updates-per-second') || '10', 10)));
+      const raw = parseInt(this.getAttribute('updates-per-second') || '10', 10);
+      // Guard against NaN (parseInt of "xyz") and out-of-range values to avoid a busy-loop.
+      const ups = Number.isFinite(raw) ? Math.max(1, Math.min(20, raw)) : 10;
       this._timer = setInterval(() => this._tick(), Math.round(1000 / ups));
       this._tick();
     }

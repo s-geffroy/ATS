@@ -1,6 +1,6 @@
 {
   "name": "@s-geffroy/ats",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Apollonian Time System — decimal/linear time standard anchored to Apollo 11 lunar touchdown (1969-07-20T20:17:40Z).",
   "license": "MIT",
   "author": "Sylvain Geffroy",

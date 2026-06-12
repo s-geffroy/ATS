@@ -1,3 +1,29 @@
+[project]
+name = "ats-time"
+version = "0.2.0"
+description = "Apollonian Time System — decimal/linear time standard anchored to the Apollo 11 lunar touchdown (1969-07-20T20:17:40Z)."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Sylvain Geffroy" }]
+requires-python = ">=3.9"
+keywords = ["time", "calendar", "ats", "apollonian", "decimal"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering",
+]
+
+[project.urls]
+Homepage = "https://s-geffroy.github.io/ATS/"
+Repository = "https://github.com/s-geffroy/ATS"
+Issues = "https://github.com/s-geffroy/ATS/issues"
+Changelog = "https://github.com/s-geffroy/ATS/blob/main/CHANGELOG.md"
+
 [tool.ruff]
 line-length = 100
 target-version = "py39"

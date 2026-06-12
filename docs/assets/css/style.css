@@ -7,7 +7,7 @@
   --muted: color-mix(in oklab, CanvasText 60%, transparent);
   --border: color-mix(in oklab, CanvasText 22%, transparent);
   --card: color-mix(in oklab, Canvas 96%, CanvasText);
-  --accent: #6c8cff;
+  --accent: #4a6cff;
   --max: 1100px;
 }
 

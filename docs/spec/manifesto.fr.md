@@ -251,7 +251,7 @@ out = (days << 24) | frac24      # décalage arithmétique ; 64 bits au total
 ### 12.3 Propriétés
 
 - Une valeur ATS canonique (5 chiffres frac, résolution ≈ 864 ms) fait un round-trip **sans perte** par cet encodage binaire, car 24 bits (≈ 5,15 ms) sont plus fins.
-- La comparaison byte-à-byte de deux valeurs binaires est identique à l'ordre chronologique.
+- **La comparaison byte-à-byte donne l'ordre chronologique uniquement à l'intérieur d'une même classe de signe.** Entre deux instants T+ (jours ≥ 0), `memcmp` équivaut à l'ordre chronologique. Entre deux T-, c'est également vrai (plus proche de l'époque ⇒ plus grand `memcmp`, ce qui correspond à « moins loin dans le passé »). Pour une comparaison **mixte T+/T-**, `memcmp` brut ne donne **pas** l'ordre chronologique (les valeurs T- en complément à deux commencent par `FF…` et triées après les T+ qui commencent par `00…`) ; utiliser une comparaison d'entier signé sur le champ jours. Une variante future pourrait adopter une représentation biaisée (`jours + 2³⁹`) pour rendre `memcmp` globalement chronologique.
 - La valeur tout-zéro est l'époque (`T+ Δ 0.0.0.0.00000`).
 
 ### 12.4 Octets de référence (test vector)

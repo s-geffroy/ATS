@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Δ ATS — Apollonian Time System">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1116"/>
+      <stop offset="1" stop-color="#1a1f2b"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.4" r="0.5">
+      <stop offset="0" stop-color="#6c8cff" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#6c8cff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#halo)"/>
+
+  <text x="600" y="240" font-family="Verdana, Geneva, DejaVu Sans, sans-serif" font-size="280" font-weight="700" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">Δ</text>
+
+  <text x="600" y="380" font-family="Verdana, Geneva, DejaVu Sans, sans-serif" font-size="56" font-weight="700" fill="#ffffff" text-anchor="middle">Apollonian Time System</text>
+
+  <text x="600" y="445" font-family="Verdana, Geneva, DejaVu Sans, sans-serif" font-size="28" fill="#ffffff" fill-opacity="0.75" text-anchor="middle">A decimal, linear, universal time standard</text>
+
+  <text x="600" y="490" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="22" fill="#6c8cff" text-anchor="middle">T+ Δ 20.7.8.0.00000  ·  Epoch 1969‑07‑20T20:17:40Z</text>
+
+  <text x="600" y="565" font-family="Verdana, Geneva, DejaVu Sans, sans-serif" font-size="20" fill="#ffffff" fill-opacity="0.55" text-anchor="middle">s-geffroy.github.io/ATS</text>
+</svg>

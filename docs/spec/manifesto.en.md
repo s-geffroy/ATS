@@ -251,7 +251,7 @@ out = (days << 24) | frac24      # arithmetic shift; 64 bits total
 ### 12.3 Properties
 
 - A canonical ATS value (5 fractional digits, ≈ 864 ms resolution) round-trips through the binary form **without loss**, because 24 bits (≈ 5.15 ms) is finer.
-- Bytewise comparison of two binary values is identical to chronological order.
+- **Bytewise comparison gives chronological order only inside one sign class.** For two T+ instants (days ≥ 0), `memcmp` is equivalent to chronological order. For two T- instants, it is also chronological (closer to the epoch comes after in `memcmp`, which matches "less far in the past"). For a **mixed T+/T- comparison**, raw `memcmp` does *not* yield chronological order (two's-complement T- values start with `FF…` and sort after T+ values starting with `00…`); use signed-integer comparison on the day field instead. A future variant could adopt a biased representation (`days + 2³⁹`) to make `memcmp` globally chronological.
 - The all-zeros value is the epoch (`T+ Δ 0.0.0.0.00000`).
 
 ### 12.4 Reference octets (test vector)

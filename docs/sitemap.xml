@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://s-geffroy.github.io/ATS/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://s-geffroy.github.io/ATS/en/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://s-geffroy.github.io/ATS/fr/"/>
+  </url>
+  <url><loc>https://s-geffroy.github.io/ATS/en/</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/en/manifesto.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/en/philosophy.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/en/comparison.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/en/dials.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/en/timeline.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/en/faq.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/en/age.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/en/code.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/en/embed.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+
+  <url><loc>https://s-geffroy.github.io/ATS/fr/</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/fr/manifeste.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/fr/philosophie.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/fr/comparaison.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/fr/cadrans.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/fr/timeline.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/fr/faq.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/fr/age.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/fr/code.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://s-geffroy.github.io/ATS/fr/embed.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+</urlset>

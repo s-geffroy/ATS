@@ -24,6 +24,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
       - name: Lint with ruff
         run: |
           python -m pip install --upgrade pip
@@ -46,6 +48,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: package.json
       - name: Syntax check JS modules
         run: |
           node --check docs/assets/js/ats.js
