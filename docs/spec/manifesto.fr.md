@@ -113,25 +113,25 @@ En cas de réduction de précision, voir §6 (politique d'arrondi).
 Pour l'usage courant (montres, applis, oral), l'ATS définit une forme **courte** :
 
 ```
-Δ K.H.D / cc
+Δ K.H.D.Kin/cc
 ```
 
-- `K`, `H`, `D` sont les chiffres **Kilo**, **Hecto**, **Deka** (le Kilo est affiché en entier, potentiellement multi-chiffres).
+- `K`, `H`, `D`, `Kin` sont les chiffres **Kilo**, **Hecto**, **Deka**, **Kin** (le Kilo est affiché en entier, potentiellement multi-chiffres ; `Kin` est **toujours affiché**, même à zéro, pour ne jamais perdre la référence calendaire).
 - `cc` est composé de deux chiffres de fraction de jour (Bloc + Centi).
-- `/` sépare la partie date de la partie fraction.
+- `/` sépare la partie date de la partie fraction, **sans espace** autour, pour rester compact à l'affichage.
 
 Exemple :
 
 ```
-Δ 20.7.5 / 43
+Δ 20.7.5.0/43
 ```
 
 **Quand utiliser quoi :**
 
 - **Canonique :** logs, stockage, signature cryptographique, interop. Toujours `.` comme séparateur date/fraction (URL-safe, filename-safe).
-- **Court :** UI, montres, conversation. Utilise `/` pour la lisibilité.
+- **Court :** UI, montres, conversation. Utilise `/` collé aux chiffres pour la lisibilité.
 
-> **Note — `Kin` est omis dans la forme courte.** Le Bloc/Centi suffisent à la planification humaine quotidienne. Si Kin est nécessaire (référence calendaire non ambiguë), utiliser le canonique.
+> **Tolérance d'entrée.** Les parseurs DOIVENT accepter les variantes avec espaces autour du `/` (`Δ 20.7.5.0 / 43`) à la lecture, par tolérance. Mais le format *émis* est strict : aucun espace.
 
 ---
 
@@ -185,14 +185,13 @@ Une implémentation Python de référence est fournie dans `code/ats.py`.
 
 ## 10. Décodage de la forme courte
 
-La forme courte `Δ K.H.D / cc` est intentionnellement *lossy* :
+La forme courte `Δ K.H.D.Kin/cc` est intentionnellement *lossy* :
 
 - Pas de signe (`T+` supposé).
-- Pas de chiffre Kin (`0` supposé au décodage).
-- Fraction sur deux chiffres seulement (le reste est `0`).
+- Fraction sur deux chiffres seulement (Bloc + Centi ; les positions plus fines, Milli/Beat/Blink, sont supposées `0`).
 - Le Kilo est affiché en entier — il n'y a **pas de contexte Myriade** à reconstruire.
 
-Les implémentations qui décodent une forme courte en instant grégorien précis DOIVENT marquer le résultat comme approximatif (précision ±1 jour, ±~14 minutes).
+Les implémentations qui décodent une forme courte en instant grégorien précis DOIVENT marquer le résultat comme approximatif (précision ±~14 min 24 s — la résolution d'un Centi).
 
 ---
 
@@ -219,7 +218,7 @@ Cette spec est en **v1.1**. Différences avec v1.0 :
 - Époque déplacée du premier pas (21/07 02:56:15Z) à l'alunissage (20/07 20:17:40Z).
 - Myriade retirée du format positionnel ; le Kilo devient non borné. "Génération" est rétrogradée au vocabulaire informel.
 - L'unité 0,1 jour est renommée `D-Day` → `Bloc`.
-- Séparateur de la forme courte changé de `|` à `/`.
+- Forme courte : séparateur changé de `|` à `/`, sans espace autour ; le chiffre `Kin` est désormais **toujours affiché** (même à zéro) pour préserver la référence calendaire.
 - Politique d'arrondi : troncature stricte (floor) réaffirmée. Une variante banker's half-even envisagée brièvement en v0.1.0 a été rejetée comme incompatible avec le principe "compteur d'unités complétées".
 - Couche Local Solar Time (LST) explicitement introduite.
 - Politique leap seconds explicitement alignée POSIX.

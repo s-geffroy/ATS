@@ -83,12 +83,14 @@ class ATSDateTime:
         )
 
     def to_short(self) -> str:
-        """Conversational form: Δ K.H.D / cc
+        """Conversational form: Δ K.H.D.Kin/cc
 
-        Drops sign, kin and lower fractional digits. Lossy on purpose.
+        Drops the sign and the lower fractional digits (Milli/Beat/Blink).
+        Kin is always shown — even when zero — to keep the calendar
+        reference unambiguous. No spaces around `/`.
         """
         cc = self.frac // (10 ** (ATS_DECIMALS - 2))
-        return f"{ATS_SYMBOL} {self.kilo}.{self.hecto}.{self.deka} / {cc:02d}"
+        return f"{ATS_SYMBOL} {self.kilo}.{self.hecto}.{self.deka}.{self.kin}/{cc:02d}"
 
     def __str__(self) -> str:
         return self.to_canonical()
@@ -149,7 +151,7 @@ _ATS_CANON_RE = re.compile(
 )
 
 _ATS_SHORT_RE = re.compile(
-    r"^\s*Δ\s*(\d+)\.(\d)\.(\d)\s*/\s*(\d{1,2})\s*$"
+    r"^\s*Δ\s*(\d+)\.(\d)\.(\d)\.(\d)\s*/\s*(\d{1,2})\s*$"
 )
 
 
@@ -158,9 +160,10 @@ def ats_to_gregorian(ats: str, *, out_tz: str = "UTC", allow_short: bool = False
 
     Accepts the canonical form: "T+ Δ 20.7.5.6.43210"
 
-    The short form ("Δ 20.7.5 / 43") is only accepted when
+    The short form ("Δ 20.7.5.0/43") is only accepted when
     ``allow_short=True``, because it is intentionally lossy
-    (Kin assumed 0, fraction zero-padded, sign assumed T+).
+    (lower fractional digits zero-padded, sign assumed T+).
+    Whitespace around the `/` is tolerated on input.
     """
     m = _ATS_CANON_RE.match(ats)
     if m:
@@ -183,10 +186,10 @@ def ats_to_gregorian(ats: str, *, out_tz: str = "UTC", allow_short: bool = False
         if not allow_short:
             raise ValueError(
                 "Refusing to decode short ATS form without explicit opt-in "
-                "(pass allow_short=True). Short form is lossy: Kin assumed 0, "
-                "fraction zero-padded, sign assumed T+."
+                "(pass allow_short=True). Short form is lossy: lower "
+                "fractional digits zero-padded, sign assumed T+."
             )
-        kilo_s, hecto_s, deka_s, cc_s = m.groups()
+        kilo_s, hecto_s, deka_s, kin_s, cc_s = m.groups()
         cc = int(cc_s)
         if not 0 <= cc <= 99:
             raise ValueError("cc must be in 0..99")
@@ -196,7 +199,7 @@ def ats_to_gregorian(ats: str, *, out_tz: str = "UTC", allow_short: bool = False
             kilo=int(kilo_s),
             hecto=int(hecto_s),
             deka=int(deka_s),
-            kin=0,
+            kin=int(kin_s),
             frac=frac,
         )
         abs_days = ats_obj.total_days_decimal

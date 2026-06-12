@@ -113,25 +113,25 @@ When precision is reduced for display, see §6 (rounding policy).
 For everyday display (watches, apps, conversation), ATS defines a **short** form:
 
 ```
-Δ K.H.D / cc
+Δ K.H.D.Kin/cc
 ```
 
-- `K`, `H`, `D` are the **Kilo**, **Hecto**, **Deka** digits (Kilo is shown in full — it may be multi-digit).
+- `K`, `H`, `D`, `Kin` are the **Kilo**, **Hecto**, **Deka**, **Kin** digits. Kilo is shown in full (it may be multi-digit); `Kin` is **always shown**, even when it is zero, so the calendar reference is never lost.
 - `cc` is two digits of day-fraction (Bloc + Centi).
-- `/` separates the date part from the fraction part.
+- `/` separates the date part from the fraction part, **with no spaces** around it, to keep the form compact.
 
 Example:
 
 ```
-Δ 20.7.5 / 43
+Δ 20.7.5.0/43
 ```
 
 **When to use which:**
 
 - **Canonical:** logs, storage, cryptographic signing, cross-system interop. Always uses `.` as date/fraction separator (URL-safe, filename-safe).
-- **Short:** UI, watches, conversation. Uses `/` for visual clarity between date and clock.
+- **Short:** UI, watches, conversation. Uses `/` tight against the digits.
 
-> **Note — `Kin` is omitted in short form.** The short form drops the Kin digit because the Bloc/Centi already carry enough intra-day precision for human scheduling. If Kin is needed for unambiguous calendar reference, use canonical.
+> **Input tolerance.** Parsers MUST also accept the form with optional whitespace around `/` (`Δ 20.7.5.0 / 43`). The *emitted* form is strict: no spaces.
 
 ---
 
@@ -185,14 +185,13 @@ A reference Python implementation lives in `code/ats.py`.
 
 ## 10. Decoding the short form
 
-The short form `Δ K.H.D / cc` is intentionally lossy:
+The short form `Δ K.H.D.Kin/cc` is intentionally lossy:
 
 - No sign (assumed `T+`).
-- No Kin digit (assumed `0` at decode time).
-- Two-digit fraction (rest assumed `0`).
+- Two-digit fraction only (Bloc + Centi; the finer positions Milli/Beat/Blink are assumed `0`).
 - Kilo is shown in full — there is **no Myriade context** to recover.
 
-Implementations decoding a short form into a precise Gregorian instant SHOULD label the result as approximate (precision: ±1 day, ±~14 minutes).
+Implementations decoding a short form into a precise Gregorian instant SHOULD label the result as approximate (precision: ±~14 min 24 s — one Centi).
 
 ---
 
@@ -219,7 +218,7 @@ This spec is **v1.1**. Changes from v1.0:
 - Epoch moved from first step (21/07 02:56:15Z) to landing (20/07 20:17:40Z).
 - Myriade removed from positional format; Kilo is now unbounded. "Generation" demoted to informal vocabulary.
 - 0.1-day unit renamed `D-Day` → `Bloc`.
-- Short form separator changed from `|` to `/`.
+- Short form: separator changed from `|` to `/`, no spaces around it; the `Kin` digit is now **always shown** (even when zero) to preserve the calendar reference.
 - Rounding policy: strict floor truncation reaffirmed. A banker's half-even variant briefly considered in v0.1.0 was rejected as incompatible with the "counter of completed units" principle.
 - Local Solar Time (LST) layer explicitly introduced.
 - Leap second policy explicitly aligned to POSIX.

@@ -49,7 +49,7 @@ from ats import gregorian_to_ats, ats_to_gregorian
 now = datetime.now(timezone.utc)
 ats = gregorian_to_ats(now)
 print(ats.to_canonical())   # T+ Δ 20.7.8.0.61137
-print(ats.to_short())       # Δ 20.7.8 / 61
+print(ats.to_short())       # Δ 20.7.8.0/61
 
 back = ats_to_gregorian(ats.to_canonical())
 print(back.isoformat())     # 2026-06-12T10:58:02+00:00 (±432 ms)
