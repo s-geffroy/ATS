@@ -45,6 +45,15 @@
           <div class="k">Epoch</div><div class="v">T+ Δ 0.0.0.0.00000 — 1969‑07‑20T20:17:40Z</div>
         </div>
 
+        <h3 style="margin-top:1.5rem;">Macro units</h3>
+        <div class="kv">
+          <div class="k">Kilo <span class="muted">(1,000 d)</span></div><div class="v" id="uKilo">—</div>
+          <div class="k">Hecto <span class="muted">(100 d)</span></div><div class="v" id="uHecto">—</div>
+          <div class="k">Deka <span class="muted">(10 d)</span></div><div class="v" id="uDeka">—</div>
+          <div class="k">Kin <span class="muted">(1 d)</span></div><div class="v" id="uKin">—</div>
+          <div class="k">Days elapsed</div><div class="v" id="uTotal">—</div>
+        </div>
+
         <h3 style="margin-top:1.5rem;">Gregorian ↔ ATS converter</h3>
         <div class="converter">
           <label>
@@ -78,6 +87,11 @@
       const canonEl = document.getElementById('canonDisplay');
       const utcFull = document.getElementById('utcFull');
       const localEl = document.getElementById('localDisplay');
+      const uKiloEl  = document.getElementById('uKilo');
+      const uHectoEl = document.getElementById('uHecto');
+      const uDekaEl  = document.getElementById('uDeka');
+      const uKinEl   = document.getElementById('uKin');
+      const uTotalEl = document.getElementById('uTotal');
 
       function fmtLocalUTC(d) {
         return d.getUTCFullYear() + '-' +
@@ -96,6 +110,12 @@
         canonEl.textContent  = ATS.toCanonical(ats);
         utcFull.textContent  = now.toISOString();
         localEl.textContent  = now.toString();
+        uKiloEl.textContent  = ats.kilo;
+        uHectoEl.textContent = ats.hecto;
+        uDekaEl.textContent  = ats.deka;
+        uKinEl.textContent   = ats.kin;
+        const totalDays = ats.kilo * 1000 + ats.hecto * 100 + ats.deka * 10 + ats.kin;
+        uTotalEl.textContent = totalDays.toLocaleString('en-US') + ' d';
       }
       tick();
       setInterval(tick, 100);
