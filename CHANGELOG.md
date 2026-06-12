@@ -4,6 +4,15 @@ Toutes les modifications notables du projet ATS sont consignées ici.
 
 Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la nomenclature [SemVer](https://semver.org/lang/fr/).
 
+## [0.3.2] — 2026-06-12 (Δ 20.7.8.0/65)
+
+### Added
+- **8e ville** (Dubaï, UTC+4, sans DST) sur le cadran analogique — 8 villes au total, ordonnées Ouest → Est sur 2 lignes de 4 dans la légende.
+- **Unités micro** : nouvelle section dans `<details>` à côté des Unités macro, dans une grille à 2 colonnes (Macro à gauche, Micro à droite). Affiche les 5 sous-unités Bloc/Centi/Milli/Beat/Blink avec leur durée approximative. Sur mobile (< 600 px), les colonnes se replient en pile.
+
+### Changed
+- **Codes villes lisibles** : font-size `8` → `10`, `font-weight: 700`, opacité 100 %, halo (cercle `var(--bg)` opacité 0.92) derrière chaque code, position un peu plus à l'extérieur (radius +7 → +10).
+
 ## [0.3.1] — 2026-06-12 (Δ 20.7.8.0/65)
 
 ### Added — Analog clock enrichments

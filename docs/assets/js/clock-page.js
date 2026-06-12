@@ -62,6 +62,11 @@
   const uDekaEl  = document.getElementById('uDeka');
   const uKinEl   = document.getElementById('uKin');
   const uTotalEl = document.getElementById('uTotal');
+  const uBlocEl  = document.getElementById('uBloc');
+  const uCentiEl = document.getElementById('uCenti');
+  const uMilliEl = document.getElementById('uMilli');
+  const uBeatEl  = document.getElementById('uBeat');
+  const uBlinkEl = document.getElementById('uBlink');
   const gregInput = document.getElementById('gregInput');
   const atsInput  = document.getElementById('atsInput');
   const statusEl  = document.getElementById('status');
@@ -147,6 +152,13 @@
     const totalDays = ats.kilo * 1000 + ats.hecto * 100 + ats.deka * 10 + ats.kin;
     uTotalEl.textContent = totalDays.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-US') +
       (lang === 'fr' ? ' j' : ' d');
+    // Micro units share the same digits as the analog readout
+    const fr = ats.frac;
+    if (uBlocEl)  uBlocEl.textContent  = Math.floor(fr / 10000);
+    if (uCentiEl) uCentiEl.textContent = Math.floor(fr / 1000) % 10;
+    if (uMilliEl) uMilliEl.textContent = Math.floor(fr / 100)  % 10;
+    if (uBeatEl)  uBeatEl.textContent  = Math.floor(fr / 10)   % 10;
+    if (uBlinkEl) uBlinkEl.textContent = fr % 10;
     updateAnalog(ats, dateForDisplay);
   }
 
@@ -229,13 +241,15 @@
 
   // -------- City "working day" arcs --------
   // 7 world cities, IANA tz, plus a 2-3 letter glyph drawn at the start of the arc.
+  // West → East ordering, 8 cities total. 2 rows × 4 in the legend.
   const CITIES = [
-    { code: 'LA',  tz: 'America/Los_Angeles', label: lang === 'fr' ? 'Los Angeles' : 'Los Angeles' },
-    { code: 'NYC', tz: 'America/New_York',    label: lang === 'fr' ? 'New York'    : 'New York'    },
-    { code: 'LDN', tz: 'Europe/London',       label: lang === 'fr' ? 'Londres'     : 'London'      },
-    { code: 'PAR', tz: 'Europe/Paris',        label: lang === 'fr' ? 'Paris'       : 'Paris'       },
-    { code: 'JER', tz: 'Asia/Jerusalem',      label: lang === 'fr' ? 'Jérusalem'   : 'Jerusalem'   },
-    { code: 'BJG', tz: 'Asia/Shanghai',       label: lang === 'fr' ? 'Pékin'       : 'Beijing'     },
+    { code: 'LA',  tz: 'America/Los_Angeles', label: 'Los Angeles' },
+    { code: 'NYC', tz: 'America/New_York',    label: 'New York' },
+    { code: 'LDN', tz: 'Europe/London',       label: lang === 'fr' ? 'Londres'   : 'London' },
+    { code: 'PAR', tz: 'Europe/Paris',        label: 'Paris' },
+    { code: 'JER', tz: 'Asia/Jerusalem',      label: lang === 'fr' ? 'Jérusalem' : 'Jerusalem' },
+    { code: 'DXB', tz: 'Asia/Dubai',          label: lang === 'fr' ? 'Dubaï'     : 'Dubai' },
+    { code: 'BJG', tz: 'Asia/Shanghai',       label: lang === 'fr' ? 'Pékin'     : 'Beijing' },
     { code: 'TKO', tz: 'Asia/Tokyo',          label: 'Tokyo' },
   ];
   const SLOTS = [
@@ -289,11 +303,10 @@
     const today = new Date();
     const baseR = 104;
     const stepR = 4;
+    // First pass: arcs (drawn first so labels and their halos sit on top).
     for (let i = 0; i < CITIES.length; i++) {
       const city = CITIES[i];
       const r = baseR + i * stepR;
-      const startFrac = localHourToDayFrac(city.tz, 8, today);
-      // Three slot arcs
       for (let s = 0; s < SLOTS.length; s++) {
         const slot = SLOTS[s];
         const f1 = localHourToDayFrac(city.tz, slot.from, today);
@@ -307,19 +320,30 @@
         path.setAttribute('opacity', '0.85');
         group.appendChild(path);
       }
-      // City code label at the 8h end, just outside the arc
+    }
+    // Second pass: city code labels, each with a halo for readability.
+    for (let i = 0; i < CITIES.length; i++) {
+      const city = CITIES[i];
+      const r = baseR + i * stepR;
+      const startFrac = localHourToDayFrac(city.tz, 8, today);
       const a = startFrac * 2 * Math.PI - Math.PI / 2;
-      const lx = (r + 7) * Math.cos(a);
-      const ly = (r + 7) * Math.sin(a);
+      const lx = (r + 10) * Math.cos(a);
+      const ly = (r + 10) * Math.sin(a);
+      const halo = document.createElementNS(NS, 'circle');
+      halo.setAttribute('cx', lx.toFixed(2));
+      halo.setAttribute('cy', ly.toFixed(2));
+      halo.setAttribute('r', '8.5');
+      halo.setAttribute('class', 'city-halo');
+      group.appendChild(halo);
       const t = document.createElementNS(NS, 'text');
       t.setAttribute('x', lx.toFixed(2));
       t.setAttribute('y', ly.toFixed(2));
       t.setAttribute('text-anchor', 'middle');
       t.setAttribute('dominant-baseline', 'middle');
       t.setAttribute('font-family', 'ui-monospace, Menlo, Consolas, monospace');
-      t.setAttribute('font-size', '8');
+      t.setAttribute('font-size', '10');
+      t.setAttribute('font-weight', '700');
       t.setAttribute('fill', 'currentColor');
-      t.setAttribute('opacity', '0.75');
       t.textContent = city.code;
       group.appendChild(t);
     }
