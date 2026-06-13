@@ -18,6 +18,15 @@ classifiers = [
   "Topic :: Scientific/Engineering",
 ]
 
+[project.optional-dependencies]
+# Calendar bridges (§2.3, §5.1). Each module degrades cleanly with an
+# informative ImportError when its dependency is absent, so the core ATS
+# package stays dependency-free.
+bridges = [
+  "convertdate>=2.4",   # Hebrew, Islamic, Mayan, Indian civil
+  "lunardate>=0.2",     # Chinese lunisolar (HKO tables 1900–2100)
+]
+
 [project.urls]
 Homepage = "https://s-geffroy.github.io/ATS/"
 Repository = "https://github.com/s-geffroy/ATS"

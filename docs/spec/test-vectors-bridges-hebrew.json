@@ -1,0 +1,96 @@
+{
+  "description": "Hebrew↔ATS bridge — start-of-day UTC anchor (spec §11.4 algebra applies)",
+  "version": 1,
+  "vectors": [
+    {
+      "label": "Rosh Hashanah 5780 (1 Tishri)",
+      "hebrew": {
+        "year": 5780,
+        "month": 7,
+        "day": 1
+      },
+      "ats_canonical": "T+ Δ 18.3.3.4.00000"
+    },
+    {
+      "label": "Erev Pesach 5784 (14 Nisan)",
+      "hebrew": {
+        "year": 5784,
+        "month": 1,
+        "day": 14
+      },
+      "ats_canonical": "T+ Δ 20.0.0.0.00000"
+    },
+    {
+      "label": "Today (28 Sivan 5786)",
+      "hebrew": {
+        "year": 5786,
+        "month": 3,
+        "day": 28
+      },
+      "ats_canonical": "T+ Δ 20.7.8.2.00000"
+    },
+    {
+      "label": "Hanukkah 5786 (25 Kislev)",
+      "hebrew": {
+        "year": 5786,
+        "month": 9,
+        "day": 25
+      },
+      "ats_canonical": "T+ Δ 20.6.0.2.00000"
+    },
+    {
+      "label": "Adar II 1, 5782 (leap year)",
+      "hebrew": {
+        "year": 5782,
+        "month": 13,
+        "day": 1
+      },
+      "ats_canonical": "T+ Δ 19.2.2.0.00000"
+    },
+    {
+      "label": "First day of 5800 (1 Nisan)",
+      "hebrew": {
+        "year": 5800,
+        "month": 1,
+        "day": 1
+      },
+      "ats_canonical": "T+ Δ 25.8.0.6.00000"
+    },
+    {
+      "label": "Yom Kippur 5790 (10 Tishri)",
+      "hebrew": {
+        "year": 5790,
+        "month": 7,
+        "day": 10
+      },
+      "ats_canonical": "T+ Δ 21.9.7.6.00000"
+    },
+    {
+      "label": "Tisha B Av 5786 (9 Av)",
+      "hebrew": {
+        "year": 5786,
+        "month": 5,
+        "day": 9
+      },
+      "ats_canonical": "T+ Δ 20.8.2.2.00000"
+    },
+    {
+      "label": "Far past — 1 Tishri 5500",
+      "hebrew": {
+        "year": 5500,
+        "month": 7,
+        "day": 1
+      },
+      "ats_canonical": "T- Δ 83.9.3.1.00000"
+    },
+    {
+      "label": "Far future — 1 Nisan 6000",
+      "hebrew": {
+        "year": 6000,
+        "month": 1,
+        "day": 1
+      },
+      "ats_canonical": "T+ Δ 98.8.6.3.00000"
+    }
+  ]
+}

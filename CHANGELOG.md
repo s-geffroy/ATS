@@ -6,6 +6,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — v0.6.0 (en cours, Δ 20.7.8.2/45)
 
+### Added — Ponts calendaires (§2.3, §5.1)
+- **Architecture commune** : `code/bridges/__init__.py` introduit le pont RD (Rata Die = `datetime.date.toordinal()`) ↔ ATS. Chaque calendrier expose `to_ats(*date_tuple) → ATSDateTime` et `from_ats(ats) → tuple`. Les conversions sont ancrées sur le **début du jour UTC** (les calendriers travaillent en dates, pas en instants).
+- **Dépendances optionnelles** : nouveau groupe `bridges` dans `pyproject.toml` — `convertdate>=2.4` (Hebrew, Islamic, Maya, Indian civil) + `lunardate>=0.2` (Chinois). Le cœur ATS reste sans dépendance.
+- **§2.3a Hebrew** : `code/bridges/hebrew.py` (wrapper Reingold/Dershowitz via `convertdate.hebrew`). Format date : `(year, month, day)` 1..13 en année embolismique. `docs/spec/test-vectors-bridges-hebrew.json` — 10 vecteurs (Rosh Hashanah, Pesach, Hanukkah, Yom Kippur, Tisha B'Av, année embolismique 5782 avec Adar II, jalons 5500 et 6000).
+- **Tests** : `tests/test_bridges.py` (skip propre quand la dépendance manque) — round-trip Hebrew 10/10.
+
 ### Added — Annexe conventions non-normative (§2.2)
 - **`docs/spec/conventions.{en,fr}.md`** : annexe explicitement étiquetée **non-normative** (citée header dans une blockquote « Annexe non-normative — décrit, non exigé »). Couvre : Kilo-versaire (`Δ K.0.0.0`), Hecto-fête (`Δ K.H.0.0`), Deka-jour, rythme 7+3 sur la Deka, bandes solaires 08–22 (matin/midi/après-midi/soir avec styles d'arc dédiés), compteurs égocentrés, jalons rituels (Δ 100, Δ 1000, Δ 10000, Δ 20000, Δ 50000).
 - **Pages HTML** : nouveaux wrappers `docs/{fr,en}/conventions.html` (mêmes meta, OG, Twitter cards que les autres pages spec). **Non ajoutés à la nav** (déjà 10 entrées) — accessibles via §14 du manifeste et lien sous l'article.
