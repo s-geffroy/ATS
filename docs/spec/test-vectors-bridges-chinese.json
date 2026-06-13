@@ -1,4 +1,5 @@
 {
+  "spec_version": "0.6",
   "description": "Chinese lunisolar (HKO)↔ATS bridge — start-of-day UTC anchor",
   "version": 1,
   "vectors": [

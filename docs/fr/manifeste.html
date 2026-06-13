@@ -52,7 +52,7 @@
     <article id="content" class="markdown">
 <!-- ATS:INLINE manifesto.fr.md -->
 <h1>Le Système Temporel Apollonien (ATS)</h1>
-<p><strong>Statut :</strong> Pre-release v0.6.0
+<p><strong>Statut :</strong> Pré-release v0.5
 <strong>Symbole :</strong> Δ
 <strong>Langue source :</strong> Anglais (le français est une traduction)
 <strong>Idée principale :</strong> Remplacer le modèle grégorien <em>année/mois/semaine + heure locale</em> par un standard temporel unique, universel, décimal et linéaire, ancré sur un jalon technologique à l'échelle de l'espèce.</p>
@@ -446,7 +446,8 @@ out = (days &lt;&lt; 24) | frac24      # décalage arithmétique ; 64 bits au to
 <li><strong>Philosophie</strong> (<code>philosophy.md</code>) — pourquoi l'ATS : alignement avec les cycles biologiques (circadien, social, projet, générationnel) ; rituels proposés (Kilo-versaire, Hecto-fête).</li>
 <li><strong>Comparaison</strong> (<code>comparison.md</code>) — l'ATS face à Holocene, International Fixed, Hanke-Henry, Calendrier Républicain, Swatch Internet Time, Darian (Mars).</li>
 <li><strong>Conventions</strong> (<code>conventions.md</code>) — <strong>annexe non-normative</strong> : Kilo-versaire, Hecto-fête, rythme 7+3, bandes solaires 08–22. Décrit, non exigé.</li>
-<li><strong>Test vectors</strong> (<code>test-vectors.json</code>, <code>test-vectors-arithmetic.json</code>) — jeux de conformance machine-readable.</li>
+<li><strong>Versionnement &amp; stabilité</strong> (<code>versioning.md</code>) — <strong>annexe normative</strong> : contrat SemVer, gels post-v1.0, politique de vecteurs additifs, processus RFC.</li>
+<li><strong>Test vectors</strong> (<code>test-vectors.json</code>, <code>test-vectors-arithmetic.json</code>, <code>test-vectors-bridges-*.json</code>) — jeux de conformance machine-readable, tous portent <code>spec_version</code> racine.</li>
 </ul>
 <hr>
 <h2>15. Versionnement</h2>

@@ -1,4 +1,5 @@
 {
+  "spec_version": "0.6",
   "description": "Hebrew↔ATS bridge — start-of-day UTC anchor (spec §11.4 algebra applies)",
   "version": 1,
   "vectors": [

@@ -4,6 +4,15 @@ Toutes les modifications notables du projet ATS sont consignées ici.
 
 Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la nomenclature [SemVer](https://semver.org/lang/fr/).
 
+## [Unreleased] — vers v1.0
+
+### Added — Engagement de stabilité (pré-v1.0)
+- **`docs/spec/versioning.{en,fr}.md`** : nouvelle **annexe normative** qui codifie le contrat SemVer + les **7 gels post-v1.0** (époque, format canonique, format court, troncature, algèbre §11.4, format binaire §12, 12 vecteurs core). Briser l'un d'eux exigera un projet distinct (ATS 2) avec une nouvelle époque. Politique de vecteurs additifs seulement. Processus RFC léger via GitHub Discussions (2 semaines min de commentaires publics, BDFL tranche).
+- **`SECURITY.md`** : politique de divulgation responsable. Canal préféré GitHub Security Advisories + email backup. SLA : ack 72 h, triage 7 j, fix high ≤ 30 j / moderate ≤ 90 j. Scope explicite (spec sémantique, code Python + JS, site, SW, CI).
+- **`GOVERNANCE.md`** : modèle BDFL (Sylvain) jusqu'à v1.0 + adoption mesurable, puis transition vers steering committee de 3–5 membres. Distinction process éditorial (PR review) vs spec change (RFC requis). Post-v1.0 les RFCs qui violent les gels sont auto-rejetées.
+- **`spec_version: "0.6"`** ajouté à la racine des **7 fichiers** `docs/spec/test-vectors*.json`. Les consommateurs détectent désormais explicitement la spec contre laquelle un jeu de vecteurs a été produit.
+- **Manifeste §14** (FR + EN) cite `versioning.md` comme annexe normative.
+
 ## [0.6.0] — 2026-06-13 (Δ 20.7.8.2/48)
 
 ### Added — Recherche statique Pagefind (§5.3)

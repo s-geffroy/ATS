@@ -1,90 +1,199 @@
 {
+  "spec_version": "0.6",
   "description": "ATS arithmetic conformance vectors (spec §11.4). 12 cases covering Δ+Δd, Δ−Δ, Δ−Δd, Δd algebra and Δ comparisons across signs.",
   "version": 1,
   "vectors": [
     {
       "label": "Δ + Δd 0 = Δ (identity)",
       "op": "add",
-      "lhs": {"kind": "ats", "canonical": "T+ Δ 0.0.0.0.00000"},
-      "rhs": {"kind": "dur", "signed_days": "0"},
-      "expected": {"kind": "ats", "canonical": "T+ Δ 0.0.0.0.00000"}
+      "lhs": {
+        "kind": "ats",
+        "canonical": "T+ Δ 0.0.0.0.00000"
+      },
+      "rhs": {
+        "kind": "dur",
+        "signed_days": "0"
+      },
+      "expected": {
+        "kind": "ats",
+        "canonical": "T+ Δ 0.0.0.0.00000"
+      }
     },
     {
       "label": "Δ + Δd 1 day",
       "op": "add",
-      "lhs": {"kind": "ats", "canonical": "T+ Δ 20.7.8.2.50000"},
-      "rhs": {"kind": "dur", "signed_days": "1"},
-      "expected": {"kind": "ats", "canonical": "T+ Δ 20.7.8.3.50000"}
+      "lhs": {
+        "kind": "ats",
+        "canonical": "T+ Δ 20.7.8.2.50000"
+      },
+      "rhs": {
+        "kind": "dur",
+        "signed_days": "1"
+      },
+      "expected": {
+        "kind": "ats",
+        "canonical": "T+ Δ 20.7.8.3.50000"
+      }
     },
     {
       "label": "Δ + Δd carry Kin → Deka",
       "op": "add",
-      "lhs": {"kind": "ats", "canonical": "T+ Δ 0.0.0.9.00000"},
-      "rhs": {"kind": "dur", "signed_days": "1"},
-      "expected": {"kind": "ats", "canonical": "T+ Δ 0.0.1.0.00000"}
+      "lhs": {
+        "kind": "ats",
+        "canonical": "T+ Δ 0.0.0.9.00000"
+      },
+      "rhs": {
+        "kind": "dur",
+        "signed_days": "1"
+      },
+      "expected": {
+        "kind": "ats",
+        "canonical": "T+ Δ 0.0.1.0.00000"
+      }
     },
     {
       "label": "Δ + Δd carry all the way to Kilo",
       "op": "add",
-      "lhs": {"kind": "ats", "canonical": "T+ Δ 0.9.9.9.50000"},
-      "rhs": {"kind": "dur", "signed_days": "0.5"},
-      "expected": {"kind": "ats", "canonical": "T+ Δ 1.0.0.0.00000"}
+      "lhs": {
+        "kind": "ats",
+        "canonical": "T+ Δ 0.9.9.9.50000"
+      },
+      "rhs": {
+        "kind": "dur",
+        "signed_days": "0.5"
+      },
+      "expected": {
+        "kind": "ats",
+        "canonical": "T+ Δ 1.0.0.0.00000"
+      }
     },
     {
       "label": "Δ − Δ same instant → Δd 0",
       "op": "sub",
-      "lhs": {"kind": "ats", "canonical": "T+ Δ 20.7.8.2.50000"},
-      "rhs": {"kind": "ats", "canonical": "T+ Δ 20.7.8.2.50000"},
-      "expected": {"kind": "dur", "canonical": "T+ Δd 0.0.0.0.00000"}
+      "lhs": {
+        "kind": "ats",
+        "canonical": "T+ Δ 20.7.8.2.50000"
+      },
+      "rhs": {
+        "kind": "ats",
+        "canonical": "T+ Δ 20.7.8.2.50000"
+      },
+      "expected": {
+        "kind": "dur",
+        "canonical": "T+ Δd 0.0.0.0.00000"
+      }
     },
     {
       "label": "Δ − Δ → Δd 1 day",
       "op": "sub",
-      "lhs": {"kind": "ats", "canonical": "T+ Δ 20.7.8.3.50000"},
-      "rhs": {"kind": "ats", "canonical": "T+ Δ 20.7.8.2.50000"},
-      "expected": {"kind": "dur", "canonical": "T+ Δd 0.0.0.1.00000"}
+      "lhs": {
+        "kind": "ats",
+        "canonical": "T+ Δ 20.7.8.3.50000"
+      },
+      "rhs": {
+        "kind": "ats",
+        "canonical": "T+ Δ 20.7.8.2.50000"
+      },
+      "expected": {
+        "kind": "dur",
+        "canonical": "T+ Δd 0.0.0.1.00000"
+      }
     },
     {
       "label": "Δd 0.5 × 2 = Δd 1",
       "op": "mul",
-      "lhs": {"kind": "dur", "signed_days": "0.5"},
-      "rhs": {"kind": "scalar", "value": 2},
-      "expected": {"kind": "dur", "canonical": "T+ Δd 0.0.0.1.00000"}
+      "lhs": {
+        "kind": "dur",
+        "signed_days": "0.5"
+      },
+      "rhs": {
+        "kind": "scalar",
+        "value": 2
+      },
+      "expected": {
+        "kind": "dur",
+        "canonical": "T+ Δd 0.0.0.1.00000"
+      }
     },
     {
       "label": "Δd 1 ÷ 4 = Δd 0.25",
       "op": "div",
-      "lhs": {"kind": "dur", "signed_days": "1"},
-      "rhs": {"kind": "scalar", "value": 4},
-      "expected": {"kind": "dur", "canonical": "T+ Δd 0.0.0.0.25000"}
+      "lhs": {
+        "kind": "dur",
+        "signed_days": "1"
+      },
+      "rhs": {
+        "kind": "scalar",
+        "value": 4
+      },
+      "expected": {
+        "kind": "dur",
+        "canonical": "T+ Δd 0.0.0.0.25000"
+      }
     },
     {
       "label": "Δ + negative Δd crosses epoch (T+ → T-)",
       "op": "add",
-      "lhs": {"kind": "ats", "canonical": "T+ Δ 0.0.0.0.50000"},
-      "rhs": {"kind": "dur", "signed_days": "-1"},
-      "expected": {"kind": "ats", "canonical": "T- Δ 0.0.0.0.50000"}
+      "lhs": {
+        "kind": "ats",
+        "canonical": "T+ Δ 0.0.0.0.50000"
+      },
+      "rhs": {
+        "kind": "dur",
+        "signed_days": "-1"
+      },
+      "expected": {
+        "kind": "ats",
+        "canonical": "T- Δ 0.0.0.0.50000"
+      }
     },
     {
       "label": "Δ − Δ across signs → Δd 2",
       "op": "sub",
-      "lhs": {"kind": "ats", "canonical": "T+ Δ 0.0.0.1.00000"},
-      "rhs": {"kind": "ats", "canonical": "T- Δ 0.0.0.1.00000"},
-      "expected": {"kind": "dur", "canonical": "T+ Δd 0.0.0.2.00000"}
+      "lhs": {
+        "kind": "ats",
+        "canonical": "T+ Δ 0.0.0.1.00000"
+      },
+      "rhs": {
+        "kind": "ats",
+        "canonical": "T- Δ 0.0.0.1.00000"
+      },
+      "expected": {
+        "kind": "dur",
+        "canonical": "T+ Δd 0.0.0.2.00000"
+      }
     },
     {
       "label": "Δ < Δ same sign",
       "op": "lt",
-      "lhs": {"kind": "ats", "canonical": "T+ Δ 20.7.8.2.50000"},
-      "rhs": {"kind": "ats", "canonical": "T+ Δ 20.7.8.3.00000"},
-      "expected": {"kind": "bool", "value": true}
+      "lhs": {
+        "kind": "ats",
+        "canonical": "T+ Δ 20.7.8.2.50000"
+      },
+      "rhs": {
+        "kind": "ats",
+        "canonical": "T+ Δ 20.7.8.3.00000"
+      },
+      "expected": {
+        "kind": "bool",
+        "value": true
+      }
     },
     {
       "label": "Δ < Δ across signs (T- < T+)",
       "op": "lt",
-      "lhs": {"kind": "ats", "canonical": "T- Δ 0.0.0.1.00000"},
-      "rhs": {"kind": "ats", "canonical": "T+ Δ 0.0.0.1.00000"},
-      "expected": {"kind": "bool", "value": true}
+      "lhs": {
+        "kind": "ats",
+        "canonical": "T- Δ 0.0.0.1.00000"
+      },
+      "rhs": {
+        "kind": "ats",
+        "canonical": "T+ Δ 0.0.0.1.00000"
+      },
+      "expected": {
+        "kind": "bool",
+        "value": true
+      }
     }
   ]
 }

@@ -313,7 +313,8 @@ out = (days << 24) | frac24      # arithmetic shift; 64 bits total
 - **Philosophy** (`philosophy.md`) — why ATS: alignment with biological cycles (circadian, social, project, generational); proposed rituals (Kilo-versary, Hecto-feast).
 - **Comparison** (`comparison.md`) — ATS vs Holocene, International Fixed, Hanke-Henry, French Republican, Swatch Internet Time, Darian (Mars).
 - **Conventions** (`conventions.md`) — **non-normative annex**: Kilo-versary, Hecto-feast, 7+3 rhythm, 08-22 solar bands. Described, not required.
-- **Test vectors** (`test-vectors.json`, `test-vectors-arithmetic.json`) — machine-readable conformance suites.
+- **Versioning & stability** (`versioning.md`) — **normative annex**: SemVer contract, post-v1.0 freezes, additive vector policy, RFC process.
+- **Test vectors** (`test-vectors.json`, `test-vectors-arithmetic.json`, `test-vectors-bridges-*.json`) — machine-readable conformance suites, all carry a root `spec_version`.
 
 ---
 

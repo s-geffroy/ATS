@@ -1,4 +1,5 @@
 {
+  "spec_version": "0.6",
   "description": "Maya Long Count (GMT 584283)↔ATS bridge — start-of-day UTC anchor",
   "version": 1,
   "vectors": [
