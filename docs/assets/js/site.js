@@ -120,11 +120,63 @@
     render();
   }
 
+  // -------- PWA: manifest + icon injection + SW registration --------
+  function pwaPathPrefix() {
+    // Site lives under /ATS/ on GitHub Pages; locally under /. Detect by
+    // looking at the first path segment of the current page.
+    const segments = location.pathname.split('/').filter(Boolean);
+    if (segments[0] === 'ATS') return '/ATS/';
+    return '/';
+  }
+
+  function injectPwaTags() {
+    const head = document.head;
+    if (!head) return;
+    const prefix = pwaPathPrefix();
+    if (!head.querySelector('link[rel="manifest"]')) {
+      const m = document.createElement('link');
+      m.rel = 'manifest';
+      m.href = prefix + 'manifest.webmanifest';
+      head.appendChild(m);
+    }
+    if (!head.querySelector('link[rel="icon"]')) {
+      const i = document.createElement('link');
+      i.rel = 'icon';
+      i.type = 'image/svg+xml';
+      i.href = prefix + 'assets/icon.svg';
+      head.appendChild(i);
+    }
+    if (!head.querySelector('link[rel="apple-touch-icon"]')) {
+      const ai = document.createElement('link');
+      ai.rel = 'apple-touch-icon';
+      ai.href = prefix + 'assets/icon-192.png';
+      head.appendChild(ai);
+    }
+  }
+
+  function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    const prefix = pwaPathPrefix();
+    navigator.serviceWorker
+      .register(prefix + 'sw.js', { scope: prefix })
+      .catch(() => { /* silent — SW is enhancement-only */ });
+
+    // Reply to background-sync birthdate queries from the SW (§5.6).
+    navigator.serviceWorker.addEventListener('message', (ev) => {
+      if (!ev.data || ev.data.type !== 'ATS_BIRTHDATE_QUERY') return;
+      let birthIso = null;
+      try { birthIso = localStorage.getItem('ats-birthdate'); } catch (e) {}
+      ev.ports[0] && ev.ports[0].postMessage({ birthIso });
+    });
+  }
+
   function init() {
     const header = document.querySelector('header.site');
     if (!header) return;
     initHamburger(header);
     initThemeToggle(header);
+    injectPwaTags();
+    registerServiceWorker();
   }
 
   if (document.readyState === 'loading') {

@@ -1,0 +1,45 @@
+{
+  "name": "Δ ATS — Apollonian Time System",
+  "short_name": "ATS",
+  "description": "Decimal, linear, universal time anchored to Apollo 11. No time zones. Bloc 5 = 12:00 UTC.",
+  "start_url": "/ATS/fr/",
+  "scope": "/ATS/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b0f17",
+  "theme_color": "#4a6cff",
+  "lang": "en",
+  "categories": ["utilities", "education", "productivity"],
+  "icons": [
+    {
+      "src": "/ATS/assets/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/ATS/assets/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/ATS/assets/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/ATS/assets/icon-192-maskable.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/ATS/assets/icon-512-maskable.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ]
+}

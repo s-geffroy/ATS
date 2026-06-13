@@ -6,6 +6,16 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — v0.6.0 (en cours, Δ 20.7.8.2/45)
 
+### Added — PWA installable (§3.2, §5.6)
+- **`docs/manifest.webmanifest`** : nom court « ATS », nom long « Δ ATS — Apollonian Time System », `start_url=/ATS/fr/`, `scope=/ATS/`, `display=standalone`, `theme_color=#4a6cff`, `background_color=#0b0f17`. 5 icônes déclarées : SVG vectoriel + PNG 192/512 (any) + PNG 192/512 (maskable, fond `#0b0f17`).
+- **`docs/assets/icon.svg`** : Δ blanc sur fond `#0b0f17`, anneau d'accent `#4a6cff`. ViewBox 512×512.
+- **`docs/assets/icon-{192,512}.png`** + **`icon-{192,512}-maskable.png`** : générés via `docker run --rm -v "$PWD:/app" dpokidov/imagemagick -density 600 icon.svg -resize …`.
+- **`docs/sw.js`** : `CACHE_NAME='ats-v0.6.0'`. Install pré-cache la coquille (FR + EN index, style.css, 4 JS, icon.svg). Fetch handler : cache-first sur `/assets/`, network-first sur HTML avec fallback offline sur `/fr/`. Activate sweep des anciens caches.
+- **`site.js`** étendu :
+  - `injectPwaTags()` (idempotent) ajoute `<link rel="manifest">`, `<link rel="icon">` SVG, `<link rel="apple-touch-icon">` PNG 192 sur les 21 pages — détection du préfixe `/ATS/` vs `/`.
+  - `registerServiceWorker()` enregistre `/sw.js` (scope `/ATS/` sur GH Pages) et écoute les messages `ATS_BIRTHDATE_QUERY` pour répondre depuis `localStorage['ats-birthdate']`.
+- **§5.6 Background Sync Kilo-versaires (best-effort)** : `sw.js` écoute l'event `periodicsync` (tag `ats-kilo-versaire-check`). Si Chrome desktop/Android avec PWA installée + permission `periodic-background-sync` accordée, le SW interroge un client ouvert pour récupérer `ats-birthdate`, calcule le Δd vers le prochain Kilo-versaire, et déclenche `showNotification` si ≤ 2 jours. **Limites documentées** : pas de backend, Chrome-only, nécessite une fenêtre ouverte récemment pour l'aller-retour de message. Fallback in-page reste prévu dans `age.html`.
+
 ### Added — Ponts calendaires (§2.3, §5.1)
 - **Architecture commune** : `code/bridges/__init__.py` introduit le pont RD (Rata Die = `datetime.date.toordinal()`) ↔ ATS. Chaque calendrier expose `to_ats(*date_tuple) → ATSDateTime` et `from_ats(ats) → tuple`. Les conversions sont ancrées sur le **début du jour UTC** (les calendriers travaillent en dates, pas en instants).
 - **Dépendances optionnelles** : nouveau groupe `bridges` dans `pyproject.toml` — `convertdate>=2.4` (Hebrew, Islamic, Maya, Indian civil) + `lunardate>=0.2` (Chinois). Le cœur ATS reste sans dépendance.
@@ -14,6 +24,10 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 - **§5.1a Chinese (lunisolaire HKO)** : `code/bridges/chinese.py` via `lunardate` (tables HKO 1900–2100). Format date : `(year, month, day, leap_month)`. 10 vecteurs (Nouvel An lunaire 2024/2025, Fête de la mi-automne, Dragon Boat, jalons 1950/1990/2000/2050/2099).
 - **§5.1b Hindu / Indian National (Saka)** : `code/bridges/hindu.py` via `convertdate.indian_civil`. Calendrier civil moderne adopté en 1957 (solaire, 12 mois Chaitra…Phalguna). 10 vecteurs (Saka 1879 = Republic Day, jalons 1880–2000). Note documentée : différence avec le Sūrya Siddhānta lunisolaire classique (qui nécessite des tables panchanga régionales).
 - **§5.1c Maya Long Count (GMT 584283)** : `code/bridges/maya.py` via `convertdate.mayan`. Constante de corrélation **584 283** retenue (ISO 19108 / Goodman-Martínez-Thompson). Format `(baktun, katun, tun, uinal, kin)`. 10 vecteurs (fin du 13ᵉ baktun = 2012-12-21, today, jalons LC 9.0.0.0.0 à 14.0.0.0.0). Les dates pré-an 1 CE proleptique sont rejetées (limite de `datetime.date` en Python).
+- **Tests** : `tests/test_bridges.py` charge les 5 jeux de vecteurs (50 cas) ; skip propre si la dépendance manque. CI étend `unittest discover tests`.
+
+### Différé — UI dropdown calendrier source (Hors-roadmap)
+- Le dropdown calendrier source dans `clock-page.js` est **reporté** : porter `convertdate.{hebrew,islamic,mayan,indian_civil}` + `lunardate` en JS représente un travail substantiel (tables HKO 1900–2100 + algorithmes Reingold/Dershowitz). Les ponts Python sont opérationnels et testés ; l'UI sera ajoutée dans une session ultérieure.
 - **Tests** : `tests/test_bridges.py` (skip propre quand la dépendance manque) — round-trip Hebrew 10/10.
 
 ### Added — Annexe conventions non-normative (§2.2)
