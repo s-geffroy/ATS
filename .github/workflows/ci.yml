@@ -31,6 +31,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install ruff
           ruff check code tests
+      - name: Install project with [bridges] extra
+        # Brings in convertdate + lunardate so the 5 calendar bridge test
+        # classes actually run instead of skipping silently. Without this,
+        # tests/test_bridges.py would mask real bugs behind "skipped".
+        run: pip install ".[bridges]"
       - name: Run module demo
         run: python code/ats.py
       - name: Conformance tests (all suites)

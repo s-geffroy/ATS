@@ -6,6 +6,16 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — vers v1.0
 
+### Fixed — Tests bridges plus jamais skip silencieux
+Application de la méthode systematic-debugging (cause racine d'abord). Le baseline `python -m unittest discover tests` montrait **6 tests skipped** ; trois causes distinctes identifiées et corrigées en cascade :
+
+1. **`tests/test_bridges.py`** : la classe mixin `_BridgeRoundTrip` héritait de `unittest.TestCase`, donc unittest la découvrait comme une vraie classe de test et déclenchait un skip cosmétique « base class ». Refactor en mixin pur (sans héritage `TestCase`), les concrete classes utilisent l'héritage multiple `class TestXBridge(_BridgeRoundTrip, unittest.TestCase)`. Le test loader ne voit plus que les 5 vraies classes.
+2. **`pyproject.toml`** : setuptools 80+ refusait `pip install .[bridges]` avec « Multiple top-level packages discovered in a flat-layout: ['code', 'archive', 'lighthouse'] ». Ajout d'un bloc explicite `[tool.setuptools]` (`package-dir = {"" = "code"}`, `py-modules = ["ats", "ats_multi_planetary"]`, `packages = ["bridges"]`) + `[build-system]` (setuptools ≥ 70). L'install fonctionne maintenant proprement.
+3. **`.github/workflows/ci.yml`** : la matrice Python n'installait jamais l'extra `[bridges]`, donc les 5 tests calendaires skippaient en CI sans jamais valider les ponts en conditions réelles. Nouvelle étape « Install project with [bridges] extra » qui installe `convertdate` + `lunardate` avant la conformance. Le risque caché de bugs jamais détectés par CI disparaît.
+
+**Avant** : `Ran 14 tests in 0.005s — OK (skipped=6)`
+**Après** : `Ran 19 tests in 0.010s — OK` (0 skipped, 50 vecteurs de ponts effectivement validés).
+
 ### Added — Extension multi-planétaire (V1.0-A)
 - **`docs/spec/multi-planetary.{en,fr}.md`** — annexe **normative** v0.7-rc1 qui généralise l'ATS à d'autres corps célestes :
   - **Mars** : ancré sur **Mars Pathfinder (1997-07-04T16:56:55Z)** ; sol = **88 775,244147 s** (Allison & McEwen 2000). Δ_Mars `0.0.0.0.00000` = touchdown ; 2026-06-13T12:00Z = `T+ Δ_Mars 10.2.8.7.96477`.

@@ -47,16 +47,19 @@ def _bridge_available(name: str) -> bool:
     return True
 
 
-class _BridgeRoundTrip(unittest.TestCase):
-    """Mixin: subclasses set ``CALENDAR`` and override
-    ``date_tuple_from_vector`` / ``compare_tuples``."""
+class _BridgeRoundTrip:
+    """Mixin (NOT a TestCase): concrete subclasses inherit from both this
+    mixin and ``unittest.TestCase``. This keeps the test loader from
+    discovering the mixin itself — eliminating a spurious "base class"
+    skip that used to show up in CI.
+
+    Subclasses set ``CALENDAR`` and override ``date_tuple_from_vector``.
+    """
 
     CALENDAR: str = ""
 
     @classmethod
     def setUpClass(cls):
-        if cls.CALENDAR == "":
-            raise unittest.SkipTest("base class")
         if not _bridge_available(cls.CALENDAR):
             raise unittest.SkipTest(f"Bridge dependency missing for {cls.CALENDAR}")
         cls.vectors = _load_vectors(cls.CALENDAR)
@@ -71,8 +74,6 @@ class _BridgeRoundTrip(unittest.TestCase):
         return tuple(got) == tuple(expected)
 
     def test_each_vector(self) -> None:
-        if not getattr(self, "CALENDAR", ""):
-            self.skipTest("base mixin")
         for v in self.vectors:
             with self.subTest(label=v["label"]):
                 date_tuple = self.date_tuple_from_vector(v)
@@ -85,7 +86,7 @@ class _BridgeRoundTrip(unittest.TestCase):
                 )
 
 
-class TestHebrewBridge(_BridgeRoundTrip):
+class TestHebrewBridge(_BridgeRoundTrip, unittest.TestCase):
     CALENDAR = "hebrew"
 
     def date_tuple_from_vector(self, vector: dict) -> tuple:
@@ -93,7 +94,7 @@ class TestHebrewBridge(_BridgeRoundTrip):
         return (h["year"], h["month"], h["day"])
 
 
-class TestIslamicBridge(_BridgeRoundTrip):
+class TestIslamicBridge(_BridgeRoundTrip, unittest.TestCase):
     CALENDAR = "islamic"
 
     def date_tuple_from_vector(self, vector: dict) -> tuple:
@@ -101,7 +102,7 @@ class TestIslamicBridge(_BridgeRoundTrip):
         return (h["year"], h["month"], h["day"])
 
 
-class TestMayaBridge(_BridgeRoundTrip):
+class TestMayaBridge(_BridgeRoundTrip, unittest.TestCase):
     CALENDAR = "maya"
 
     def date_tuple_from_vector(self, vector: dict) -> tuple:
@@ -109,7 +110,7 @@ class TestMayaBridge(_BridgeRoundTrip):
         return (m["baktun"], m["katun"], m["tun"], m["uinal"], m["kin"])
 
 
-class TestIndianBridge(_BridgeRoundTrip):
+class TestIndianBridge(_BridgeRoundTrip, unittest.TestCase):
     CALENDAR = "hindu"
 
     def date_tuple_from_vector(self, vector: dict) -> tuple:
@@ -117,7 +118,7 @@ class TestIndianBridge(_BridgeRoundTrip):
         return (h["year"], h["month"], h["day"])
 
 
-class TestChineseBridge(_BridgeRoundTrip):
+class TestChineseBridge(_BridgeRoundTrip, unittest.TestCase):
     CALENDAR = "chinese"
 
     def date_tuple_from_vector(self, vector: dict) -> tuple:
