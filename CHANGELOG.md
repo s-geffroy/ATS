@@ -6,6 +6,13 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — v0.6.0 (en cours, Δ 20.7.8.2/45)
 
+### Added — Recherche statique Pagefind (§5.3)
+- **Index Pagefind** dans `docs/_pagefind/` (~900 KB, généré au build via `docker run --rm -v "$PWD:/app" -w /app/docs node:20-slim sh -c "npx --yes pagefind --site . --output-path _pagefind"`) — 25 pages indexées sur 2 langues (FR + EN), 3 199 mots distincts.
+- **`docs/.nojekyll`** : créé pour désactiver Jekyll sur GitHub Pages (Jekyll ignore par défaut les dossiers `_*`, ce qui aurait masqué `_pagefind/`).
+- **`docs/assets/js/search.js`** : wrapper minimal autour de Pagefind, lazy-loading (le module ne se charge qu'au premier focus pour ne pas peser sur les autres pages). Auto-injection du champ de recherche en haut de `<main>` si la page charge le script sans déclarer `<div id="ats-search">`. Style auto-injecté qui suit les variables de thème.
+- **Activation** : FAQ et Manifeste (FR + EN) chargent `search.js`. La CSP de ces 4 pages est étendue avec `'wasm-unsafe-eval'` dans `script-src` (Pagefind utilise WebAssembly).
+- **README** : nouvelle section « Recherche statique (Pagefind) » avec la commande Docker complète.
+
 ### Added — Thèmes alternatifs + Konami code (§5.7, §5.8)
 - **3 nouveaux thèmes alternatifs** via `:root[data-theme="…"]` dans `style.css` :
   - **Terminal** : noir `#0c0c0c` / vert phosphor `#33ff33`, police mono globale, glow texte sur les éléments actifs.

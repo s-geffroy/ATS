@@ -47,6 +47,17 @@ Publié depuis `main`, dossier `/docs`. Pages bilingues :
 - **Intégrer / Embed** — guide one-liner avec Web Component, badge.
 - **Code** — module Python téléchargeable, lien GitHub raw.
 
+## Recherche statique (Pagefind)
+
+Depuis v0.6, les pages FAQ et Manifeste (FR + EN) embarquent un champ de recherche alimenté par Pagefind. L'index est construit à partir de toutes les pages `docs/` (25 HTML) au moment du build :
+
+```bash
+docker run --rm -v "$PWD:/app" -w /app/docs node:20-slim \
+  sh -c 'npx --yes pagefind --site . --output-path _pagefind'
+```
+
+Sortie : `docs/_pagefind/` (~900 KB pour 2 langues × 25 pages × 3 200 mots). Le fichier `docs/.nojekyll` désactive Jekyll pour que ce dossier souligné-prefixé soit servi par GitHub Pages.
+
 ## Endpoint snapshot `/api/now.json`
 
 Depuis v0.6, GitHub Actions régénère `docs/api/now.json` **toutes les heures** (workflow `cron-now.yml`). Le fichier expose l'instant ATS courant en JSON :
