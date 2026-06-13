@@ -4,6 +4,33 @@ Toutes les modifications notables du projet ATS sont consignées ici.
 
 Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la nomenclature [SemVer](https://semver.org/lang/fr/).
 
+## [0.5.0] — 2026-06-13 (Δ 20.7.8.2/50)
+
+### Changed — **Breaking : bascule d'époque**
+- **Époque ATS déplacée** de l'instant exact de l'alunissage (`1969-07-20T20:17:40Z`, retenu en RC v1.1) au **début du jour de l'alunissage** (`1969-07-20T00:00:00Z`). Conséquence pédagogique majeure : **Bloc 5 = 12:00 UTC** exactement (5 × 2 h 24 min). Toutes les valeurs Δ antérieures sont décalées de 73 060 s ≈ 0,84560 jour.
+- L'instant exact de l'alunissage (20:17:40Z) devient un **point remarquable à l'intérieur de Δ 0**, situé à `T+ Δ 0.0.0.0.84560` (Bloc 8 / Centi 4 / Deka 5 / Kin 6).
+- **Aucun convertisseur v1 → v2 fourni** (le projet est encore en pré-v1). Les consommateurs doivent régénérer leurs valeurs.
+- Manifeste FR + EN : §2 (Époque) réécrit, §2.1 enrichi d'une ligne (« instant exact de l'alunissage » devient un ancrage rejeté), §4.1 et §5 (exemples) actualisés sur 2026-06-13T12:00Z = `T+ Δ 20.7.8.2.50000`, §9 (définition de la conversion) mis à jour, §15 (versionnement) refondu. Statut « Release Candidate v1.1 » → « Pre-release v0.5 ».
+- FAQ FR + EN : nouvelles entrées « Pourquoi le début du jour, pas l'instant exact ? » et « Pourquoi pas le premier pas ? » remplaçant la justification antérieure.
+
+### Changed — Frise chronologique
+- `docs/{fr,en}/timeline.html` **refondue** : ~17 entrées (1900–2026) avec tags couleur par thème (Espace, Sciences, Tech, Politique), badge ★ sur l'alunissage à l'intérieur de Δ 0, et 2 conventions ATS distinctes (Hecto-fête Δ 100 = 1969-10-28, Kilo-versaire 1 Δ 1000 = 1972-04-15).
+- Nouvelle légende thématique en tête de frise. Styles dédiés `.tl-event.origin`, `.tl-event.landmark`, `.tl-event.convention`.
+
+### Changed — Vecteurs de test
+- `docs/spec/test-vectors.json` régénéré : **12 instants** (au lieu de 10). Ajouts : « Bloc 5 = 12:00 UTC reference », « Lunar landing (Eagle touchdown) », « One full day after epoch ». Tous les Δ recalculés contre la nouvelle époque.
+- `tests/test_vectors.{py,mjs}` : aucun changement de logique, contrat 12/12 vert.
+
+### Changed — Code & site
+- `code/ats.py` : `ATS_EPOCH = datetime(1969, 7, 20, 0, 0, 0, tzinfo=timezone.utc)`. Docstring v1.1 → v0.5.
+- `docs/assets/js/ats.js` et `docs/assets/js/ats-clock.js` : constantes `ATS_EPOCH_MS` mises à jour. `EPOCH_ISO` publique = `'1969-07-20T00:00:00Z'`.
+- Pages HTML (21) : footers `v1.1 RC` → `v0.5`, meta descriptions et exemples chiffrés actualisés, placeholders du convertisseur sur `T+ Δ 20.7.8.2.50000`. Carte OG (`docs/assets/og-card.svg`) actualisée.
+- `README.md` : refondu avec nouvelle époque, badge `v0.5`, mention explicite du breaking change.
+
+### Removed
+- Toute référence à `1969-07-20T20:17:40Z` comme **époque** (le timestamp reste cité comme instant remarquable de l'alunissage).
+- Phrasings « ancré à Apollo 11 (touchdown) » → « ancré au jour d'Apollo 11 ».
+
 ## [0.3.2] — 2026-06-12 (Δ 20.7.8.0/65)
 
 ### Added

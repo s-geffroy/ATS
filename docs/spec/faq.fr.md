@@ -8,9 +8,13 @@ Le grégorien optimise le calage saisonnier d'une société agricole du XVIᵉ s
 
 L'alunissage est l'événement le plus consensuellement positif et techniquement vérifiable du XXᵉ siècle. C'est aussi le premier instant où un humain a posé son enveloppe sur un autre corps céleste, ce qui colle au projet "civilisation multi-planétaire" du manifeste.
 
-## Pourquoi l'alunissage (20/07 20:17:40Z) et non le premier pas (21/07 02:56:15Z) ?
+## Pourquoi le **début** du jour (00:00 UTC) et non l'instant exact de l'alunissage (20:17:40 UTC) ?
 
-L'alunissage est la date que le monde retient ("20 juillet 1969"). Le premier pas a une charge symbolique forte mais arrive 6h35 plus tard. Pour ne pas trahir la mémoire commune, l'ATS retient l'instant de **contact**.
+Pour aligner le compteur de jour avec UTC : avec l'époque calée sur minuit, **Bloc 5 = 12:00 UTC** exactement (5 × 2 h 24 min), Bloc 0 = minuit, etc. Les versions antérieures (« RC v1.1 ») ancraient sur l'instant exact de l'alunissage ; Bloc 5 tombait alors à 08:17:40 UTC, ce qui déroutait (« pourquoi Bloc 5 n'est pas midi ? »). v0.5 corrige cela. L'instant de l'alunissage reste honoré comme un point remarquable à l'intérieur de Δ 0, à `T+ Δ 0.0.0.0.84560` (Bloc 8, Centi 4, Deka 5, Kin 6).
+
+## Pourquoi pas le premier pas (21/07 02:56:15Z) comme ancrage ?
+
+Le premier pas a une charge symbolique plus forte que l'alunissage — mais il arrive 6 h 35 après que Eagle s'est posé, et le *lendemain* UTC (Δ 1). Le monde retient l'alunissage comme « 20 juillet 1969 » ; ancrer sur le début de ce jour préserve la mémoire culturelle tout en alignant sur UTC.
 
 ## Pourquoi pas l'année tropique (365.2422 j) comme unité macro ?
 
@@ -58,4 +62,4 @@ Le Kilo n'a pas de borne supérieure. `Δ 124.3.5.7.00000` est valide (124 000 +
 
 ## Comment je sais qu'une lib tierce respecte la spec ?
 
-`docs/spec/test-vectors.json` contient 10 instants de référence avec leurs encodages canonique + court. Toute implémentation doit produire des sorties identiques bit pour bit. La CI du projet exécute ce contrat sur Python et JavaScript à chaque push.
+`docs/spec/test-vectors.json` contient 12 instants de référence avec leurs encodages canonique + court. Toute implémentation doit produire des sorties identiques bit pour bit. La CI du projet exécute ce contrat sur Python et JavaScript à chaque push.

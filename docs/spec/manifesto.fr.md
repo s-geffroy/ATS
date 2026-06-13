@@ -1,6 +1,6 @@
 # Le Système Temporel Apollonien (ATS)
 
-**Statut :** Release Candidate v1.1
+**Statut :** Pré-release v0.5
 **Symbole :** Δ
 **Langue source :** Anglais (le français est une traduction)
 **Idée principale :** Remplacer le modèle grégorien *année/mois/semaine + heure locale* par un standard temporel unique, universel, décimal et linéaire, ancré sur un jalon technologique à l'échelle de l'espèce.
@@ -21,25 +21,27 @@ Le résultat est une représentation plus simple à calculer, plus comparable st
 
 ## 2. Époque (Point Zéro)
 
-L'ATS prend pour référence un jalon technologique à l'échelle de l'espèce.
+L'ATS prend pour référence un jalon technologique à l'échelle de l'espèce : **le jour où l'humanité s'est posée pour la première fois sur un autre monde.**
 
-- **Événement :** alunissage du module *Eagle* d'Apollo 11.
-- **Date UTC :** **1969‑07‑20T20:17:40Z**.
+- **Événement :** début du jour de l'alunissage d'Apollo 11 (frontière minuit UTC).
+- **Date UTC :** **1969‑07‑20T00:00:00Z**.
 - **Valeur ATS :** **`T+ Δ 0.0.0.0.00000`**.
+- **Instant exact de l'alunissage** (Eagle s'est posé à 20:17:40Z) : un instant remarquable *à l'intérieur* de Δ 0, situé à **`T+ Δ 0.0.0.0.84560`** — soit Bloc 8, Centi 4, Deka 5, Kin 6 dans la nomenclature intra-jour (voir §4.3).
 
-> **Justification.** L'alunissage — et non le premier pas (1969‑07‑21T02:56:15Z) — est retenu comme marqueur d'espèce : c'est l'instant où l'enveloppe humaine s'est *posée* pour la première fois sur un autre corps céleste, et c'est la date que le monde retient ("20 juillet 1969").
+> **Justification.** Ancrer sur le *début* du 20 juillet 1969 (UTC) — plutôt que sur l'instant de l'alunissage (20:17:40Z) retenu dans les versions antérieures — aligne le compteur de jour avec UTC : **Bloc 5 vaut exactement 12:00 UTC** (5 × 2 h 24 min). Le monde retient la date « 20 juillet 1969 » ; l'ATS conserve cette date et la cale sur la frontière minuit UTC, tout en préservant l'instant exact de l'alunissage comme un point remarquable à l'intérieur de Δ 0.
 
 ### 2.1 Ancrages alternatifs (rejetés)
 
-Pour mémoire, d'autres jalons techno-civilisationnels ont été envisagés puis écartés :
+Pour mémoire, d'autres ancrages ont été envisagés puis écartés :
 
 | Candidat | UTC | Raison du rejet |
 |---|---|---|
+| Instant exact de l'alunissage | 1969‑07‑20T20:17:40Z | Décale le compteur de jour de UTC : Bloc 5 tombe à 08:17:40 UTC au lieu de midi. Pédagogiquement déroutant. |
 | Lancement de Spoutnik 1 | 1957‑10‑04T19:28:34Z | Robotique, pas de présence humaine au-delà de la Terre |
 | Hiroshima | 1945‑08‑06T08:15:00Z | Marqueur civilisationnel mais négatif |
 | Premier vol motorisé (Wright) | 1903‑12‑17T15:35:00Z | Atmosphérique uniquement |
 | Lancement Apollo 11 | 1969‑07‑16T13:32:00Z | Début du voyage, pas l'arrivée |
-| Premier pas (EVA) | 1969‑07‑21T02:56:15Z | Symbolique, mais l'alunissage le précède |
+| Premier pas (EVA) | 1969‑07‑21T02:56:15Z | Symbolique, mais l'alunissage le précède et tombe le lendemain UTC (Δ 1) |
 
 ---
 
@@ -67,10 +69,10 @@ Au quotidien, le symbole Δ implique `T+` par défaut (la majorité de la vie co
 - `HEC`, `DEK`, `KIN` sont des chiffres `0..9` (Hecto, Deka, Kin).
 - `fffff` est la **fraction de jour** encodée sur 5 chiffres décimaux (0..99999) par défaut — voir §4.4 pour la précision variable.
 
-Exemple (ère actuelle, ~57 ans post-époque) :
+Exemple (ère actuelle, ~57 ans post-époque — midi UTC, le 13 juin 2026) :
 
 ```
-T+ Δ 20.7.5.6.43210
+T+ Δ 20.7.8.2.50000
 ```
 
 ### 4.2 Unités macro (calendrier)
@@ -123,7 +125,7 @@ Pour l'usage courant (montres, applis, oral), l'ATS définit une forme **courte*
 Exemple :
 
 ```
-Δ 20.7.5.0/43
+Δ 20.7.8.2/50
 ```
 
 **Quand utiliser quoi :**
@@ -171,7 +173,7 @@ L'ATS s'aligne sur la sémantique UTC POSIX : **un jour vaut exactement 86 400 s
 
 ## 9. Définition de la conversion
 
-Soit `EPOCH = 1969‑07‑20T20:17:40Z`.
+Soit `EPOCH = 1969‑07‑20T00:00:00Z`.
 
 1. Calculer le delta : `delta = now_utc - EPOCH`.
 2. Convertir en **jours décimaux** : `days = delta_secondes / 86400`.
@@ -283,13 +285,22 @@ out = (days << 24) | frac24      # décalage arithmétique ; 64 bits au total
 
 ## 15. Versionnement
 
-Cette spec est en **v1.1**. Différences avec v1.0 :
+Cette spec est en **v0.5 (pré-release)**.
 
-- Époque déplacée du premier pas (21/07 02:56:15Z) à l'alunissage (20/07 20:17:40Z).
-- Myriade retirée du format positionnel ; le Kilo devient non borné. "Génération" est rétrogradée au vocabulaire informel.
-- L'unité 0,1 jour est renommée `D-Day` → `Bloc`.
+### Différences avec v0.3.x (« RC v1.1 », précédente pré-release)
+
+- **Époque déplacée** de l'instant d'alunissage (1969‑07‑20T20:17:40Z) au **début du jour de l'alunissage** (1969‑07‑20T00:00:00Z). C'est un **breaking change** : toute valeur ATS produite par les versions antérieures est décalée de 73 060 s ≈ 0,84560 jour. Le projet étant encore en pré-v1, **aucun convertisseur n'est fourni** : les consommateurs doivent régénérer leurs valeurs.
+- **Conséquence directe :** Bloc 5 = 12:00 UTC exactement. L'instant exact de l'alunissage devient un point remarquable à l'intérieur de Δ 0, à `T+ Δ 0.0.0.0.84560`.
+- §2.1 enrichi d'une ligne : l'« instant exact de l'alunissage » devient lui-même un ancrage rejeté (décale Bloc 5 de UTC).
+- Exemples chiffrés §4.1 et §5 mis à jour.
+- §9 (définition de la conversion) mis à jour.
+
+### Antérieur (conservé pour mémoire) — changements qui définissaient la RC v1.1 (désormais dépassée)
+
+- Myriade retirée du format positionnel ; le Kilo devient non borné. « Génération » rétrogradée au vocabulaire informel.
+- L'unité 0,1 jour renommée `D-Day` → `Bloc`.
 - Forme courte : séparateur changé de `|` à `/`, sans espace autour ; le chiffre `Kin` est désormais **toujours affiché** (même à zéro) pour préserver la référence calendaire.
-- Politique d'arrondi : troncature stricte (floor) réaffirmée. Une variante banker's half-even envisagée brièvement en v0.1.0 a été rejetée comme incompatible avec le principe "compteur d'unités complétées".
+- Politique d'arrondi : troncature stricte (floor). Une variante banker's half-even envisagée brièvement plus tôt a été rejetée comme incompatible avec le principe « compteur d'unités complétées ».
 - Couche Local Solar Time (LST) explicitement introduite.
 - Politique leap seconds explicitement alignée POSIX.
 - Règles de décodage de la forme courte documentées (perte d'information intentionnelle).

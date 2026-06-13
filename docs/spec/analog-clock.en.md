@@ -81,13 +81,13 @@ Each hand is a `<line>` (or `<path>`) initially pointing up; the SVG `transform=
 A small element inside the dial at SVG `(0, 60)` shows the date triplet `K.H.D.Kin` in monospace, two digits per "."-separated group. Example:
 
 ```
-20.7.8.0
+20.7.8.2
 ```
 
 If `Kilo > 99`, the readout extends to fit; if it would visually collide with the bottom ticks, the SVG `viewBox` shifts to leave room. A small `Δ` glyph precedes the readout for brand consistency:
 
 ```
-Δ 20.7.8.0
+Δ 20.7.8.2
 ```
 
 ## 7. Movement policy

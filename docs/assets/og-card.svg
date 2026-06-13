@@ -18,7 +18,7 @@
 
   <text x="600" y="445" font-family="Verdana, Geneva, DejaVu Sans, sans-serif" font-size="28" fill="#ffffff" fill-opacity="0.75" text-anchor="middle">A decimal, linear, universal time standard</text>
 
-  <text x="600" y="490" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="22" fill="#6c8cff" text-anchor="middle">T+ Δ 20.7.8.0.00000  ·  Epoch 1969‑07‑20T20:17:40Z</text>
+  <text x="600" y="490" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="22" fill="#6c8cff" text-anchor="middle">T+ Δ 20.7.8.2.50000  ·  Epoch 1969‑07‑20T00:00:00Z</text>
 
   <text x="600" y="565" font-family="Verdana, Geneva, DejaVu Sans, sans-serif" font-size="20" fill="#ffffff" fill-opacity="0.55" text-anchor="middle">s-geffroy.github.io/ATS</text>
 </svg>

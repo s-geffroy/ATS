@@ -72,11 +72,11 @@ from ats import gregorian_to_ats, ats_to_gregorian
 
 now = datetime.now(timezone.utc)
 ats = gregorian_to_ats(now)
-print(ats.to_canonical())   # T+ Δ 20.7.8.0.61137
-print(ats.to_short())       # Δ 20.7.8.0/61
+print(ats.to_canonical())   # T+ Δ 20.7.8.2.50000
+print(ats.to_short())       # Δ 20.7.8.2/50
 
 back = ats_to_gregorian(ats.to_canonical())
-print(back.isoformat())     # 2026-06-12T10:58:02+00:00 (±432 ms)
+print(back.isoformat())     # 2026-06-13T12:00:00+00:00 (±432 ms)
 </code></pre>
 
     <h2>Full source</h2>
@@ -84,7 +84,7 @@ print(back.isoformat())     # 2026-06-12T10:58:02+00:00 (±432 ms)
   </main>
 
   <footer class="site">
-    Δ ATS v1.1 RC · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
+    Δ ATS v0.5 · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" integrity="sha384-MXybTpajaBV0AkcBaCPT4KIvo0FzoCiWXgcihYsw4FUkEz0Pv3JGV6tk2G8vJtDc" crossorigin="anonymous"></script>

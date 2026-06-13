@@ -10,7 +10,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, '..');
 
 // Inline the JS implementation (same logic as docs/assets/js/ats.js).
-const ATS_EPOCH_MS = Date.parse('1969-07-20T20:17:40Z');
+const ATS_EPOCH_MS = Date.parse('1969-07-20T00:00:00Z');
 const ATS_DECIMALS = 5;
 const ATS_SCALE = 100000;
 const MS_PER_DAY = 86400000;

@@ -81,13 +81,13 @@ Chaque aiguille est un `<line>` (ou `<path>`) initialement vertical ; le `transf
 Un petit texte à l'intérieur du cadran à `(0, 60)` affiche le triplet de date `K.H.D.Kin` en monospace, séparés par des `.`. Exemple :
 
 ```
-20.7.8.0
+20.7.8.2
 ```
 
 Si `Kilo > 99`, l'affichage s'étire ; en cas de chevauchement avec les graduations inférieures, on décale légèrement le `viewBox`. Un petit `Δ` précède pour la cohérence visuelle :
 
 ```
-Δ 20.7.8.0
+Δ 20.7.8.2
 ```
 
 ## 7. Politique de mouvement

@@ -1,8 +1,11 @@
 """
-ATS — Apollonian Time System v1.1 reference implementation.
+ATS — Apollonian Time System v0.5 reference implementation.
 
 Spec: ../spec/manifesto.en.md
-Epoch: 1969-07-20T20:17:40Z (Apollo 11 lunar module touchdown).
+Epoch: 1969-07-20T00:00:00Z (start of the Apollo 11 landing day, UTC).
+The landing itself (1969-07-20T20:17:40Z) is a notable instant within Δ 0,
+located at Bloc 8 / Centi 4 / Deka 5 / Kin 6 (frac 0.84560185…).
+This alignment makes Bloc 5 = 12:00 UTC exactly (5 × 2h24m).
 
 Canonical format: "T+ Δ K.H.D.Kin.fffff"
   - K (Kilo) is an unbounded non-negative integer.
@@ -37,7 +40,7 @@ from zoneinfo import ZoneInfo
 ATS_SYMBOL = "Δ"
 ATS_DECIMALS = 5
 ATS_SCALE = 10 ** ATS_DECIMALS
-ATS_EPOCH = datetime(1969, 7, 20, 20, 17, 40, tzinfo=timezone.utc)
+ATS_EPOCH = datetime(1969, 7, 20, 0, 0, 0, tzinfo=timezone.utc)
 
 _US_PER_DAY = 86_400_000_000
 
@@ -161,9 +164,9 @@ _ATS_SHORT_RE = re.compile(
 def ats_to_gregorian(ats: str, *, out_tz: str = "UTC", allow_short: bool = False) -> datetime:
     """Convert an ATS string back to a Gregorian datetime.
 
-    Accepts the canonical form: "T+ Δ 20.7.5.6.43210"
+    Accepts the canonical form: "T+ Δ 20.7.8.2.50000"
 
-    The short form ("Δ 20.7.5.0/43") is only accepted when
+    The short form ("Δ 20.7.8.2/50") is only accepted when
     ``allow_short=True``, because it is intentionally lossy
     (lower fractional digits zero-padded, sign assumed T+).
     Whitespace around the `/` is tolerated on input.

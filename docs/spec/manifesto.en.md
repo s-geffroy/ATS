@@ -1,6 +1,6 @@
 # The Apollonian Time System (ATS)
 
-**Status:** Release Candidate v1.1
+**Status:** Pre-release v0.5
 **Symbol:** Δ
 **Authoritative language:** English (French is a translation)
 **Core idea:** Replace the Gregorian *year/month/week + local time* model with a single, universal, decimal, linear time standard anchored to a species-level technological milestone.
@@ -21,25 +21,27 @@ The result is a time representation that is easier to compute with, easier to co
 
 ## 2. Epoch (Point Zero)
 
-ATS uses a technological, species-level milestone as its reference point.
+ATS uses a technological, species-level milestone as its reference point: **the day humanity first landed on another world.**
 
-- **Epoch event:** Apollo 11 Lunar Module *Eagle* touchdown.
-- **Epoch in UTC:** **1969‑07‑20T20:17:40Z**.
+- **Epoch event:** start of the Apollo 11 landing day (UTC midnight boundary).
+- **Epoch in UTC:** **1969‑07‑20T00:00:00Z**.
 - **ATS epoch value:** **`T+ Δ 0.0.0.0.00000`**.
+- **Lunar landing instant** (Eagle touchdown, 20:17:40Z): a remarkable instant *within* Δ 0, at **`T+ Δ 0.0.0.0.84560`** — Bloc 8, Centi 4, Deka 5, Kin 6 in the intra-day breakdown (see §4.3).
 
-> **Rationale.** The touchdown — not the first step (1969‑07‑21T02:56:15Z) — is chosen as the species-level marker: it is the instant the human envelope first rested on another celestial body, and it is the date the world remembers as "July 20, 1969".
+> **Rationale.** Anchoring on the *start* of 1969‑07‑20 (UTC) — rather than on the touchdown instant (20:17:40Z) used during earlier drafts — aligns the day counter with UTC: **Bloc 5 corresponds exactly to 12:00 UTC** (5 × 2 h 24 min). The world remembers the date "July 20, 1969"; ATS keeps that date and snaps it to a midnight-UTC boundary, while preserving the touchdown moment as a celebrated instant inside Δ 0.
 
 ### 2.1 Alternative anchors (rejected)
 
-For historical reference, other technological milestones were considered and rejected:
+For historical reference, other anchor points were considered and rejected:
 
 | Candidate | UTC | Reason for rejection |
 |---|---|---|
+| Exact touchdown instant | 1969‑07‑20T20:17:40Z | Misaligns the day counter from UTC: Bloc 5 falls at 08:17:40 UTC instead of noon. Pedagogically confusing. |
 | Sputnik 1 launch | 1957‑10‑04T19:28:34Z | Robotic, no human presence beyond Earth |
 | Hiroshima | 1945‑08‑06T08:15:00Z | Civilization-marking but negative |
 | First powered flight (Wright) | 1903‑12‑17T15:35:00Z | Atmospheric only |
 | Apollo 11 launch | 1969‑07‑16T13:32:00Z | Beginning of journey, not arrival |
-| First step (EVA) | 1969‑07‑21T02:56:15Z | Symbolic, but landing comes first |
+| First step (EVA) | 1969‑07‑21T02:56:15Z | Symbolic, but landing comes first and falls on the next UTC day (Δ 1) |
 
 ---
 
@@ -67,10 +69,10 @@ In everyday usage, the Δ symbol implies *T+* by default (most life occurs post-
 - `HEC`, `DEK`, `KIN` are digits `0..9` (Hecto, Deka, Kin).
 - `fffff` is the **fraction of the day** encoded on 5 decimal digits (0..99999) by default — see §4.4 for variable precision.
 
-Example (current era, ~57 years post-epoch):
+Example (current era, ~57 years post-epoch — noon UTC, 13 June 2026):
 
 ```
-T+ Δ 20.7.5.6.43210
+T+ Δ 20.7.8.2.50000
 ```
 
 ### 4.2 Macro-time units (calendar)
@@ -123,7 +125,7 @@ For everyday display (watches, apps, conversation), ATS defines a **short** form
 Example:
 
 ```
-Δ 20.7.5.0/43
+Δ 20.7.8.2/50
 ```
 
 **When to use which:**
@@ -171,7 +173,7 @@ ATS aligns with UTC POSIX semantics: **a day is exactly 86 400 seconds**.
 
 ## 9. Conversion definition
 
-Let `EPOCH = 1969‑07‑20T20:17:40Z`.
+Let `EPOCH = 1969‑07‑20T00:00:00Z`.
 
 1. Compute elapsed time: `delta = now_utc - EPOCH`.
 2. Convert to **decimal days**: `days = delta_seconds / 86400`.
@@ -283,16 +285,25 @@ out = (days << 24) | frac24      # arithmetic shift; 64 bits total
 
 ## 15. Versioning
 
-This spec is **v1.1**. Changes from v1.0:
+This spec is **v0.5 (pre-release)**.
 
-- Epoch moved from first step (21/07 02:56:15Z) to landing (20/07 20:17:40Z).
-- Myriade removed from positional format; Kilo is now unbounded. "Generation" demoted to informal vocabulary.
+### Changes from v0.3.x (previous pre-release, "RC v1.1")
+
+- **Epoch shifted** from the touchdown instant (1969‑07‑20T20:17:40Z) to the **start of the landing day** (1969‑07‑20T00:00:00Z). This is a **breaking change**: every stored ATS value from earlier drafts is offset by 73 060 s ≈ 0.84560 day. Because the project is still pre-v1, no conversion shim is provided; consumers should regenerate their values.
+- **Direct consequence:** Bloc 5 = 12:00 UTC exactly. The touchdown moment becomes a remarkable instant within Δ 0 at `T+ Δ 0.0.0.0.84560`.
+- §2.1 grew by one row: "Exact touchdown instant" is now itself a rejected anchor (the reason it was demoted: misalignment with UTC).
+- Worked examples in §4.1 and §5 updated to reflect the new epoch.
+- §9 conversion definition updated.
+
+### Earlier (kept for archival reference) — changes that defined RC v1.1 (now superseded)
+
+- Myriade removed from the positional format; Kilo is now unbounded. "Generation" demoted to informal vocabulary.
 - 0.1-day unit renamed `D-Day` → `Bloc`.
 - Short form: separator changed from `|` to `/`, no spaces around it; the `Kin` digit is now **always shown** (even when zero) to preserve the calendar reference.
-- Rounding policy: strict floor truncation reaffirmed. A banker's half-even variant briefly considered in v0.1.0 was rejected as incompatible with the "counter of completed units" principle.
+- Rounding policy: strict floor truncation. A banker's half-even variant briefly considered earlier was rejected as incompatible with the "counter of completed units" principle.
 - Local Solar Time (LST) layer explicitly introduced.
 - Leap second policy explicitly aligned to POSIX.
 - Decoding rules for the short form documented (intentional lossiness).
 - Philosophy and comparison moved to annexes.
-- Added §11 (Durations / `Δd`) and §12 (Binary encoding, 64-bit).
+- §11 (Durations / `Δd`) and §12 (Binary encoding, 64-bit) added.
 - Annexes renumbered §14, Versioning §15.

@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://raw.githubusercontent.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
-  <meta name="description" content="Frise historique en Δ — Wright, Hiroshima, Spoutnik, Apollo 11, Mur de Berlin, le Web, iPhone, COVID-19, ChatGPT." />
+  <meta name="description" content="Frise historique en Δ — Relativité, Hiroshima, ADN, Spoutnik, Gagarine, alunissage Apollo 11, ARPANET, Mur de Berlin, le Web, iPhone, Higgs, COVID-19, ChatGPT, et les conventions ATS." />
   <link rel="canonical" href="https://s-geffroy.github.io/ATS/fr/timeline.html" />
   <link rel="alternate" hreflang="en" href="https://s-geffroy.github.io/ATS/en/timeline.html" />
   <link rel="alternate" hreflang="fr" href="https://s-geffroy.github.io/ATS/fr/timeline.html" />
@@ -15,14 +15,14 @@
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="fr_FR" />
   <meta property="og:title" content="Δ ATS — Frise historique" />
-  <meta property="og:description" content="Frise historique en Δ — Wright, Hiroshima, Spoutnik, Apollo 11, Mur de Berlin, le Web, iPhone, COVID-19, ChatGPT." />
+  <meta property="og:description" content="Frise historique en Δ — XXᵉ siècle, alunissage avec badge ★, conventions ATS." />
   <meta property="og:url" content="https://s-geffroy.github.io/ATS/fr/timeline.html" />
   <meta property="og:image" content="https://s-geffroy.github.io/ATS/assets/og-card.svg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Δ ATS — Frise historique" />
-  <meta name="twitter:description" content="Frise historique en Δ — Wright, Hiroshima, Spoutnik, Apollo 11, Mur de Berlin, le Web, iPhone, COVID-19, ChatGPT." />
+  <meta name="twitter:description" content="Frise historique en Δ — XXᵉ siècle, alunissage avec badge ★, conventions ATS." />
   <meta name="twitter:image" content="https://s-geffroy.github.io/ATS/assets/og-card.svg" />
   <title>Δ ATS — Frise historique</title>
   <link rel="stylesheet" href="../assets/css/style.css" />
@@ -30,13 +30,69 @@
     .timeline { margin-top: 1.5rem; position: relative; }
     .tl-event {
       border-left: 2px solid var(--accent);
-      padding: 0.25rem 0 0.25rem 1rem;
-      margin: 0.4rem 0 0.4rem 0.5rem;
+      padding: 0.35rem 0.6rem 0.35rem 1rem;
+      margin: 0.5rem 0 0.5rem 0.5rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-areas: "when tag" "ats tag" "label label";
+      column-gap: 0.6rem;
     }
-    .tl-event .when { font-family: ui-monospace, monospace; opacity: 0.65; font-size: 0.85rem; }
-    .tl-event .ats { font-family: ui-monospace, monospace; font-weight: 700; }
-    .tl-event .label { font-size: 1.05rem; margin-top: 0.1rem; }
-    .tl-event.epoch { border-left-color: gold; background: color-mix(in oklab, gold 8%, transparent); border-radius: 0 8px 8px 0; padding: 0.55rem 1rem; }
+    .tl-event .when { grid-area: when; font-family: ui-monospace, monospace; opacity: 0.65; font-size: 0.85rem; }
+    .tl-event .ats { grid-area: ats; font-family: ui-monospace, monospace; font-weight: 700; }
+    .tl-event .label { grid-area: label; font-size: 1.05rem; margin-top: 0.1rem; }
+    .tl-event .tag {
+      grid-area: tag;
+      align-self: start;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid currentColor;
+      opacity: 0.85;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+    .tag.space    { color: #8b5cf6; }
+    .tag.science  { color: #4a6cff; }
+    .tag.tech     { color: #22c55e; }
+    .tag.politics { color: #f97316; }
+    .tag.convention { color: #ec4899; }
+    .tag.origin   { color: #d4af37; }
+
+    .tl-event.origin {
+      border-left-color: #d4af37;
+      background: color-mix(in oklab, #d4af37 8%, transparent);
+      border-radius: 0 8px 8px 0;
+    }
+    .tl-event.landmark {
+      border-left: 3px solid #d4af37;
+      background: color-mix(in oklab, #d4af37 12%, transparent);
+      border-radius: 0 8px 8px 0;
+      padding: 0.6rem 0.6rem 0.6rem 1rem;
+    }
+    .tl-event.landmark .label::before {
+      content: "★ ";
+      color: #d4af37;
+      font-size: 1.1em;
+    }
+    .tl-event.convention {
+      border-left-color: #ec4899;
+      background: color-mix(in oklab, #ec4899 6%, transparent);
+      border-radius: 0 8px 8px 0;
+    }
+    .tl-event.convention .label::before {
+      content: "◆ ";
+      color: #ec4899;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      margin: 1rem 0;
+      font-size: 0.85rem;
+    }
+    .legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
+    .legend .swatch { width: 0.7rem; height: 0.7rem; border-radius: 999px; border: 1px solid currentColor; }
   </style>
 </head>
 <body>
@@ -63,29 +119,133 @@
   <main class="container">
     <h1>Frise historique en Δ</h1>
     <p class="muted">
-      Quelques jalons rendus tangibles par leur valeur ATS. Le 0 marque l'alunissage d'Apollo 11.
+      Le XXᵉ siècle traduit en Δ. Δ 0 marque le <strong>début du jour</strong> de l'alunissage d'Apollo 11
+      (1969-07-20T00:00:00Z). L'alunissage lui-même (Eagle s'est posé à 20:17:40Z) est un instant remarquable
+      <strong>à l'intérieur</strong> de Δ 0, signalé par un badge ★. Bloc 5 vaut exactement 12:00 UTC.
     </p>
 
+    <div class="legend" aria-label="Légende des thèmes">
+      <span class="item tag space"><span class="swatch" style="background:#8b5cf6;border-color:#8b5cf6"></span>Espace</span>
+      <span class="item tag science"><span class="swatch" style="background:#4a6cff;border-color:#4a6cff"></span>Sciences</span>
+      <span class="item tag tech"><span class="swatch" style="background:#22c55e;border-color:#22c55e"></span>Tech</span>
+      <span class="item tag politics"><span class="swatch" style="background:#f97316;border-color:#f97316"></span>Politique</span>
+      <span class="item tag convention"><span class="swatch" style="background:#ec4899;border-color:#ec4899"></span>Convention ATS</span>
+      <span class="item tag origin"><span class="swatch" style="background:#d4af37;border-color:#d4af37"></span>Origine / ★ remarquable</span>
+    </div>
+
     <section class="timeline">
-      <div class="tl-event"><div class="when">1903-12-17 — 15:35 UTC</div><div class="ats">T- Δ 23.9.5.7.19629</div><div class="label">Premier vol motorisé (Wright)</div></div>
-      <div class="tl-event"><div class="when">1945-08-06 — 08:15 UTC</div><div class="ats">T- Δ 8.7.4.9.50185</div><div class="label">Hiroshima</div></div>
-      <div class="tl-event"><div class="when">1957-10-04 — 19:28 UTC</div><div class="ats">T- Δ 4.3.0.7.03409</div><div class="label">Spoutnik 1</div></div>
-      <div class="tl-event epoch"><div class="when">1969-07-20 — 20:17:40 UTC</div><div class="ats">T+ Δ 0.0.0.0.00000</div><div class="label">Alunissage Apollo 11 — Époque ATS</div></div>
-      <div class="tl-event"><div class="when">1989-11-09 — 22:00 UTC</div><div class="ats">T+ Δ 7.4.1.7.07106</div><div class="label">Chute du mur de Berlin</div></div>
-      <div class="tl-event"><div class="when">1991-08-06 — 00:00 UTC</div><div class="ats">T+ Δ 8.0.5.1.15439</div><div class="label">Première page Web publique</div></div>
-      <div class="tl-event"><div class="when">2007-06-29 — 00:00 UTC</div><div class="ats">T+ Δ 13.8.5.7.15439</div><div class="label">Lancement iPhone</div></div>
-      <div class="tl-event"><div class="when">2020-12-30 — 00:00 UTC</div><div class="ats">T+ Δ 18.7.9.0.15439</div><div class="label">Premier vaccin COVID-19 autorisé</div></div>
-      <div class="tl-event"><div class="when">2022-11-30 — 00:00 UTC</div><div class="ats">T+ Δ 19.4.9.0.15439</div><div class="label">Lancement de ChatGPT</div></div>
+      <div class="tl-event">
+        <div class="when">1905-06-30 — 00:00 UTC</div>
+        <div class="ats">T- Δ 23.3.9.6.00000</div>
+        <span class="tag science">Sciences</span>
+        <div class="label">Relativité restreinte (Einstein)</div>
+      </div>
+      <div class="tl-event">
+        <div class="when">1945-08-06 — 08:15 UTC</div>
+        <div class="ats">T- Δ 8.7.4.8.65625</div>
+        <span class="tag politics">Politique</span>
+        <div class="label">Hiroshima</div>
+      </div>
+      <div class="tl-event">
+        <div class="when">1953-04-25 — 00:00 UTC</div>
+        <div class="ats">T- Δ 5.9.3.0.00000</div>
+        <span class="tag science">Sciences</span>
+        <div class="label">Découverte de la structure de l'ADN (Watson/Crick)</div>
+      </div>
+      <div class="tl-event">
+        <div class="when">1957-10-04 — 19:28:34 UTC</div>
+        <div class="ats">T- Δ 4.3.0.6.18849</div>
+        <span class="tag space">Espace</span>
+        <div class="label">Spoutnik 1 — premier satellite</div>
+      </div>
+      <div class="tl-event">
+        <div class="when">1961-04-12 — 06:07 UTC</div>
+        <div class="ats">T- Δ 3.0.2.0.74513</div>
+        <span class="tag space">Espace</span>
+        <div class="label">Gagarine, premier humain en orbite</div>
+      </div>
+      <div class="tl-event origin">
+        <div class="when">1969-07-20 — 00:00:00 UTC</div>
+        <div class="ats">T+ Δ 0.0.0.0.00000</div>
+        <span class="tag origin">Origine</span>
+        <div class="label">Origine ATS (Δ 0) — début du jour de l'alunissage</div>
+      </div>
+      <div class="tl-event landmark">
+        <div class="when">1969-07-20 — 20:17:40 UTC</div>
+        <div class="ats">T+ Δ 0.0.0.0.84560 · Bloc 8 / Centi 4 / Deka 5 / Kin 6</div>
+        <span class="tag space">Espace</span>
+        <div class="label">Alunissage — Eagle s'est posé (à l'intérieur de Δ 0)</div>
+      </div>
+      <div class="tl-event convention">
+        <div class="when">1969-10-28 — 00:00 UTC</div>
+        <div class="ats">T+ Δ 0.1.0.0.00000</div>
+        <span class="tag convention">Convention</span>
+        <div class="label">Hecto-fête (Δ 100) — centième jour après l'origine</div>
+      </div>
+      <div class="tl-event">
+        <div class="when">1969-10-29 — 22:30 UTC</div>
+        <div class="ats">T+ Δ 0.1.0.1.93750</div>
+        <span class="tag tech">Tech</span>
+        <div class="label">Premier message ARPANET (« lo » entre UCLA et SRI)</div>
+      </div>
+      <div class="tl-event convention">
+        <div class="when">1972-04-15 — 00:00 UTC</div>
+        <div class="ats">T+ Δ 1.0.0.0.00000</div>
+        <span class="tag convention">Convention</span>
+        <div class="label">Kilo-versaire 1 (Δ 1000) — première chiliade</div>
+      </div>
+      <div class="tl-event">
+        <div class="when">1989-11-09 — 18:53 UTC</div>
+        <div class="ats">T+ Δ 7.4.1.7.78680</div>
+        <span class="tag politics">Politique</span>
+        <div class="label">Chute du mur de Berlin</div>
+      </div>
+      <div class="tl-event">
+        <div class="when">1991-08-06 — 14:00 UTC</div>
+        <div class="ats">T+ Δ 8.0.5.2.58333</div>
+        <span class="tag tech">Tech</span>
+        <div class="label">World Wide Web rendu public</div>
+      </div>
+      <div class="tl-event">
+        <div class="when">2001-09-11 — 12:46 UTC</div>
+        <div class="ats">T+ Δ 11.7.4.1.53194</div>
+        <span class="tag politics">Politique</span>
+        <div class="label">11-Septembre</div>
+      </div>
+      <div class="tl-event">
+        <div class="when">2007-06-29 — 00:00 UTC</div>
+        <div class="ats">T+ Δ 13.8.5.8.00000</div>
+        <span class="tag tech">Tech</span>
+        <div class="label">Sortie de l'iPhone</div>
+      </div>
+      <div class="tl-event">
+        <div class="when">2012-07-04 — 00:00 UTC</div>
+        <div class="ats">T+ Δ 15.6.9.0.00000</div>
+        <span class="tag science">Sciences</span>
+        <div class="label">Découverte du boson de Higgs (CERN)</div>
+      </div>
+      <div class="tl-event">
+        <div class="when">2020-03-11 — 00:00 UTC</div>
+        <div class="ats">T+ Δ 18.4.9.7.00000</div>
+        <span class="tag politics">Politique</span>
+        <div class="label">COVID-19 déclaré pandémie (OMS)</div>
+      </div>
+      <div class="tl-event">
+        <div class="when">2022-11-30 — 00:00 UTC</div>
+        <div class="ats">T+ Δ 19.4.9.1.00000</div>
+        <span class="tag tech">Tech</span>
+        <div class="label">ChatGPT rendu public</div>
+      </div>
     </section>
 
     <p class="muted" style="margin-top:1.5rem;">
       Tu peux <strong>cliquer un Δ</strong> sur la page d'horloge ou utiliser le permalien
-      <code>?t=20.7.8.0.65439</code> pour figer l'horloge sur n'importe quel jalon.
+      <code>?t=20.7.8.2.50000</code> pour figer l'horloge sur n'importe quel instant.
     </p>
   </main>
 
   <footer class="site">
-    Δ ATS v1.1 RC · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
+    Δ ATS v0.5 · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
   </footer>
   <script src="../assets/js/site.js" defer></script>
 </body>

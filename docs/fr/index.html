@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://raw.githubusercontent.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
-  <meta name="description" content="Horloge Δ ATS — temps décimal en direct, ancré à Apollo 11 (1969-07-20T20:17:40Z). Convertisseur Grégorien↔ATS bidirectionnel." />
+  <meta name="description" content="Horloge Δ ATS — temps décimal en direct, ancré au début du jour de l'alunissage d'Apollo 11 (1969-07-20T00:00:00Z). Convertisseur Grégorien↔ATS bidirectionnel." />
   <link rel="canonical" href="https://s-geffroy.github.io/ATS/fr/" />
   <link rel="alternate" hreflang="en" href="https://s-geffroy.github.io/ATS/en/" />
   <link rel="alternate" hreflang="fr" href="https://s-geffroy.github.io/ATS/fr/" />
@@ -15,14 +15,14 @@
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="fr_FR" />
   <meta property="og:title" content="Δ ATS — Horloge" />
-  <meta property="og:description" content="Horloge Δ ATS — temps décimal en direct, ancré à Apollo 11 (1969-07-20T20:17:40Z). Convertisseur Grégorien↔ATS bidirectionnel." />
+  <meta property="og:description" content="Horloge Δ ATS — temps décimal en direct, ancré au début du jour de l'alunissage d'Apollo 11 (1969-07-20T00:00:00Z). Convertisseur Grégorien↔ATS bidirectionnel." />
   <meta property="og:url" content="https://s-geffroy.github.io/ATS/fr/" />
   <meta property="og:image" content="https://s-geffroy.github.io/ATS/assets/og-card.svg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Δ ATS — Horloge" />
-  <meta name="twitter:description" content="Horloge Δ ATS — temps décimal en direct, ancré à Apollo 11 (1969-07-20T20:17:40Z). Convertisseur Grégorien↔ATS bidirectionnel." />
+  <meta name="twitter:description" content="Horloge Δ ATS — temps décimal en direct, ancré au début du jour de l'alunissage d'Apollo 11 (1969-07-20T00:00:00Z). Convertisseur Grégorien↔ATS bidirectionnel." />
   <meta name="twitter:image" content="https://s-geffroy.github.io/ATS/assets/og-card.svg" />
   <title>Δ ATS — Horloge</title>
   <link rel="stylesheet" href="../assets/css/style.css" />
@@ -51,7 +51,7 @@
   <main class="container">
     <h1>Horloge ATS</h1>
     <p class="muted">
-      Δ s'écoule depuis l'alunissage d'Apollo 11 (<span class="mono">1969‑07‑20T20:17:40Z</span>).
+      Δ s'écoule depuis le début du jour de l'alunissage d'Apollo 11 (<span class="mono">1969‑07‑20T00:00:00Z</span>) — Bloc 5 vaut exactement 12:00 UTC.
       Affichage adaptatif : forme courte par défaut, détails complets sur demande.
     </p>
 
@@ -97,7 +97,7 @@
           <div class="k">Canonique</div><div class="v" id="canonDisplay">—</div>
           <div class="k">UTC</div><div class="v" id="utcFull">—</div>
           <div class="k">Local</div><div class="v" id="localDisplay">—</div>
-          <div class="k">Époque</div><div class="v">T+ Δ 0.0.0.0.00000 — 1969‑07‑20T20:17:40Z</div>
+          <div class="k">Époque</div><div class="v">T+ Δ 0.0.0.0.00000 — 1969‑07‑20T00:00:00Z</div>
         </div>
 
         <div class="units-grid">
@@ -131,7 +131,7 @@
           </label>
           <label>
             <span class="lbl">ATS canonique</span>
-            <input id="atsInput" class="mono" placeholder="T+ Δ 20.7.8.0.00000" />
+            <input id="atsInput" class="mono" placeholder="T+ Δ 20.7.8.2.50000" />
           </label>
         </div>
         <div class="actions">
@@ -153,7 +153,7 @@
   </main>
 
   <footer class="site">
-    Δ ATS v1.1 RC · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
+    Δ ATS v0.5 · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
   </footer>
 
   <script src="../assets/js/ats.js"></script>

@@ -1,11 +1,12 @@
-// ATS — Apollonian Time System v1.1 reference (browser).
-// Epoch: 1969-07-20T20:17:40Z (Apollo 11 touchdown).
+// ATS — Apollonian Time System v0.5 reference (browser).
+// Epoch: 1969-07-20T00:00:00Z (start of Apollo 11 landing day).
+// Bloc 5 = 12:00 UTC exactly. The landing itself (20:17:40 UTC) sits at Δ 0 . 8.4.5.6 (frac 0.84560…).
 // Spec: /spec/manifesto.en.md (or .fr.md).
 
 (function (global) {
   'use strict';
 
-  const ATS_EPOCH_MS = Date.parse('1969-07-20T20:17:40Z');
+  const ATS_EPOCH_MS = Date.parse('1969-07-20T00:00:00Z');
   const ATS_DECIMALS = 5;
   const ATS_SCALE = 100000;
   const MS_PER_DAY = 86400000;
@@ -68,7 +69,7 @@
 
   global.ATS = {
     EPOCH_MS: ATS_EPOCH_MS,
-    EPOCH_ISO: '1969-07-20T20:17:40Z',
+    EPOCH_ISO: '1969-07-20T00:00:00Z',
     DECIMALS: ATS_DECIMALS,
     atsFromMs,
     toCanonical,

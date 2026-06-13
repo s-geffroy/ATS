@@ -8,9 +8,13 @@ The Gregorian calendar optimizes seasonal alignment for a 16th-century agrarian 
 
 The lunar landing is the most universally positive, technically verifiable event of the 20th century. It is also the moment a human envelope first touched another celestial body, matching the "multi-planetary civilization" framing of the manifesto.
 
-## Why the landing (20/07 20:17:40Z) and not the first step (21/07 02:56:15Z)?
+## Why the start of the day (00:00 UTC), not the touchdown instant (20:17:40 UTC)?
 
-The landing is the date the world remembers ("July 20, 1969"). The first step is symbolically heavier but happens 6h35 later. To honor the shared memory, ATS picks the **touchdown** instant.
+To keep the day counter aligned with UTC: with the epoch on the midnight boundary, **Bloc 5 = 12:00 UTC** exactly (5 × 2 h 24 min), Bloc 0 = midnight, and so on. Earlier drafts (RC v1.1) anchored on the exact touchdown instant; that made Bloc 5 fall at 08:17:40 UTC, which surprised newcomers ("why isn't Bloc 5 noon?"). v0.5 fixes that. The touchdown itself remains an honored instant inside Δ 0, at `T+ Δ 0.0.0.0.84560` (Bloc 8, Centi 4, Deka 5, Kin 6).
+
+## Why not the first step (21/07 02:56:15Z) as the anchor?
+
+The first step is symbolically heavier than the landing — but it happens 6 h 35 after Eagle has already touched down, and on the *following* UTC day (Δ 1). The world remembers the landing as "July 20, 1969"; picking the start of that day keeps the cultural memory intact while aligning with UTC.
 
 ## Why not the tropical year (365.2422 d) as a macro unit?
 
@@ -58,4 +62,4 @@ Kilo has no upper bound. `Δ 124.3.5.7.00000` is valid (124,000 + 357 days = ~34
 
 ## How do I verify a third-party library is spec-compliant?
 
-`docs/spec/test-vectors.json` lists 10 reference instants with both canonical and short encodings. Any implementation must produce bit-identical outputs. The project's CI runs this contract against Python and JavaScript on every push.
+`docs/spec/test-vectors.json` lists 12 reference instants with both canonical and short encodings. Any implementation must produce bit-identical outputs. The project's CI runs this contract against Python and JavaScript on every push.
