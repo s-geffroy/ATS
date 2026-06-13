@@ -6,6 +6,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — v0.6.0 (en cours, Δ 20.7.8.2/45)
 
+### Added — Annexe conventions non-normative (§2.2)
+- **`docs/spec/conventions.{en,fr}.md`** : annexe explicitement étiquetée **non-normative** (citée header dans une blockquote « Annexe non-normative — décrit, non exigé »). Couvre : Kilo-versaire (`Δ K.0.0.0`), Hecto-fête (`Δ K.H.0.0`), Deka-jour, rythme 7+3 sur la Deka, bandes solaires 08–22 (matin/midi/après-midi/soir avec styles d'arc dédiés), compteurs égocentrés, jalons rituels (Δ 100, Δ 1000, Δ 10000, Δ 20000, Δ 50000).
+- **Pages HTML** : nouveaux wrappers `docs/{fr,en}/conventions.html` (mêmes meta, OG, Twitter cards que les autres pages spec). **Non ajoutés à la nav** (déjà 10 entrées) — accessibles via §14 du manifeste et lien sous l'article.
+- **Manifeste §14** mis à jour (FR + EN) : nouvelle entrée « Conventions (annexe non-normative) — décrit, non exigé ».
+- **`scripts/render-md.mjs`** : `TARGETS` étendu aux 2 nouvelles pages. Le pipeline reste idempotent.
+
 ### Added — Algèbre Δ/Δd (Vague 2 — §2.1, spec §11.4)
 - **Spec §11.4 « Algèbre des durées »** ajoutée à `manifesto.{en,fr}.md` : signatures formelles `Δ+Δd→Δ`, `Δ−Δ→Δd` (signée), `Δd+Δd→Δd`, `Δd × n`, `Δd ÷ n`, `−Δd`, `|Δd|`. Comparaisons `<,≤,=,≥,>` définies sur `Δ` (compteur signé, T- < T+) et sur `Δd`. La comparaison `Δ ↔ Δd` reste explicitement indéfinie.
 - **§11.1–11.3 amendées** : les durées sont désormais **signées** (forme canonique `T± Δd K.H.D.Kin.fffff`). L'ancien `|Δd|` reste accessible via `abs()`. Pas de breaking sur les 12 vecteurs `test-vectors.json` originaux.
