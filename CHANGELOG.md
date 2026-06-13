@@ -6,6 +6,14 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — v0.6.0 (en cours, Δ 20.7.8.2/45)
 
+### Added — Thèmes alternatifs + Konami code (§5.7, §5.8)
+- **3 nouveaux thèmes alternatifs** via `:root[data-theme="…"]` dans `style.css` :
+  - **Terminal** : noir `#0c0c0c` / vert phosphor `#33ff33`, police mono globale, glow texte sur les éléments actifs.
+  - **Aquarelle** : pastel délavé `#fdfaf3` / bleu-gris `#3d4a5a`, accent lavande `#7a8bc4`.
+  - **Néon** : noir profond `#0a0a14` / blanc cassé `#e0e0e8`, accent magenta `#ff2bd6` avec glow sur les liens actifs.
+- **Toggle thème** (§1.2) étendu : cycle `auto → light → dark → terminal → aquarelle → neon → auto`. Glyphes `⊙ ☼ ☾ ⌨ ❀ ⚡`. Labels FR/EN ajoutés.
+- **§5.7 Easter egg Konami** : `site.js` écoute la séquence `↑↑↓↓←→←→BA` (insensible à la casse pour B et A). Au déclenchement, `window.__atsKonami = true` + classe `body.konami` pour 30 s. Dans `clock-page.js`, `liveTick()` détecte les bords de Beat (`frac/10`, soit ~8,6 s par Beat) et spawn 12 emoji confetti (`Δ ✦ ◉ ✺ ✧ ⌬`) en CSS animation 1.6 s. Non-documenté (easter egg).
+
 ### Added — OG image PNG (§5.2)
 - **`docs/assets/og-card.png`** : version PNG 1200×630 (~142 KB) rendue depuis `og-card.svg` via `docker run --rm -v "$PWD:/app" dpokidov/imagemagick -density 200 og-card.svg -resize 1200x630 og-card.png`. Le SVG reste conservé.
 - **25 pages HTML** mises à jour : `og:image` et `twitter:image` pointent désormais sur le PNG (LinkedIn et FB rendaient mal le SVG). Fix appliqué via `sed -i` sur tout `docs/**/*.html`.

@@ -36,6 +36,50 @@
   --accent: #6c8cff;
 }
 
+/* Terminal — black background, phosphor green, mono font global. */
+:root[data-theme="terminal"] {
+  color-scheme: dark;
+  --bg: #0c0c0c;
+  --fg: #33ff33;
+  --muted: rgba(51, 255, 51, 0.55);
+  --border: rgba(51, 255, 51, 0.30);
+  --card: #1a1a1a;
+  --accent: #33ff33;
+}
+:root[data-theme="terminal"] body {
+  font-family: ui-monospace, "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
+}
+:root[data-theme="terminal"] header.site nav a.active,
+:root[data-theme="terminal"] .theme-toggle:focus-visible {
+  text-shadow: 0 0 6px var(--accent);
+}
+
+/* Aquarelle — washed pastels. */
+:root[data-theme="aquarelle"] {
+  color-scheme: light;
+  --bg: #fdfaf3;
+  --fg: #3d4a5a;
+  --muted: rgba(61, 74, 90, 0.55);
+  --border: rgba(61, 74, 90, 0.18);
+  --card: #f3eedf;
+  --accent: #7a8bc4;
+}
+
+/* Neon — deep black + magenta/cyan accents. */
+:root[data-theme="neon"] {
+  color-scheme: dark;
+  --bg: #0a0a14;
+  --fg: #e0e0e8;
+  --muted: rgba(224, 224, 232, 0.60);
+  --border: rgba(255, 43, 214, 0.30);
+  --card: #16162a;
+  --accent: #ff2bd6;
+}
+:root[data-theme="neon"] header.site nav a.active {
+  box-shadow: 0 1px 0 var(--accent), 0 0 8px rgba(255, 43, 214, 0.6);
+  border-bottom-color: var(--accent);
+}
+
 /* Theme toggle button — 3 cycling glyphs, sits beside .lang-switch. */
 .theme-toggle {
   background: transparent;
@@ -112,6 +156,25 @@
   margin: 0.1rem 0.15rem;
 }
 .vec-actions button:hover { background: var(--bg); }
+
+/* Konami easter egg confetti (§5.7) */
+.konami-confetti {
+  position: fixed;
+  top: -3rem;
+  font-size: 1.8rem;
+  pointer-events: none;
+  user-select: none;
+  z-index: 9999;
+  color: var(--accent);
+  text-shadow: 0 0 6px var(--accent);
+  animation: konami-fall 1.6s cubic-bezier(.55,.1,.7,.95) forwards;
+}
+@keyframes konami-fall {
+  0%   { transform: translateY(0)      rotate(0)   scale(0.6); opacity: 0; }
+  10%  { opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg) scale(1.1); opacity: 0; }
+}
+body.konami { /* discreet hook for pages to know the egg is active */ }
 
 * { box-sizing: border-box; }
 

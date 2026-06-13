@@ -15,17 +15,32 @@
   'use strict';
 
   const THEME_KEY = 'ats-theme';
-  const THEMES = ['auto', 'light', 'dark'];
-  const GLYPHS = { auto: '⊙', light: '☼', dark: '☾' };
+  const THEMES = ['auto', 'light', 'dark', 'terminal', 'aquarelle', 'neon'];
+  const GLYPHS = {
+    auto:      '⊙',
+    light:     '☼',
+    dark:      '☾',
+    terminal:  '⌨',
+    aquarelle: '❀',
+    neon:      '⚡',
+  };
   const LABELS = {
-    en: { auto: 'Auto', light: 'Light', dark: 'Dark', toggle: 'Theme' },
-    fr: { auto: 'Auto', light: 'Clair', dark: 'Sombre', toggle: 'Thème' },
+    en: {
+      auto: 'Auto', light: 'Light', dark: 'Dark',
+      terminal: 'Terminal', aquarelle: 'Watercolor', neon: 'Neon',
+      toggle: 'Theme',
+    },
+    fr: {
+      auto: 'Auto', light: 'Clair', dark: 'Sombre',
+      terminal: 'Terminal', aquarelle: 'Aquarelle', neon: 'Néon',
+      toggle: 'Thème',
+    },
   };
 
   function readTheme() {
     try {
       const v = localStorage.getItem(THEME_KEY);
-      if (v === 'light' || v === 'dark' || v === 'auto') return v;
+      if (THEMES.indexOf(v) !== -1) return v;
     } catch (e) {}
     return 'auto';
   }
@@ -170,6 +185,29 @@
     });
   }
 
+  // -------- Konami easter egg (§5.7) --------
+  // Sequence: ↑↑↓↓←→←→BA. Sets window.__atsKonami = true for 30s; pages
+  // that opt in (clock-page.js) can spawn confetti on Beat boundaries.
+  function initKonami() {
+    const SEQ = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
+                 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight',
+                 'b', 'a'];
+    let pos = 0;
+    document.addEventListener('keydown', (e) => {
+      const k = (e.key.length === 1 ? e.key.toLowerCase() : e.key);
+      pos = (k === SEQ[pos]) ? pos + 1 : (k === SEQ[0] ? 1 : 0);
+      if (pos === SEQ.length) {
+        pos = 0;
+        window.__atsKonami = true;
+        document.body.classList.add('konami');
+        setTimeout(() => {
+          window.__atsKonami = false;
+          document.body.classList.remove('konami');
+        }, 30_000);
+      }
+    });
+  }
+
   function init() {
     const header = document.querySelector('header.site');
     if (!header) return;
@@ -177,6 +215,7 @@
     initThemeToggle(header);
     injectPwaTags();
     registerServiceWorker();
+    initKonami();
   }
 
   if (document.readyState === 'loading') {

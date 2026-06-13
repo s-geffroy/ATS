@@ -428,9 +428,31 @@
   let frozenAtMs = null; // null = live
   let tickHandle = null;
 
+  // Easter egg: Konami code (set by site.js) → confetti at each Beat
+  // boundary (1/10000 of a day ≈ 8.6 s) while the flag is up (30 s).
+  const CONFETTI_GLYPHS = ['Δ', '✦', '◉', '✺', '✧', '⌬'];
+  let lastBeat = -1;
+  function maybeSpawnConfetti(ats) {
+    if (!window.__atsKonami) return;
+    const beatIdx = Math.floor(ats.frac / 10);   // 10000 beats per day
+    if (beatIdx === lastBeat) return;
+    lastBeat = beatIdx;
+    for (let i = 0; i < 12; i++) {
+      const span = document.createElement('span');
+      span.className = 'konami-confetti';
+      span.textContent = CONFETTI_GLYPHS[Math.floor(i % CONFETTI_GLYPHS.length)];
+      span.style.left = (5 + Math.floor((i * 8.31) % 90)) + 'vw';
+      span.style.animationDelay = ((i % 4) * 0.07) + 's';
+      document.body.appendChild(span);
+      setTimeout(() => span.remove(), 1800);
+    }
+  }
+
   function liveTick() {
     const now = new Date();
-    applyAtsToDom(ATS.atsFromMs(now.getTime()), now);
+    const ats = ATS.atsFromMs(now.getTime());
+    applyAtsToDom(ats, now);
+    maybeSpawnConfetti(ats);
   }
 
   function freezeAt(ms, sourceLabel) {
