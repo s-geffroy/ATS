@@ -6,6 +6,24 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — vers v1.0
 
+### Added — Extension multi-planétaire (V1.0-A)
+- **`docs/spec/multi-planetary.{en,fr}.md`** — annexe **normative** v0.7-rc1 qui généralise l'ATS à d'autres corps célestes :
+  - **Mars** : ancré sur **Mars Pathfinder (1997-07-04T16:56:55Z)** ; sol = **88 775,244147 s** (Allison & McEwen 2000). Δ_Mars `0.0.0.0.00000` = touchdown ; 2026-06-13T12:00Z = `T+ Δ_Mars 10.2.8.7.96477`.
+  - **Lune** : époque **partagée avec la Terre** (1969-07-20T00:00:00Z) ; jour synodique = **2 551 442,8128 s** (IAU). 1 Δ_Moon ≈ 29,53 Δ_Earth.
+  - **Cadre générique** `Δ_X(epoch, day_seconds)` permettant aux implémentations tierces d'ajouter Vénus, Jupiter, etc.
+  - **Notation** : ASCII `Δ_Earth/_Mars/_Moon` (canonique) + symbolique `Δ⊕/♂/☾` (UI). Bare `Δ` = `Δ_Earth` (rétro-compatible v0.6).
+  - **Comparaisons inter-corps** : indéfinies ; algèbre §11.4 préservée **par corps**, conversion via le pont UTC pour comparer.
+  - **Annexe non-normative** §8 : décalage relativiste lunaire (~58,7 µs/jour) sous la précision 5 chiffres ; documenté.
+  - **Gel post-v1.0** : Mars et Lune intégrées aux §3 gels de `versioning.md`. Corps tiers restent libres.
+- **`code/ats_multi_planetary.py`** : dataclass `Body(suffix, symbol, epoch, day_seconds)` + singletons `EARTH`, `MARS`, `MOON`. Classe `BodyATSDateTime` avec algèbre Δ/Δd préservée et **garde-fou TypeError** sur arithmétique/comparaison inter-corps. Parser canonique `body_canonical_to_utc()` qui résout le suffixe via registre. Réutilise `_split_abs_days_floor` et `_integer_days_to_places` existants — zéro impact sur `code/ats.py`.
+- **Vecteurs de conformance** :
+  - `docs/spec/test-vectors-multi-planetary-mars.json` — 10 instants (époque Pathfinder, Curiosity, fin 13ᵉ baktun maya, InSight, Perseverance, 2050).
+  - `docs/spec/test-vectors-multi-planetary-moon.json` — 10 instants (époque Apollo 11 day-start, touchdown Eagle, premier pas Armstrong, Unix epoch, Chang'e 3, Artemis I splashdown).
+  - Les deux portent `spec_version: "0.7"` (compatible v1.0 par construction).
+- **Tests** : `tests/test_multi_planetary.py` — 8 cas (round-trip Mars 10/10, Lune 10/10, algèbre per-body, garde-fou cross-body, Body tierce ad-hoc).
+- **Pages HTML** : `docs/{fr/multi-planetaire,en/multi-planetary}.html` — wrappers complets (CSP, OG, Twitter Card). `scripts/render-md.mjs` étendu, Pagefind index reconstruit. Page `test-vectors.html` ajoute les 2 nouveaux jeux.
+- **Manifeste §14** (FR + EN) cite la nouvelle annexe normative.
+
 ### Added — Engagement de stabilité (pré-v1.0)
 - **`docs/spec/versioning.{en,fr}.md`** : nouvelle **annexe normative** qui codifie le contrat SemVer + les **7 gels post-v1.0** (époque, format canonique, format court, troncature, algèbre §11.4, format binaire §12, 12 vecteurs core). Briser l'un d'eux exigera un projet distinct (ATS 2) avec une nouvelle époque. Politique de vecteurs additifs seulement. Processus RFC léger via GitHub Discussions (2 semaines min de commentaires publics, BDFL tranche).
 - **`SECURITY.md`** : politique de divulgation responsable. Canal préféré GitHub Security Advisories + email backup. SLA : ack 72 h, triage 7 j, fix high ≤ 30 j / moderate ≤ 90 j. Scope explicite (spec sémantique, code Python + JS, site, SW, CI).

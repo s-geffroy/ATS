@@ -35,11 +35,13 @@ const TARGETS = [
   ['fr/comparaison.html',   'comparison.fr.md'],
   ['fr/faq.html',           'faq.fr.md'],
   ['fr/conventions.html',   'conventions.fr.md'],
+  ['fr/multi-planetaire.html', 'multi-planetary.fr.md'],
   ['en/manifesto.html',     'manifesto.en.md'],
   ['en/philosophy.html',    'philosophy.en.md'],
   ['en/comparison.html',    'comparison.en.md'],
   ['en/faq.html',           'faq.en.md'],
   ['en/conventions.html',   'conventions.en.md'],
+  ['en/multi-planetary.html', 'multi-planetary.en.md'],
 ];
 
 marked.setOptions({ gfm: true, breaks: false, headerIds: false, mangle: false });

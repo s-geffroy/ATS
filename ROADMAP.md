@@ -136,15 +136,16 @@ Plan de travail consolidé pour les versions à venir (v0.4+). Les items sont in
 
 Items dérivés de l'audit « que manque-t-il pour une v1.0 vraiment solide ? » post-v0.6.0. L'item 1 (engagement de stabilité : `versioning.{en,fr}.md`, `SECURITY.md`, `GOVERNANCE.md`, `spec_version` dans les vecteurs) est **livré dans v0.6.0**. Les 9 suivants sont à traiter avant de tagger v1.0.
 
-### V1.0-A · Spec multi-planétaire (§3.1) · **M**
-Le manifeste §1 promet « multi-planétaire ». La spec ne définit rien au-delà de la Terre. À traiter **avant code** : amender la spec avec le drift sol↔jour (sol martien = 88 775,244 s ≠ 86 400 s, ratio non-entier). Plusieurs choix à trancher :
-- **Ancrage Mars** : Curiosity touchdown (2012-08-06T05:17:57Z) · Mars Pathfinder (1997-07-04) · ou Mars Sol Date 0 = 1873-12-29 (astronomique, neutre).
-- **Notation** : `Δ♂` / `Δ⊕` / `Δ☾` (symboles astronomiques) ou `Δ_Mars` / `Δ_Earth` (suffixes).
-- **Lune** : ancrage 1969-07-20T20:17:40Z (touchdown) ou même époque que Terre.
-- **Périmètre** : Mars + Lune uniquement, ou aussi Vénus / Jupiter / système solaire entier.
-- **Modèle de drift** : sol fixe à 88 775,244 s ou avec variations long terme (négligeable < quelques siècles).
+### V1.0-A · Spec multi-planétaire (§3.1) · **M** · ✅ **livré**
+Décisions retenues : ancrage Mars **Pathfinder (1997-07-04T16:56:55Z)** ; ancrage Lune **partagé avec Terre** ; notation `Δ_<Body>` (ASCII) + `Δ⊕/♂/☾` (symbolique) ; périmètre Mars + Lune + cadre générique `Δ_X(epoch, day_seconds)` ; sol fixe (drift long-terme < 5 chiffres, documenté §8 non-normative). Livré :
 
-Livrables : `docs/spec/multi-planetary.{en,fr}.md` (annexe **normative**), `code/ats_mars.py`, `code/ats_moon.py`, page « Multi-planetary » avec horloges synchronisées, vecteurs `test-vectors-multi-planetary.json` (10+ par corps céleste).
+- `docs/spec/multi-planetary.{en,fr}.md` — annexe **normative** v0.7-rc1 (10 sections : définition générique, notation, paramètres corps v1.0, conversion, comparaisons inter-corps, cadre tiers, stabilité, relativisme, vecteurs, impl).
+- `code/ats_multi_planetary.py` — `Body` + `BodyATSDateTime` + singletons `EARTH/MARS/MOON`. Algèbre Δ/Δd préservée par corps, garde-fou TypeError sur arithmétique inter-corps.
+- `docs/spec/test-vectors-multi-planetary-{mars,moon}.json` — 10 vecteurs chacun, `spec_version: "0.7"`.
+- `tests/test_multi_planetary.py` — 8 cas verts (round-trip + algèbre + cross-body raises + body tiers ad-hoc).
+- Pages HTML `docs/{fr/multi-planetaire,en/multi-planetary}.html`, page test-vectors mise à jour, Pagefind index rebuild, Manifeste §14 cite l'annexe.
+
+Restera pour v1.0 final : porter `Body` + `BodyATSDateTime` en JS (cf. V1.0-C), ajouter des horloges Mars/Lune sur la page d'accueil (UI).
 
 ### V1.0-B · 3ᵉ implémentation de référence (Rust ou Go) · **L**
 Sans une implémentation hors Python + JS, l'argument « standard universel » ne passe pas un comité. À choisir :

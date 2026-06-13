@@ -40,6 +40,8 @@
     { key: 'chinese',  path: '../spec/test-vectors-bridges-chinese.json',    title: 'Bridge — Chinese (10)' },
     { key: 'hindu',    path: '../spec/test-vectors-bridges-hindu.json',      title: 'Bridge — Hindu / Saka (10)' },
     { key: 'maya',     path: '../spec/test-vectors-bridges-maya.json',       title: 'Bridge — Maya Long Count (10)' },
+    { key: 'mars',     path: '../spec/test-vectors-multi-planetary-mars.json', title: 'Multi-planetary — Mars (10)' },
+    { key: 'moon',     path: '../spec/test-vectors-multi-planetary-moon.json', title: 'Multi-planetary — Moon (10)' },
   ];
 
   let toastEl = null;

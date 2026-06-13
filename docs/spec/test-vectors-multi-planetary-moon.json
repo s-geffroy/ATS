@@ -1,0 +1,59 @@
+{
+  "spec_version": "0.7",
+  "description": "Multi-planetary ATS bridge — Moon (Earth-shared epoch, synodic day = 2551442.8128 s)",
+  "version": 1,
+  "epoch_utc": "1969-07-20T00:00:00Z",
+  "day_seconds": "2551442.8128",
+  "vectors": [
+    {
+      "label": "Epoch (Apollo 11 day-start)",
+      "utc": "1969-07-20T00:00:00Z",
+      "ats_canonical": "T+ Δ_Moon 0.0.0.0.00000"
+    },
+    {
+      "label": "Apollo 11 touchdown",
+      "utc": "1969-07-20T20:17:40Z",
+      "ats_canonical": "T+ Δ_Moon 0.0.0.0.02863"
+    },
+    {
+      "label": "Apollo 11 first step",
+      "utc": "1969-07-21T02:56:15Z",
+      "ats_canonical": "T+ Δ_Moon 0.0.0.0.03800"
+    },
+    {
+      "label": "1 synodic lunar day after epoch",
+      "utc": "1969-08-18T12:44:02Z",
+      "ats_canonical": "T+ Δ_Moon 0.0.0.0.99999"
+    },
+    {
+      "label": "Unix epoch",
+      "utc": "1970-01-01T00:00:00Z",
+      "ats_canonical": "T+ Δ_Moon 0.0.0.5.58742"
+    },
+    {
+      "label": "Today (2026-06-13 12:00 UTC)",
+      "utc": "2026-06-13T12:00:00Z",
+      "ats_canonical": "T+ Δ_Moon 0.7.0.3.76180"
+    },
+    {
+      "label": "Y2K boundary",
+      "utc": "2000-01-01T00:00:00Z",
+      "ats_canonical": "T+ Δ_Moon 0.3.7.6.62643"
+    },
+    {
+      "label": "Chang e 3 landing (CN)",
+      "utc": "2013-12-14T13:11:00Z",
+      "ats_canonical": "T+ Δ_Moon 0.5.4.9.21186"
+    },
+    {
+      "label": "Artemis I splashdown",
+      "utc": "2022-12-11T17:40:30Z",
+      "ats_canonical": "T+ Δ_Moon 0.6.6.0.42492"
+    },
+    {
+      "label": "2050 reference",
+      "utc": "2050-01-01T00:00:00Z",
+      "ats_canonical": "T+ Δ_Moon 0.9.9.5.06992"
+    }
+  ]
+}
