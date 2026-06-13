@@ -122,12 +122,12 @@ class ATSDateTime:
 
     # -- Arithmetic (spec §11.4) -----------------------------------------
 
-    def __add__(self, other: object) -> "ATSDateTime":
+    def __add__(self, other: object) -> ATSDateTime:
         if isinstance(other, ATSDuration):
             return _ats_from_signed_days(self._signed_decimal_days() + other.signed_days)
         return NotImplemented
 
-    def __radd__(self, other: object) -> "ATSDateTime":
+    def __radd__(self, other: object) -> ATSDateTime:
         # Allows ATSDuration + ATSDateTime; the duration's __add__ returns
         # NotImplemented for the (Δd, Δ) case so Python falls back here.
         return self.__add__(other)
@@ -187,7 +187,7 @@ class ATSDuration:
             object.__setattr__(self, "signed_days", Decimal(self.signed_days))
 
     @classmethod
-    def zero(cls) -> "ATSDuration":
+    def zero(cls) -> ATSDuration:
         return cls(Decimal(0))
 
     @property
@@ -210,33 +210,33 @@ class ATSDuration:
     def __str__(self) -> str:
         return self.to_canonical()
 
-    def __add__(self, other: object) -> "ATSDuration":
+    def __add__(self, other: object) -> ATSDuration:
         if isinstance(other, ATSDuration):
             return ATSDuration(self.signed_days + other.signed_days)
         # Δd + Δ delegates to ATSDateTime.__radd__.
         return NotImplemented
 
-    def __sub__(self, other: object) -> "ATSDuration":
+    def __sub__(self, other: object) -> ATSDuration:
         if isinstance(other, ATSDuration):
             return ATSDuration(self.signed_days - other.signed_days)
         return NotImplemented
 
-    def __mul__(self, n: object) -> "ATSDuration":
+    def __mul__(self, n: object) -> ATSDuration:
         if isinstance(n, (int, Decimal)):
             return ATSDuration(self.signed_days * Decimal(n))
         return NotImplemented
 
     __rmul__ = __mul__
 
-    def __truediv__(self, n: object) -> "ATSDuration":
+    def __truediv__(self, n: object) -> ATSDuration:
         if isinstance(n, (int, Decimal)):
             return ATSDuration(self.signed_days / Decimal(n))
         return NotImplemented
 
-    def __neg__(self) -> "ATSDuration":
+    def __neg__(self) -> ATSDuration:
         return ATSDuration(-self.signed_days)
 
-    def __abs__(self) -> "ATSDuration":
+    def __abs__(self) -> ATSDuration:
         return ATSDuration(self.abs_days)
 
     def __eq__(self, other: object) -> bool:

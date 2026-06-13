@@ -161,7 +161,7 @@ class BodyATSDateTime:
     def __str__(self) -> str:
         return self.to_canonical()
 
-    def __add__(self, other: object) -> "BodyATSDateTime":
+    def __add__(self, other: object) -> BodyATSDateTime:
         if isinstance(other, ATSDuration):
             # Δ_X + Δd_X → Δ_X. Cross-body arithmetic raises explicitly.
             new_signed = self._signed_decimal_days() + other.signed_days
@@ -274,9 +274,8 @@ def _resolve_body(suffix: str, registry: dict | None) -> Body:
     if suffix in table:
         return table[suffix]
     # Allow bare body name without underscore (e.g. "Mars")
-    if suffix and not suffix.startswith("_"):
-        if ("_" + suffix) in table:
-            return table["_" + suffix]
+    if suffix and not suffix.startswith("_") and ("_" + suffix) in table:
+        return table["_" + suffix]
     raise ValueError(f"Unknown body suffix: {suffix!r}")
 
 

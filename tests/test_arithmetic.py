@@ -30,7 +30,6 @@ from ats import (  # noqa: E402
     ATS_DECIMALS,
     ATSDateTime,
     ATSDuration,
-    _split_abs_days_floor,
 )
 
 VECTORS_PATH = ROOT / "docs" / "spec" / "test-vectors-arithmetic.json"

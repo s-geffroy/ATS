@@ -23,7 +23,6 @@ from ats_multi_planetary import (  # noqa: E402
     EARTH,
     MARS,
     MOON,
-    BodyATSDateTime,
     body_canonical_to_utc,
     utc_to_body,
     utc_to_earth,

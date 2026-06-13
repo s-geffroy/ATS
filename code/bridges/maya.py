@@ -16,8 +16,6 @@ the GMT 584283 correlation by default.
 
 from __future__ import annotations
 
-from datetime import date
-
 try:
     from convertdate import mayan as _mayan
 except ImportError as exc:  # pragma: no cover
