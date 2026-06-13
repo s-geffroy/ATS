@@ -8,6 +8,7 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ### Added — Quick wins UX (Vague 1)
 - **§1.3 Permalien `?face=`** : le paramètre URL `face=numeric|analog` impose la face au chargement, **sans persister** dans `localStorage`. Un permalien partagé ne réécrit donc plus la préférence du destinataire. Le paramètre est nettoyé de l'URL au retour en mode live (`goLive()`). Fichier : `docs/assets/js/clock-page.js`.
+- **§1.2 Toggle de thème** : nouveau bouton dans le header (à côté du `lang-switch`) qui cycle `auto → light → dark → auto`. Choix persisté dans `localStorage['ats-theme']`. Mode `auto` (défaut) suit `prefers-color-scheme` via `color-scheme: light dark`. Modes `light`/`dark` forcent une palette explicite via `:root[data-theme="…"]`. Glyphes `⊙/☼/☾`. Fichiers : `docs/assets/js/site.js`, `docs/assets/css/style.css`. *Note : `site.js` étant chargé en `defer`, un léger flash peut apparaître au premier rendu — trade-off accepté pour v0.6.0.*
 
 ## [0.5.0] — 2026-06-13 (Δ 20.7.8.2/50)
 
