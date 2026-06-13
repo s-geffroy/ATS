@@ -6,6 +6,10 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — v0.6.0 (en cours, Δ 20.7.8.2/45)
 
+### Added — OG image PNG (§5.2)
+- **`docs/assets/og-card.png`** : version PNG 1200×630 (~142 KB) rendue depuis `og-card.svg` via `docker run --rm -v "$PWD:/app" dpokidov/imagemagick -density 200 og-card.svg -resize 1200x630 og-card.png`. Le SVG reste conservé.
+- **25 pages HTML** mises à jour : `og:image` et `twitter:image` pointent désormais sur le PNG (LinkedIn et FB rendaient mal le SVG). Fix appliqué via `sed -i` sur tout `docs/**/*.html`.
+
 ### Added — Page « Vecteurs de conformance » (§5.5)
 - **`docs/{fr,en}/test-vectors.html`** : nouvelle page interactive qui charge les 7 fichiers `docs/spec/test-vectors*.json` (12 core + 12 arithmétique + 5 × 10 ponts) et les rend en tables filtrables avec boutons `Copy JSON` + `Copy canonical`. Recherche locale par dataset. Fonctionne offline (déjà cachée par le Service Worker).
 - **`docs/assets/js/test-vectors-page.js`** : controller bilingue FR/EN, lazy-fetch (un dataset manquant n'empêche pas les autres de s'afficher), copie clipboard avec toast.
