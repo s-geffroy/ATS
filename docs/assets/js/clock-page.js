@@ -262,15 +262,18 @@
   // West → East ordering, 8 cities total. 2 rows × 4 in the legend.
   // Each city carries its own color; the slot pattern (dashed/solid/dotted)
   // disambiguates morning/midday/evening within a single city.
+  // Colors are reshuffled (vs alphabetical/rainbow order) so adjacent cities
+  // around the dial never share a hue family — every third step on the wheel.
+  // Minimum hue gap between neighbours: 75° (DXB pink → BJG gold).
   const CITIES = [
     { code: 'LA',  tz: 'America/Los_Angeles', label: 'Los Angeles',                                 color: '#ef4444' }, // red
-    { code: 'NYC', tz: 'America/New_York',    label: 'New York',                                    color: '#f97316' }, // orange
-    { code: 'LDN', tz: 'Europe/London',       label: lang === 'fr' ? 'Londres'   : 'London',        color: '#eab308' }, // gold
-    { code: 'PAR', tz: 'Europe/Paris',        label: 'Paris',                                       color: '#22c55e' }, // green
+    { code: 'NYC', tz: 'America/New_York',    label: 'New York',                                    color: '#22c55e' }, // green
+    { code: 'LDN', tz: 'Europe/London',       label: lang === 'fr' ? 'Londres'   : 'London',        color: '#8b5cf6' }, // purple
+    { code: 'PAR', tz: 'Europe/Paris',        label: 'Paris',                                       color: '#f97316' }, // orange
     { code: 'JER', tz: 'Asia/Jerusalem',      label: lang === 'fr' ? 'Jérusalem' : 'Jerusalem',     color: '#14b8a6' }, // teal
-    { code: 'DXB', tz: 'Asia/Dubai',          label: lang === 'fr' ? 'Dubaï'     : 'Dubai',         color: '#06b6d4' }, // cyan
-    { code: 'BJG', tz: 'Asia/Shanghai',       label: lang === 'fr' ? 'Pékin'     : 'Beijing',       color: '#8b5cf6' }, // purple
-    { code: 'TKO', tz: 'Asia/Tokyo',          label: 'Tokyo',                                       color: '#ec4899' }, // pink
+    { code: 'DXB', tz: 'Asia/Dubai',          label: lang === 'fr' ? 'Dubaï'     : 'Dubai',         color: '#ec4899' }, // pink
+    { code: 'BJG', tz: 'Asia/Shanghai',       label: lang === 'fr' ? 'Pékin'     : 'Beijing',       color: '#eab308' }, // gold
+    { code: 'TKO', tz: 'Asia/Tokyo',          label: 'Tokyo',                                       color: '#06b6d4' }, // cyan
   ];
   // Pattern per slot:
   //   matin       08-12 — dashed (hachures)
@@ -283,6 +286,17 @@
     { from: 14, to: 18, dasharray: '0.5 3.5',   linecap: 'round' }, // après-midi
     { from: 18, to: 22, dasharray: '5 2 0.5 2', linecap: 'round' }, // soir
   ];
+
+  // Pick a legible text color (black or white) against a given hex background.
+  // Uses the YIQ luminance approximation — fast, dependency-free, accurate enough
+  // for the city palette which sits between L≈0.30 (purple) and L≈0.65 (gold).
+  function pickContrastText(hex) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+    return yiq >= 140 ? '#000000' : '#ffffff';
+  }
 
   function getTzOffsetMin(tz, date) {
     try {
@@ -348,7 +362,7 @@
         group.appendChild(path);
       }
     }
-    // Second pass: city code labels, each with a halo for readability.
+    // Second pass: city code labels, each with a halo matching the arc color.
     for (let i = 0; i < CITIES.length; i++) {
       const city = CITIES[i];
       const r = baseR + i * stepR;
@@ -356,11 +370,13 @@
       const a = startFrac * 2 * Math.PI - Math.PI / 2;
       const lx = (r + 10) * Math.cos(a);
       const ly = (r + 10) * Math.sin(a);
+      const textColor = pickContrastText(city.color);
       const halo = document.createElementNS(NS, 'circle');
       halo.setAttribute('cx', lx.toFixed(2));
       halo.setAttribute('cy', ly.toFixed(2));
       halo.setAttribute('r', '8.5');
       halo.setAttribute('class', 'city-halo');
+      halo.setAttribute('fill', city.color);
       group.appendChild(halo);
       const t = document.createElementNS(NS, 'text');
       t.setAttribute('x', lx.toFixed(2));
@@ -371,6 +387,7 @@
       t.setAttribute('font-size', '10');
       t.setAttribute('font-weight', '700');
       t.setAttribute('class', 'city-code');
+      t.setAttribute('fill', textColor);
       t.textContent = city.code;
       group.appendChild(t);
     }

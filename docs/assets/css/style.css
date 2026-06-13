@@ -457,10 +457,10 @@ a:hover { text-decoration: underline; }
 }
 
 /* Halo behind each city code on the analog dial (drawn before the text).
-   Halo is always white and text always black, regardless of the page theme,
-   so the codes stay legible over the colored arcs in both light and dark modes. */
-.city-halo  { fill: #ffffff; opacity: 0.95; }
-.city-code  { fill: #000000; }
+   Halo carries the city's arc color (set inline per-element in JS); text
+   color is auto-picked (black on bright halos, white on dark ones) so the
+   trigrams stay legible in any theme. The CSS rule only holds the opacity. */
+.city-halo  { opacity: 0.95; }
 
 /* Options block at the end of the details panel */
 .options {

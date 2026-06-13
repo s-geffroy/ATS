@@ -6,6 +6,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — vers v1.0
 
+### Changed — Palette des villes redistribuée pour éviter les voisins de même teinte
+Anciennement, l'ordre des couleurs suivait l'arc-en-ciel sur l'ordre géographique (LA rouge → … → TKO rose), ce qui plaçait trois cités vertes/bleues côte à côte (PAR vert, JER sarcelle, DXB cyan). Nouvelle attribution par saut de 3 sur la roue chromatique : LA rouge, NYC vert, LDN violet, PAR orange, JER sarcelle, DXB rose, BJG or, TKO cyan. Écart minimal entre voisins : 75° (DXB rose → BJG or), aucun cluster de teinte. La légende sous le cadran et les halos suivent automatiquement la nouvelle attribution.
+
+### Changed — Halos des trigrammes de villes : couleur de l'arc au lieu de blanc
+Les pastilles circulaires portant le code 3 lettres de chaque ville (LA, NYC, LDN, PAR, JER, DXB, BJG, TKO) sur le cadran analogique reprennent désormais la couleur de leur arc de jour (rouge, orange, or, vert, sarcelle, cyan, violet, rose). La couleur du texte est calculée automatiquement (noir ou blanc) en fonction de la luminance YIQ du fond, pour préserver la lisibilité dans tous les thèmes. Helper `pickContrastText(hex)` ajouté dans `clock-page.js` ; la règle CSS `.city-halo` ne porte plus que l'opacité (la couleur de fond est posée inline par élément).
+
 ### Fixed — Horloge analogique : Blink ne tournait pas dans Chromium + lecture pédagogique colorée
 - **Bug Chromium** : l'aiguille Blink était initialement implémentée comme un `<g>` enveloppant la ligne et le disque décoratif. Chrome ne re-peignait pas le groupe quand son `transform` était mis à jour via `setAttribute` à 10 Hz (Safari fonctionnait correctement). Restructuration en **éléments frères** : `<line id="hand-blink">` + `<circle id="hand-blink-dot">`, tous deux pivotés indépendamment par le contrôleur. Plus de groupe, plus de bug.
 - **Lecture pédagogique colorée** : `Bloc · Centi · Milli · Beat · Blink` sous le cadran utilise désormais le même code couleur que les aiguilles (`var(--fg)`, `var(--accent)`, atténué, vert, rouge). Nouvelles classes CSS `.ats-readout .u-bloc/.u-centi/.u-milli/.u-beat/.u-blink` dans `style.css` ; spans correspondants ajoutés dans `clock-page.js`.
