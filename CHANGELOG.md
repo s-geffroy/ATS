@@ -6,6 +6,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — v0.6.0 (en cours, Δ 20.7.8.2/45)
 
+### Added — Page « Vecteurs de conformance » (§5.5)
+- **`docs/{fr,en}/test-vectors.html`** : nouvelle page interactive qui charge les 7 fichiers `docs/spec/test-vectors*.json` (12 core + 12 arithmétique + 5 × 10 ponts) et les rend en tables filtrables avec boutons `Copy JSON` + `Copy canonical`. Recherche locale par dataset. Fonctionne offline (déjà cachée par le Service Worker).
+- **`docs/assets/js/test-vectors-page.js`** : controller bilingue FR/EN, lazy-fetch (un dataset manquant n'empêche pas les autres de s'afficher), copie clipboard avec toast.
+- **CSS** : nouveaux styles `.vec-card`, `.vec-filter`, `.vec-table`, `.vec-canonical`, `.vec-actions` qui respectent les variables `--bg/--fg/--accent` (compatibles avec les thèmes light/dark + futurs thèmes alternatifs).
+
 ### Added — Snapshot `/api/now.json` (§5.4)
 - **Workflow GitHub Actions `.github/workflows/cron-now.yml`** : cron `0 * * * *` (horaire) régénère `docs/api/now.json` via `python` inline (sans dépendance) et commit+push si changement. Concurrency group dédié, `permissions: contents: write`.
 - **`docs/api/now.json`** : structure publique stable — `{ utc, ats_canonical, ats_short, integer_days, fraction_5digit, generated_at, cadence_minutes, note }`. URL publique GH Pages : `https://s-geffroy.github.io/ATS/api/now.json`.
