@@ -4,6 +4,11 @@ Toutes les modifications notables du projet ATS sont consignées ici.
 
 Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la nomenclature [SemVer](https://semver.org/lang/fr/).
 
+## [Unreleased] — v0.6.0 (en cours, Δ 20.7.8.2/45)
+
+### Added — Quick wins UX (Vague 1)
+- **§1.3 Permalien `?face=`** : le paramètre URL `face=numeric|analog` impose la face au chargement, **sans persister** dans `localStorage`. Un permalien partagé ne réécrit donc plus la préférence du destinataire. Le paramètre est nettoyé de l'URL au retour en mode live (`goLive()`). Fichier : `docs/assets/js/clock-page.js`.
+
 ## [0.5.0] — 2026-06-13 (Δ 20.7.8.2/50)
 
 ### Changed — **Breaking : bascule d'époque**

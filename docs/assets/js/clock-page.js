@@ -5,6 +5,8 @@
  * Features:
  *   • Live tick (10 Hz) of the Δ ATS short / canonical / per-unit values.
  *   • Permalink: `?t=<canonical>` or `?utc=<ISO>` freezes the clock at that instant.
+ *     Optional `?face=numeric|analog` overrides the saved face for this visit
+ *     only (does not write to localStorage).
  *   • Click the big short / canonical value to copy it (toast notification).
  *   • Keyboard shortcuts (when no input focused):
  *       C       — copy short
@@ -385,10 +387,13 @@
     if (saved === 'analog' || saved === 'numeric') currentFace = saved;
   } catch (e) {}
 
-  function selectFace(face) {
+  function selectFace(face, opts) {
     if (face !== 'numeric' && face !== 'analog') face = 'numeric';
+    const persist = !(opts && opts.persist === false);
     currentFace = face;
-    try { localStorage.setItem(FACE_KEY, face); } catch (e) {}
+    if (persist) {
+      try { localStorage.setItem(FACE_KEY, face); } catch (e) {}
+    }
     if (faceNumeric) faceNumeric.hidden = face !== 'numeric';
     if (faceAnalog)  faceAnalog.hidden  = face !== 'analog';
     if (tabNumeric) {
@@ -447,6 +452,7 @@
     const u = new URL(window.location.href);
     u.searchParams.delete('t');
     u.searchParams.delete('utc');
+    u.searchParams.delete('face');
     window.history.replaceState(null, '', u.pathname);
   }
 
@@ -537,6 +543,16 @@
     bindClickToCopy();
     bindShortcuts();
     bindConverter();
+    // ?face=numeric|analog overrides the saved face for this visit only —
+    // a shared permalink must not silently overwrite the recipient's
+    // preference. selectFace was already called at module init with
+    // localStorage value; this re-selects without persisting.
+    try {
+      const faceParam = new URL(window.location.href).searchParams.get('face');
+      if (faceParam === 'numeric' || faceParam === 'analog') {
+        selectFace(faceParam, { persist: false });
+      }
+    } catch (e) {}
     if (!applyPermalink()) {
       goLive();
     }
