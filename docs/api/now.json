@@ -1,0 +1,10 @@
+{
+  "utc": "2026-06-13T11:40:11Z",
+  "ats_canonical": "T+ Δ 20.7.8.2.48624",
+  "ats_short": "Δ 20.7.8.2/48",
+  "integer_days": 20782,
+  "fraction_5digit": 48624,
+  "generated_at": "2026-06-13T11:40:11Z",
+  "cadence_minutes": 60,
+  "note": "This is an hourly snapshot, not a live endpoint. For real-time ATS, use the JS reference at /ATS/assets/js/ats.js or compute locally from the UTC field."
+}

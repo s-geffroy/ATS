@@ -1,0 +1,78 @@
+name: Hourly /api/now.json snapshot
+
+on:
+  schedule:
+    # 1× per hour at minute 0. Cron rounding may delay by several minutes;
+    # the snapshot is explicitly documented as best-effort hourly.
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cron-now
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Need full history so we can push without merge issues.
+          fetch-depth: 0
+          persist-credentials: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Render snapshot
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from decimal import Decimal, ROUND_FLOOR
+
+          EPOCH = datetime(1969, 7, 20, 0, 0, 0, tzinfo=timezone.utc)
+          ATS_SCALE = 100000
+
+          now = datetime.now(timezone.utc)
+          delta_days = Decimal((now - EPOCH).total_seconds()) / Decimal(86400)
+          integer = int(delta_days // 1)
+          frac_dec = (delta_days - integer) * Decimal(ATS_SCALE)
+          frac_int = int(frac_dec.to_integral_value(rounding=ROUND_FLOOR))
+          kilo, rem = divmod(integer, 1000)
+          hecto, rem = divmod(rem, 100)
+          deka, kin = divmod(rem, 10)
+          canonical = f'T+ Δ {kilo}.{hecto}.{deka}.{kin}.{frac_int:05d}'
+          short = f'Δ {kilo}.{hecto}.{deka}.{kin}/{frac_int // 1000:02d}'
+          data = {
+              'utc': now.strftime('%Y-%m-%dT%H:%M:%SZ'),
+              'ats_canonical': canonical,
+              'ats_short': short,
+              'integer_days': integer,
+              'fraction_5digit': frac_int,
+              'generated_at': now.strftime('%Y-%m-%dT%H:%M:%SZ'),
+              'cadence_minutes': 60,
+              'note': 'Hourly snapshot, not a live endpoint. For real-time ATS, use the JS reference at /ATS/assets/js/ats.js or compute locally from the UTC field.',
+          }
+          with open('docs/api/now.json', 'w', encoding='utf-8') as fh:
+              json.dump(data, fh, indent=2, ensure_ascii=False)
+              fh.write('\n')
+          print('Wrote', canonical)
+          PY
+
+      - name: Commit and push if changed
+        run: |
+          if git diff --quiet -- docs/api/now.json; then
+            echo "No change."
+            exit 0
+          fi
+          git config user.name 'ats-cron[bot]'
+          git config user.email 'ats-cron@users.noreply.github.com'
+          git add docs/api/now.json
+          git commit -m "chore(api): /api/now.json hourly snapshot $(jq -r .ats_canonical docs/api/now.json)"
+          git push

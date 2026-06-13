@@ -6,6 +6,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — v0.6.0 (en cours, Δ 20.7.8.2/45)
 
+### Added — Snapshot `/api/now.json` (§5.4)
+- **Workflow GitHub Actions `.github/workflows/cron-now.yml`** : cron `0 * * * *` (horaire) régénère `docs/api/now.json` via `python` inline (sans dépendance) et commit+push si changement. Concurrency group dédié, `permissions: contents: write`.
+- **`docs/api/now.json`** : structure publique stable — `{ utc, ats_canonical, ats_short, integer_days, fraction_5digit, generated_at, cadence_minutes, note }`. URL publique GH Pages : `https://s-geffroy.github.io/ATS/api/now.json`.
+- **README** : nouvelle section « Endpoint snapshot `/api/now.json` » avec un schéma d'exemple et la limite explicite « pas un endpoint live ».
+- Fichier seed commité avec l'instant actuel pour qu'il existe avant le premier cron.
+
 ### Added — PWA installable (§3.2, §5.6)
 - **`docs/manifest.webmanifest`** : nom court « ATS », nom long « Δ ATS — Apollonian Time System », `start_url=/ATS/fr/`, `scope=/ATS/`, `display=standalone`, `theme_color=#4a6cff`, `background_color=#0b0f17`. 5 icônes déclarées : SVG vectoriel + PNG 192/512 (any) + PNG 192/512 (maskable, fond `#0b0f17`).
 - **`docs/assets/icon.svg`** : Δ blanc sur fond `#0b0f17`, anneau d'accent `#4a6cff`. ViewBox 512×512.

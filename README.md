@@ -47,6 +47,27 @@ Publié depuis `main`, dossier `/docs`. Pages bilingues :
 - **Intégrer / Embed** — guide one-liner avec Web Component, badge.
 - **Code** — module Python téléchargeable, lien GitHub raw.
 
+## Endpoint snapshot `/api/now.json`
+
+Depuis v0.6, GitHub Actions régénère `docs/api/now.json` **toutes les heures** (workflow `cron-now.yml`). Le fichier expose l'instant ATS courant en JSON :
+
+```json
+{
+  "utc": "2026-06-13T11:00:00Z",
+  "ats_canonical": "T+ Δ 20.7.8.2.45833",
+  "ats_short": "Δ 20.7.8.2/45",
+  "integer_days": 20782,
+  "fraction_5digit": 45833,
+  "generated_at": "2026-06-13T11:00:00Z",
+  "cadence_minutes": 60,
+  "note": "Hourly snapshot, not a live endpoint."
+}
+```
+
+URL publique : `https://s-geffroy.github.io/ATS/api/now.json`.
+
+**Limite explicite** : ce n'est **pas un endpoint live**. Pour un Δ temps-réel, charger `/ATS/assets/js/ats.js` côté client et calculer localement depuis `now()`. Le fichier statique sert surtout aux intégrations tierces qui veulent un Δ « approximativement courant » sans charger JS.
+
 ## Régénérer les pages Markdown
 
 Le rendu Markdown est exécuté au build (et non plus au runtime côté navigateur). Pour régénérer les 8 fragments HTML après une édition de `docs/spec/*.md` :
