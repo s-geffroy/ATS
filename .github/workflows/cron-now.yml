@@ -47,12 +47,14 @@ jobs:
           kilo, rem = divmod(integer, 1000)
           hecto, rem = divmod(rem, 100)
           deka, kin = divmod(rem, 10)
+          bc = frac_int // 1000
+          milli = (frac_int // 100) % 10
           canonical = f'T+ Δ {kilo}.{hecto}.{deka}.{kin}.{frac_int:05d}'
-          short = f'Δ {kilo}.{hecto}.{deka}.{kin}/{frac_int // 1000:02d}'
+          display = f'Δ{kilo}.{hecto}.{deka}.{kin}-{bc:02d}.{milli}'
           data = {
               'utc': now.strftime('%Y-%m-%dT%H:%M:%SZ'),
               'ats_canonical': canonical,
-              'ats_short': short,
+              'ats_display': display,
               'integer_days': integer,
               'fraction_5digit': frac_int,
               'generated_at': now.strftime('%Y-%m-%dT%H:%M:%SZ'),

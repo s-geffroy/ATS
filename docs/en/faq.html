@@ -37,6 +37,7 @@
       <a href="./comparison.html">Comparison</a>
       <a href="./dials.html">Dials</a>
       <a href="./timeline.html">Timeline</a>
+      <a href="./cities.html">Cities</a>
       <a class="active" href="./faq.html">FAQ</a>
       <a href="./age.html">My Age</a>
       <a href="./code.html">Code</a>
@@ -65,9 +66,9 @@
 <h2>Why not base 12 or base 20?</h2>
 <p>Base 12 has divisibility benefits (2, 3, 4, 6); base 20 matches the Mayan Long Count. But the whole ecosystem (currency, SI, computing, finance) is base 10. The decimal choice drives adoption friction to near zero.</p>
 <h2>How do I read <code>T+ Δ 20.7.8.0.61137</code> out loud?</h2>
-<p>The spec does not standardize oral form. Three observed usages: digit-by-digit ("twenty dot seven dot eight dot zero dot six one one three seven"), grouped pairs ("twenty dot seven dot eight dot zero dot sixty-one thousand one hundred thirty-seven"), or short form ("twenty seven eight zero slash sixty-one").</p>
-<h2>"Δ 20.7.8 / 65" — which day exactly?</h2>
-<p>Ambiguous on purpose — that is why v0.1.2 <strong>brought <code>Kin</code> back</strong> into the short form: <code>Δ 20.7.8.5/65</code>. The short form is now precise to the day. Loss is bounded to Milli/Beat/Blink (±14 min 24 s).</p>
+<p>The spec does not standardize oral form. Three observed usages: digit-by-digit ("twenty dot seven dot eight dot zero dot six one one three seven"), grouped pairs ("twenty dot seven dot eight dot zero dot sixty-one thousand one hundred thirty-seven"), or short form ("twenty seven eight zero dash sixty-one dot one").</p>
+<h2>"Δ20.7.8-65.1" — which day exactly?</h2>
+<p>Ambiguous on purpose — that is why v0.1.2 <strong>brought <code>Kin</code> back</strong> into the short form: <code>Δ20.7.8.5-65.1</code>. The short form is now precise to the day. Since v0.7, the <code>Milli</code> digit after <code>.</code> shrinks the residual loss from ±14 min 24 s (Centi only) to ±1 min 26 s.</p>
 <h2>Why no time zones?</h2>
 <p>Because time zones are the #1 source of software bugs. ATS = strict UTC. To calibrate human activity to the local sun, use the <strong>LST (Local Solar Time)</strong> overlay as informational layer only (§7), never stored.</p>
 <h2>What about daylight saving time?</h2>

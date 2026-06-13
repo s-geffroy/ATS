@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "code"))
 
-from ats import ats_to_gregorian, gregorian_to_ats  # noqa: E402
+from ats import ATSDateTime, ats_to_gregorian, gregorian_to_ats  # noqa: E402
 
 VECTORS_PATH = ROOT / "docs" / "spec" / "test-vectors.json"
 
@@ -31,7 +31,7 @@ class TestVectors(unittest.TestCase):
                 dt = datetime.fromisoformat(v["utc"].replace("Z", "+00:00"))
                 ats = gregorian_to_ats(dt)
                 self.assertEqual(ats.to_canonical(), v["canonical"])
-                self.assertEqual(ats.to_short(), v["short"])
+                self.assertEqual(ats.to_short(), v["display"])
                 self.assertEqual(ats.sign, v["sign"])
                 self.assertEqual(ats.kilo, v["kilo"])
                 self.assertEqual(ats.hecto, v["hecto"])
@@ -56,6 +56,44 @@ class TestVectors(unittest.TestCase):
                     self.assertGreaterEqual(drift_ms, 0, "T+ floor must never anticipate")
                 else:
                     self.assertLessEqual(drift_ms, 0, "T- floor must stay closer to epoch")
+
+
+class TestShortFormat(unittest.TestCase):
+    """Cover the v0.7 short form: ΔK.H.D.Kin-BC.M (no space, dash, .Milli)."""
+
+    def test_milli_zero_still_emitted(self) -> None:
+        # frac = 50_000 → Bloc 5, Centi 0, Milli 0 → "-50.0"
+        a = ATSDateTime(sign="T+", kilo=0, hecto=0, deka=0, kin=0, frac=50_000)
+        self.assertEqual(a.to_short(), "Δ0.0.0.0-50.0")
+
+    def test_milli_digit_carried(self) -> None:
+        # frac = 70_500 → Bloc 7, Centi 0, Milli 5 → "-70.5"
+        a = ATSDateTime(sign="T+", kilo=20, hecto=7, deka=8, kin=2, frac=70_500)
+        self.assertEqual(a.to_short(), "Δ20.7.8.2-70.5")
+
+    def test_round_trip_within_milli_resolution(self) -> None:
+        # Milli unit = 0.001 day ≈ 86.4 s. Round-trip drift must be < 90 s.
+        from datetime import datetime, timezone
+        moments = [
+            datetime(2026, 6, 13, 12, 0, 0, tzinfo=timezone.utc),
+            datetime(1969, 7, 20, 20, 17, 40, tzinfo=timezone.utc),
+            datetime(2000, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+        ]
+        for dt in moments:
+            with self.subTest(dt=dt.isoformat()):
+                a = gregorian_to_ats(dt)
+                short = a.to_short()
+                back = ats_to_gregorian(short, allow_short=True)
+                drift = abs((dt - back).total_seconds())
+                self.assertLess(drift, 90.0)
+
+    def test_rejects_legacy_slash_form(self) -> None:
+        with self.assertRaises(ValueError):
+            ats_to_gregorian("Δ 20.7.8.2/50", allow_short=True)
+
+    def test_rejects_space_after_symbol(self) -> None:
+        with self.assertRaises(ValueError):
+            ats_to_gregorian("Δ 20.7.8.2-50.0", allow_short=True)
 
 
 if __name__ == "__main__":

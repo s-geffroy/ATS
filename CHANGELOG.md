@@ -6,6 +6,21 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — vers v1.0
 
+### Changed — Forme courte v0.7 : `Δ20.7.8.2-50.0` (suppression de l'espace, séparateur `-`, ajout du Milli)
+**Rupture de format (sans rétrocompat).** L'ancienne forme `Δ K.H.D.Kin/cc` est remplacée par `ΔK.H.D.Kin-BC.M` :
+- Plus d'espace entre `Δ` et le premier chiffre.
+- Séparateur `-` entre la partie calendaire (`Kin`) et la fraction journalière (`BC`).
+- Chiffre `Milli` ajouté après un `.` final, **toujours émis** même à zéro. La perte d'information résiduelle passe de ±14 min 24 s (Centi seul) à ±1 min 26 s (Milli).
+- Le parseur court est désormais **strict** : la forme legacy `/cc` est refusée ; la conversion sans perte continue à passer par la forme canonique 5 chiffres.
+- Champ `short` renommé en `display` dans `docs/spec/test-vectors.json` ; champ `ats_short` renommé en `ats_display` dans `docs/api/now.json` (et dans le workflow GitHub `cron-now.yml`).
+- Spec mise à jour : `manifesto.{en,fr}.md` §5 + §10, `faq.{en,fr}.md`, `versioning.{en,fr}.md`, fragments `_rendered/*`, pages publiques `manifesto.html`/`manifeste.html`, `faq.html`, `code.html`. Toutes les en-têtes historiques du CHANGELOG ont été renormalisées au nouveau format (Milli inconnu rétroactivement → `.0`).
+
+### Added — Mode focus + camembert au cadran analogique
+Cliquer sur le trigramme d'une ville (PAR, NYC, …) sur le cadran analogique active un mode focus : les arcs des autres villes s'atténuent (opacity 0.25), un camembert apparaît au centre du cadran avec les 4 quartiers de la ville (matin/midi/après-midi/soir) ancrés sur ses 24 h locales (creux 22-08 transparent), et les 5 aiguilles (Bloc/Centi/Milli/Beat/Blink) se replient vers la périphérie pour ne pas chevaucher le camembert. Sortie via re-clic, ESC, clic sur le fond, ou clic sur un autre trigramme (switch direct).
+
+### Added — Page « Cités » : correspondances heures locales × ATS pour les capitales du monde
+Nouvelle page `/{fr,en}/cities.html` qui tabule ~30-50 capitales représentatives × 10 activités quotidiennes (réveil, petit-déjeuner, école, travail, déjeuner, sorties, dîner, film TV). Chaque cellule combine l'heure locale moyenne (estimations culturelles régionales sourcées) et la valeur ATS au format `BC.M` (3 chiffres micro). Lien ajouté à la barre de navigation du site.
+
 ### Changed — Palette des villes redistribuée pour éviter les voisins de même teinte
 Anciennement, l'ordre des couleurs suivait l'arc-en-ciel sur l'ordre géographique (LA rouge → … → TKO rose), ce qui plaçait trois cités vertes/bleues côte à côte (PAR vert, JER sarcelle, DXB cyan). Nouvelle attribution par saut de 3 sur la roue chromatique : LA rouge, NYC vert, LDN violet, PAR orange, JER sarcelle, DXB rose, BJG or, TKO cyan. Écart minimal entre voisins : 75° (DXB rose → BJG or), aucun cluster de teinte. La légende sous le cadran et les halos suivent automatiquement la nouvelle attribution.
 
@@ -67,7 +82,7 @@ Application de la méthode systematic-debugging (cause racine d'abord). Le basel
 - **`spec_version: "0.6"`** ajouté à la racine des **7 fichiers** `docs/spec/test-vectors*.json`. Les consommateurs détectent désormais explicitement la spec contre laquelle un jeu de vecteurs a été produit.
 - **Manifeste §14** (FR + EN) cite `versioning.md` comme annexe normative.
 
-## [0.6.0] — 2026-06-13 (Δ 20.7.8.2/48)
+## [0.6.0] — 2026-06-13 (Δ20.7.8.2-48.0)
 
 ### Added — Recherche statique Pagefind (§5.3)
 - **Index Pagefind** dans `docs/_pagefind/` (~900 KB, généré au build via `docker run --rm -v "$PWD:/app" -w /app/docs node:20-slim sh -c "npx --yes pagefind --site . --output-path _pagefind"`) — 25 pages indexées sur 2 langues (FR + EN), 3 199 mots distincts.
@@ -158,7 +173,7 @@ Application de la méthode systematic-debugging (cause racine d'abord). Le basel
 - **§1.3 Permalien `?face=`** : le paramètre URL `face=numeric|analog` impose la face au chargement, **sans persister** dans `localStorage`. Un permalien partagé ne réécrit donc plus la préférence du destinataire. Le paramètre est nettoyé de l'URL au retour en mode live (`goLive()`). Fichier : `docs/assets/js/clock-page.js`.
 - **§1.2 Toggle de thème** : nouveau bouton dans le header (à côté du `lang-switch`) qui cycle `auto → light → dark → auto`. Choix persisté dans `localStorage['ats-theme']`. Mode `auto` (défaut) suit `prefers-color-scheme` via `color-scheme: light dark`. Modes `light`/`dark` forcent une palette explicite via `:root[data-theme="…"]`. Glyphes `⊙/☼/☾`. Fichiers : `docs/assets/js/site.js`, `docs/assets/css/style.css`. *Note : `site.js` étant chargé en `defer`, un léger flash peut apparaître au premier rendu — trade-off accepté pour v0.6.0.*
 
-## [0.5.0] — 2026-06-13 (Δ 20.7.8.2/50)
+## [0.5.0] — 2026-06-13 (Δ20.7.8.2-50.0)
 
 ### Changed — **Breaking : bascule d'époque**
 - **Époque ATS déplacée** de l'instant exact de l'alunissage (`1969-07-20T20:17:40Z`, retenu en RC v1.1) au **début du jour de l'alunissage** (`1969-07-20T00:00:00Z`). Conséquence pédagogique majeure : **Bloc 5 = 12:00 UTC** exactement (5 × 2 h 24 min). Toutes les valeurs Δ antérieures sont décalées de 73 060 s ≈ 0,84560 jour.
@@ -185,7 +200,7 @@ Application de la méthode systematic-debugging (cause racine d'abord). Le basel
 - Toute référence à `1969-07-20T20:17:40Z` comme **époque** (le timestamp reste cité comme instant remarquable de l'alunissage).
 - Phrasings « ancré à Apollo 11 (touchdown) » → « ancré au jour d'Apollo 11 ».
 
-## [0.3.2] — 2026-06-12 (Δ 20.7.8.0/65)
+## [0.3.2] — 2026-06-12 (Δ20.7.8.0-65.0)
 
 ### Added
 - **8e ville** (Dubaï, UTC+4, sans DST) sur le cadran analogique — 8 villes au total, ordonnées Ouest → Est sur 2 lignes de 4 dans la légende.
@@ -194,7 +209,7 @@ Application de la méthode systematic-debugging (cause racine d'abord). Le basel
 ### Changed
 - **Codes villes lisibles** : font-size `8` → `10`, `font-weight: 700`, opacité 100 %, halo (cercle `var(--bg)` opacité 0.92) derrière chaque code, position un peu plus à l'extérieur (radius +7 → +10).
 
-## [0.3.1] — 2026-06-12 (Δ 20.7.8.0/65)
+## [0.3.1] — 2026-06-12 (Δ20.7.8.0-65.0)
 
 ### Added — Analog clock enrichments
 - **Lecture ATS pédagogique** sous le cadran : `Bloc 6 · Centi 5 · Milli 4 · Beat 3 · Blink 7 (.65437)` — nomme chaque sous-unité du jour-fraction conformément au manifeste §4.3, plus la fraction canonique en parenthèses.
@@ -203,7 +218,7 @@ Application de la méthode systematic-debugging (cause racine d'abord). Le basel
 - **DST dynamique** via `Intl.DateTimeFormat` (`timeZoneName: 'longOffset'`) — les arcs des villes à DST (LA, NYC, London, Paris, Jerusalem) bougent de ±60 min selon la date ; Beijing et Tokyo restent fixes.
 - **viewBox** élargi `-110 -110 220 220` → `-140 -140 280 280` pour loger les arcs.
 
-## [0.3.0] — 2026-06-12 (Δ 20.7.8.0/65)
+## [0.3.0] — 2026-06-12 (Δ20.7.8.0-65.0)
 
 ### Added — Analog clock face
 - **Spec** : `docs/spec/analog-clock.{en,fr}.md` — 3 aiguilles (Bloc 1×, Centi 10×, Milli 100×), rotation horaire, longueurs Bloc > Centi > Milli (ATS-natif), couleurs Bloc=fg / Centi=accent / Milli=atténué, lecture centrale `Δ K.H.D.Kin`, mouvement hybride (Bloc + Centi sautent, Milli continu).
@@ -212,7 +227,7 @@ Application de la méthode systematic-debugging (cause racine d'abord). Le basel
 - **Mode strict** : case à cocher dans `<details>` (« Mode strict — Milli saute aussi ») qui force Milli à tronquer comme les deux autres aiguilles ; choix sauvegardé dans `localStorage["ats-strict-analog"]`.
 - CSS : `.face-toggle`, `.face-panel`, `.analog-dial`, `.options` ajoutés à `style.css`.
 
-## [0.2.2] — 2026-06-12 (Δ 20.7.8.0/65)
+## [0.2.2] — 2026-06-12 (Δ20.7.8.0-65.0)
 
 ### Added — Mobile navigation
 - `docs/assets/js/site.js` : menu hamburger injecté automatiquement, état `aria-expanded`/`aria-controls`/`aria-label`, fermeture au clic sur un lien et à la touche `Esc`. Inclus sur les 21 pages.
@@ -223,7 +238,7 @@ Application de la méthode systematic-debugging (cause racine d'abord). Le basel
 - **DOMPurify** : `marked.parse(md)` est désormais `DOMPurify.sanitize(marked.parse(md))` sur les 8 pages markdown (manifeste, philosophie, comparaison, FAQ × 2 langues).
 - **CSP** (`<meta http-equiv="Content-Security-Policy">`) sur les 21 pages : `default-src 'self'; script-src + style-src 'self' + cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' data:; connect-src 'self' raw.githubusercontent.com; object-src 'none'; base-uri 'self'; form-action 'self'`.
 
-## [0.2.1] — 2026-06-12 (Δ 20.7.8.0/65)
+## [0.2.1] — 2026-06-12 (Δ20.7.8.0-65.0)
 
 ### Fixed
 - **Spec §12.3** (EN + FR) : la comparaison `memcmp` n'est PAS chronologique pour des comparaisons mixtes T+/T- (deux's complement). Reformulé avec la condition (T+ seul OU T- seul) + suggestion d'une variante biaisée (`days + 2^39`) pour usage futur.
@@ -250,7 +265,7 @@ Application de la méthode systematic-debugging (cause racine d'abord). Le basel
 - Accent `#6c8cff` → `#4a6cff` (ratio WCAG AA ≥ 4.5:1 sur Canvas blanc).
 - `role="timer" aria-live="off" aria-atomic="true"` sur les afficheurs d'horloge live (FR/EN index + cadrans/dials) — empêche un lecteur d'écran de lire l'heure 10 fois par seconde.
 
-## [0.2.0] — 2026-06-12 (Δ 20.7.8.0/65)
+## [0.2.0] — 2026-06-12 (Δ20.7.8.0-65.0)
 
 ### Fixed
 - `docs/fr/age.html` : `Date.parse(v || (v.length === 10 ? v + 'T00:00:00Z' : v))` était une logique morte (`||` court-circuitait dès que `v` non-vide). Réécrit en ternaire propre.
@@ -290,10 +305,10 @@ Application de la méthode systematic-debugging (cause racine d'abord). Le basel
 - `docs/fr/timeline.html` / `docs/en/timeline.html` — frise historique avec 9 jalons en Δ (Wright, Hiroshima, Spoutnik, époque, Mur de Berlin, WWW, iPhone, COVID-19, ChatGPT).
 - `docs/fr/cadrans.html` / `docs/en/dials.html` — comparatif visuel SVG : cadran 24h vs cadran 10 Blocs, animés en temps réel.
 
-## [0.1.2] — 2026-06-12 (Δ 20.7.8.0/63)
+## [0.1.2] — 2026-06-12 (Δ20.7.8.0-63.0)
 
 ### Changed
-- **Forme courte** : le chiffre `Kin` est désormais **toujours affiché** (même à zéro) pour préserver la référence calendaire. Les espaces autour de `/` sont supprimés à l'émission (`Δ 20.7.8.0/63` au lieu de `Δ 20.7.8 / 63`).
+- **Forme courte** : le chiffre `Kin` est désormais **toujours affiché** (même à zéro) pour préserver la référence calendaire. Les espaces autour de `/` sont supprimés à l'émission (`Δ20.7.8.0-63.0` au lieu de `Δ 20.7.8 / 63` — entrée renormalisée a posteriori au format v0.7).
 - Les parseurs restent tolérants : les espaces autour de `/` sont acceptés à la lecture.
 - Précision de décodage : ±~14 min 24 s (un Centi). L'incertitude de ±1 jour précédente disparaît (Kin était supposé `0`).
 - Manifeste §5 et §10 (EN + FR) reformulés ; §13 mis à jour.
@@ -301,7 +316,7 @@ Application de la méthode systematic-debugging (cause racine d'abord). Le basel
 - `docs/assets/js/ats.js` : `toShort()` aligné.
 - Pages `code.html` (FR + EN) : exemple mis à jour.
 
-## [0.1.1] — 2026-06-12 (Δ 20.7.8.0/61)
+## [0.1.1] — 2026-06-12 (Δ20.7.8.0-61.0)
 
 ### Changed
 - **Politique d'arrondi** : retour à la **troncature stricte (floor)**. La variante banker's half-even envisagée en 0.1.0 a été rejetée comme incompatible avec le principe "compteur d'unités complétées" — un compteur monotone ne doit jamais anticiper. Le round-trip est désormais toujours **en retard** (jamais en avance) ; le drift à précision 5 chiffres reste borné par 864 ms.

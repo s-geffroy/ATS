@@ -115,25 +115,27 @@ When precision is reduced for display, see §6 (rounding policy).
 For everyday display (watches, apps, conversation), ATS defines a **short** form:
 
 ```
-Δ K.H.D.Kin/cc
+ΔK.H.D.Kin-BC.M
 ```
 
 - `K`, `H`, `D`, `Kin` are the **Kilo**, **Hecto**, **Deka**, **Kin** digits. Kilo is shown in full (it may be multi-digit); `Kin` is **always shown**, even when it is zero, so the calendar reference is never lost.
-- `cc` is two digits of day-fraction (Bloc + Centi).
-- `/` separates the date part from the fraction part, **with no spaces** around it, to keep the form compact.
+- No space between `Δ` and the first digit.
+- `BC` is the 2-digit Bloc + Centi pair (always 2 digits, zero-padded).
+- `.M` is the single **Milli** digit, **always emitted** even when zero — so the short form keeps a known ±1 min 26 s precision floor rather than the ±14 min 24 s of the historical 2-digit form.
+- The separators are part of the canonical short form: `-` between `Kin` and `BC`, `.` before `M`, no spaces anywhere.
 
 Example:
 
 ```
-Δ 20.7.8.2/50
+Δ20.7.8.2-50.0
 ```
 
 **When to use which:**
 
 - **Canonical:** logs, storage, cryptographic signing, cross-system interop. Always uses `.` as date/fraction separator (URL-safe, filename-safe).
-- **Short:** UI, watches, conversation. Uses `/` tight against the digits.
+- **Short:** UI, watches, conversation. Uses `-` between the calendar and the daily fraction, and `.` before the Milli digit.
 
-> **Input tolerance.** Parsers MUST also accept the form with optional whitespace around `/` (`Δ 20.7.5.0 / 43`). The *emitted* form is strict: no spaces.
+> **Input tolerance.** The short parser is **strict** — no spaces, no alternative separators. The legacy `/cc` form (pre-v0.7) is **rejected**; canonical conversion via the 5-digit form remains the lossless path.
 
 ---
 
@@ -187,13 +189,13 @@ A reference Python implementation lives in `code/ats.py`.
 
 ## 10. Decoding the short form
 
-The short form `Δ K.H.D.Kin/cc` is intentionally lossy:
+The short form `ΔK.H.D.Kin-BC.M` is intentionally lossy:
 
 - No sign (assumed `T+`).
-- Two-digit fraction only (Bloc + Centi; the finer positions Milli/Beat/Blink are assumed `0`).
+- Three-digit fraction only (Bloc + Centi + Milli; the finer positions Beat/Blink are assumed `0`).
 - Kilo is shown in full — there is **no Myriade context** to recover.
 
-Implementations decoding a short form into a precise Gregorian instant SHOULD label the result as approximate (precision: ±~14 min 24 s — one Centi).
+Implementations decoding a short form into a precise Gregorian instant SHOULD label the result as approximate (precision: ±~1 min 26 s — one Milli).
 
 ---
 

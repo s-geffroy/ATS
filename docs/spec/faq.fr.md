@@ -26,11 +26,11 @@ La base 12 a des avantages divisibilité (2, 3, 4, 6), la base 20 colle au Compt
 
 ## Comment lire `T+ Δ 20.7.8.0.61137` à voix haute ?
 
-La spec ne fixe pas de standard oral. Trois usages observés : point-par-point ("Deux Zéro point Sept point Huit point Zéro point Six Un Un Trois Sept"), groupé par paire ("Vingt point Sept point Huit point Zéro point Six mille cent trente-sept"), ou court ("Vingt sept huit zéro / soixante-et-un").
+La spec ne fixe pas de standard oral. Trois usages observés : point-par-point ("Deux Zéro point Sept point Huit point Zéro point Six Un Un Trois Sept"), groupé par paire ("Vingt point Sept point Huit point Zéro point Six mille cent trente-sept"), ou court ("Vingt sept huit zéro tiret soixante-et-un point un").
 
-## "Δ 20.7.8 / 65", c'est ambigu sur quel jour ?
+## "Δ20.7.8-65.1", c'est ambigu sur quel jour ?
 
-Oui — c'est précisément pourquoi v0.1.2 a **rétabli `Kin`** dans la forme courte : `Δ 20.7.8.5/65`. La forme courte garde maintenant la précision au jour près. La perte ne porte plus que sur Milli/Beat/Blink (±14 min 24 s).
+Oui — c'est précisément pourquoi v0.1.2 a **rétabli `Kin`** dans la forme courte : `Δ20.7.8.5-65.1`. La forme courte garde la précision au jour près. Depuis v0.7, le chiffre `Milli` après le `.` ramène la perte résiduelle de ±14 min 24 s (Centi seul) à ±1 min 26 s.
 
 ## Pourquoi pas de fuseau horaire ?
 

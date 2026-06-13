@@ -12,14 +12,17 @@ Canonical format: "T+ Δ K.H.D.Kin.fffff"
   - H, D, Kin are digits 0..9 (Hecto, Deka, Kin).
   - fffff is 5 fractional digits (default precision; variable).
 
-Short format (UI): "Δ K.H.D.Kin/cc"
+Short format (UI): "ΔK.H.D.Kin-BC.M"
   - K, H, D, Kin are Kilo (unbounded), Hecto, Deka, Kin.
+  - No space between Δ and the first digit.
   - Kin is always shown (even when zero) to keep the calendar reference
-    unambiguous. No spaces around `/`.
-  - cc is two fractional digits (Bloc + Centi).
-  - Decoding the short form is intentionally lossy: lower fractional
-    digits (Milli/Beat/Blink) assumed 0; sign assumed T+. Parsers accept
-    optional whitespace around `/`.
+    unambiguous.
+  - BC is the 2-digit Bloc+Centi pair (always 2 digits, zero-padded),
+    `.M` is the single Milli digit (always shown, even when 0).
+  - Decoding the short form is still intentionally lossy: lower fractional
+    digits (Beat/Blink) assumed 0; sign assumed T+. The parser is strict
+    on whitespace and on the separators (`-` between Kin and BC, `.` before
+    Milli) — the legacy "/cc" form is rejected.
 
 Duration type Δd (v0.6+, spec §11.4):
   ATSDuration represents a signed amount of days as a Decimal, independent
@@ -108,14 +111,17 @@ class ATSDateTime:
         )
 
     def to_short(self) -> str:
-        """Conversational form: Δ K.H.D.Kin/cc
+        """Conversational form: ΔK.H.D.Kin-BC.M
 
-        Drops the sign and the lower fractional digits (Milli/Beat/Blink).
+        Drops the sign and the lower fractional digits (Beat/Blink).
         Kin is always shown — even when zero — to keep the calendar
-        reference unambiguous. No spaces around `/`.
+        reference unambiguous. BC is the 2-digit Bloc+Centi pair;
+        `.M` is the single Milli digit, always emitted even when 0.
+        No spaces.
         """
-        cc = self.frac // (10 ** (ATS_DECIMALS - 2))
-        return f"{ATS_SYMBOL} {self.kilo}.{self.hecto}.{self.deka}.{self.kin}/{cc:02d}"
+        bc = self.frac // (10 ** (ATS_DECIMALS - 2))           # Bloc·Centi
+        m = (self.frac // (10 ** (ATS_DECIMALS - 3))) % 10     # Milli
+        return f"{ATS_SYMBOL}{self.kilo}.{self.hecto}.{self.deka}.{self.kin}-{bc:02d}.{m}"
 
     def __str__(self) -> str:
         return self.to_canonical()
@@ -342,7 +348,7 @@ _ATS_CANON_RE = re.compile(
 )
 
 _ATS_SHORT_RE = re.compile(
-    r"^\s*Δ\s*(\d+)\.(\d)\.(\d)\.(\d)\s*/\s*(\d{1,2})\s*$"
+    r"^\s*Δ(\d+)\.(\d)\.(\d)\.(\d)-(\d{2})\.(\d)\s*$"
 )
 
 
@@ -351,10 +357,11 @@ def ats_to_gregorian(ats: str, *, out_tz: str = "UTC", allow_short: bool = False
 
     Accepts the canonical form: "T+ Δ 20.7.8.2.50000"
 
-    The short form ("Δ 20.7.8.2/50") is only accepted when
+    The short form ("Δ20.7.8.2-50.0") is only accepted when
     ``allow_short=True``, because it is intentionally lossy
-    (lower fractional digits zero-padded, sign assumed T+).
-    Whitespace around the `/` is tolerated on input.
+    (Beat/Blink digits zero-padded, sign assumed T+). The short
+    parser is strict: no spaces, `-` between Kin and BC, `.` before
+    Milli; legacy "/cc" form is rejected.
     """
     m = _ATS_CANON_RE.match(ats)
     if m:
@@ -377,14 +384,15 @@ def ats_to_gregorian(ats: str, *, out_tz: str = "UTC", allow_short: bool = False
         if not allow_short:
             raise ValueError(
                 "Refusing to decode short ATS form without explicit opt-in "
-                "(pass allow_short=True). Short form is lossy: lower "
-                "fractional digits zero-padded, sign assumed T+."
+                "(pass allow_short=True). Short form is lossy: Beat/Blink "
+                "digits zero-padded, sign assumed T+."
             )
-        kilo_s, hecto_s, deka_s, kin_s, cc_s = m.groups()
-        cc = int(cc_s)
-        if not 0 <= cc <= 99:
-            raise ValueError("cc must be in 0..99")
-        frac = cc * (10 ** (ATS_DECIMALS - 2))
+        kilo_s, hecto_s, deka_s, kin_s, bc_s, m_s = m.groups()
+        bc = int(bc_s)
+        milli = int(m_s)
+        if not 0 <= bc <= 99:
+            raise ValueError("BC must be in 00..99")
+        frac = bc * (10 ** (ATS_DECIMALS - 2)) + milli * (10 ** (ATS_DECIMALS - 3))
         ats_obj = ATSDateTime(
             sign="T+",
             kilo=int(kilo_s),

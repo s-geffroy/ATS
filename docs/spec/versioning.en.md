@@ -32,7 +32,7 @@ When v1.0 ships, **the following are frozen forever**:
 
 1. **The epoch**: `1969-07-20T00:00:00Z` (start of the Apollo 11 landing day).
 2. **The canonical format**: `T+ Δ K.H.D.Kin.fffff` — seven positions, ordering, separators, `T+/T-` sign window.
-3. **The short format**: `Δ K.H.D.Kin/cc` — floor-truncation rules.
+3. **The short format**: `ΔK.H.D.Kin-BC.M` — floor-truncation rules (v0.7+; the legacy `Δ K.H.D.Kin/cc` form is no longer accepted).
 4. **Truncation**: strict `ROUND_FLOOR` (§6).
 5. **The §11.4 algebra**: signatures `Δ + Δd → Δ`, `Δ − Δ → Δd`, `Δd ± Δd → Δd`, `Δd × n / Δd ÷ n → Δd`, `−Δd`, `|Δd|`, comparisons `< ≤ = ≥ >`.
 6. **The binary §12 format**: 64 bits big-endian, two's complement on the day counter.

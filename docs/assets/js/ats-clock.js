@@ -47,8 +47,9 @@
   }
 
   function toShort(a) {
-    const cc = Math.floor(a.frac / Math.pow(10, ATS_DECIMALS - 2));
-    return `Δ ${a.kilo}.${a.hecto}.${a.deka}.${a.kin}/${pad(cc, 2)}`;
+    const bc = Math.floor(a.frac / Math.pow(10, ATS_DECIMALS - 2));
+    const milli = Math.floor(a.frac / Math.pow(10, ATS_DECIMALS - 3)) % 10;
+    return `Δ${a.kilo}.${a.hecto}.${a.deka}.${a.kin}-${pad(bc, 2)}.${milli}`;
   }
 
   class AtsClock extends HTMLElement {

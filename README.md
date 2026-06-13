@@ -13,7 +13,7 @@ L'ATS remplace le couple grégorien (année/mois/semaine) + heure locale par un 
 
 ```
 T+ Δ 20.7.8.2.50000     (canonique — midi UTC du 13 juin 2026)
-Δ 20.7.8.2/50           (court, UI)
+Δ20.7.8.2-50.0          (court, UI)
 ```
 
 Lecture : 20 Kilos, 7 Hecto, 8 Deka, 2 Kin, fraction de jour `.50000` (= Bloc 5 = 12:00 UTC).
@@ -66,7 +66,7 @@ Depuis v0.6, GitHub Actions régénère `docs/api/now.json` **toutes les heures*
 {
   "utc": "2026-06-13T11:00:00Z",
   "ats_canonical": "T+ Δ 20.7.8.2.45833",
-  "ats_short": "Δ 20.7.8.2/45",
+  "ats_display": "Δ20.7.8.2-45.8",
   "integer_days": 20782,
   "fraction_5digit": 45833,
   "generated_at": "2026-06-13T11:00:00Z",
@@ -105,7 +105,7 @@ from ats import gregorian_to_ats, ats_to_gregorian
 now = datetime.now(timezone.utc)
 ats = gregorian_to_ats(now)
 print(ats.to_canonical())   # T+ Δ 20.7.8.2.50000
-print(ats.to_short())       # Δ 20.7.8.2/50
+print(ats.to_short())       # Δ20.7.8.2-50.0
 ```
 
 ### Web Component

@@ -38,6 +38,7 @@
       <a href="./comparaison.html">Comparaison</a>
       <a href="./cadrans.html">Cadrans</a>
       <a href="./timeline.html">Frise</a>
+      <a href="./cities.html">Cités</a>
       <a href="./faq.html">FAQ</a>
       <a href="./age.html">Mon âge</a>
       <a class="active" href="./code.html">Code</a>
@@ -74,7 +75,7 @@ from ats import gregorian_to_ats, ats_to_gregorian
 now = datetime.now(timezone.utc)
 ats = gregorian_to_ats(now)
 print(ats.to_canonical())   # T+ Δ 20.7.8.2.50000
-print(ats.to_short())       # Δ 20.7.8.2/50
+print(ats.to_short())       # Δ20.7.8.2-50.0
 
 back = ats_to_gregorian(ats.to_canonical())
 print(back.isoformat())     # 2026-06-13T12:00:00+00:00 (±432 ms)

@@ -175,23 +175,25 @@
 <hr>
 <h2>5. Conversational format (human UI)</h2>
 <p>For everyday display (watches, apps, conversation), ATS defines a <strong>short</strong> form:</p>
-<pre><code>Δ K.H.D.Kin/cc
+<pre><code>ΔK.H.D.Kin-BC.M
 </code></pre>
 <ul>
 <li><code>K</code>, <code>H</code>, <code>D</code>, <code>Kin</code> are the <strong>Kilo</strong>, <strong>Hecto</strong>, <strong>Deka</strong>, <strong>Kin</strong> digits. Kilo is shown in full (it may be multi-digit); <code>Kin</code> is <strong>always shown</strong>, even when it is zero, so the calendar reference is never lost.</li>
-<li><code>cc</code> is two digits of day-fraction (Bloc + Centi).</li>
-<li><code>/</code> separates the date part from the fraction part, <strong>with no spaces</strong> around it, to keep the form compact.</li>
+<li>No space between <code>Δ</code> and the first digit.</li>
+<li><code>BC</code> is the 2-digit Bloc + Centi pair (always 2 digits, zero-padded).</li>
+<li><code>.M</code> is the single <strong>Milli</strong> digit, <strong>always emitted</strong> even when zero — so the short form keeps a known ±1 min 26 s precision floor rather than the ±14 min 24 s of the historical 2-digit form.</li>
+<li>The separators are part of the canonical short form: <code>-</code> between <code>Kin</code> and <code>BC</code>, <code>.</code> before <code>M</code>, no spaces anywhere.</li>
 </ul>
 <p>Example:</p>
-<pre><code>Δ 20.7.8.2/50
+<pre><code>Δ20.7.8.2-50.0
 </code></pre>
 <p><strong>When to use which:</strong></p>
 <ul>
 <li><strong>Canonical:</strong> logs, storage, cryptographic signing, cross-system interop. Always uses <code>.</code> as date/fraction separator (URL-safe, filename-safe).</li>
-<li><strong>Short:</strong> UI, watches, conversation. Uses <code>/</code> tight against the digits.</li>
+<li><strong>Short:</strong> UI, watches, conversation. Uses <code>-</code> between the calendar and the daily fraction, and <code>.</code> before the Milli digit.</li>
 </ul>
 <blockquote>
-<p><strong>Input tolerance.</strong> Parsers MUST also accept the form with optional whitespace around <code>/</code> (<code>Δ 20.7.5.0 / 43</code>). The <em>emitted</em> form is strict: no spaces.</p>
+<p><strong>Input tolerance.</strong> The short parser is <strong>strict</strong> — no spaces, no alternative separators. The legacy <code>/cc</code> form (pre-v0.7) is <strong>rejected</strong>; canonical conversion via the 5-digit form remains the lossless path.</p>
 </blockquote>
 <hr>
 <h2>6. Rounding policy</h2>
@@ -233,13 +235,13 @@
 <p>A reference Python implementation lives in <code>code/ats.py</code>.</p>
 <hr>
 <h2>10. Decoding the short form</h2>
-<p>The short form <code>Δ K.H.D.Kin/cc</code> is intentionally lossy:</p>
+<p>The short form <code>ΔK.H.D.Kin-BC.M</code> is intentionally lossy:</p>
 <ul>
 <li>No sign (assumed <code>T+</code>).</li>
-<li>Two-digit fraction only (Bloc + Centi; the finer positions Milli/Beat/Blink are assumed <code>0</code>).</li>
+<li>Three-digit fraction only (Bloc + Centi + Milli; the finer positions Beat/Blink are assumed <code>0</code>).</li>
 <li>Kilo is shown in full — there is <strong>no Myriade context</strong> to recover.</li>
 </ul>
-<p>Implementations decoding a short form into a precise Gregorian instant SHOULD label the result as approximate (precision: ±~14 min 24 s — one Centi).</p>
+<p>Implementations decoding a short form into a precise Gregorian instant SHOULD label the result as approximate (precision: ±~1 min 26 s — one Milli).</p>
 <hr>
 <h2>11. Durations (Δd)</h2>
 <p>ATS up to §10 describes <strong>instants</strong>. A separate notation is defined for <strong>durations</strong> (deltas between instants).</p>

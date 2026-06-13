@@ -335,6 +335,16 @@
            ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + x2.toFixed(2) + ' ' + y2.toFixed(2);
   }
 
+  // City focus state (set by clicking a trigram on the dial). Drives:
+  //   • dim/highlight of arc paths
+  //   • the centred camembert
+  //   • hand-inner-radius offset (so hands don't overlap the camembert)
+  let focusedCity = null;
+  // Inner radius the hands collapse to during focus mode. Picked so every
+  // hand (Bloc=40 .. Blink=95) keeps a visible segment outside the camembert.
+  const CAMEMBERT_R = 26;
+  const HAND_INNER_R = 30;
+
   function buildCityArcs() {
     const group = document.getElementById('city-arcs');
     if (!group) return;
@@ -359,10 +369,13 @@
         path.setAttribute('fill', 'none');
         path.setAttribute('opacity', '0.95');
         if (slot.dasharray) path.setAttribute('stroke-dasharray', slot.dasharray);
+        path.dataset.cityCode = city.code;
         group.appendChild(path);
       }
     }
     // Second pass: city code labels, each with a halo matching the arc color.
+    // An invisible larger hit-circle is added on top so the click target stays
+    // comfortable on touch devices and survives the focus opacity changes.
     for (let i = 0; i < CITIES.length; i++) {
       const city = CITIES[i];
       const r = baseR + i * stepR;
@@ -377,6 +390,7 @@
       halo.setAttribute('r', '8.5');
       halo.setAttribute('class', 'city-halo');
       halo.setAttribute('fill', city.color);
+      halo.setAttribute('pointer-events', 'none');
       group.appendChild(halo);
       const t = document.createElementNS(NS, 'text');
       t.setAttribute('x', lx.toFixed(2));
@@ -388,8 +402,29 @@
       t.setAttribute('font-weight', '700');
       t.setAttribute('class', 'city-code');
       t.setAttribute('fill', textColor);
+      t.setAttribute('pointer-events', 'none');
       t.textContent = city.code;
       group.appendChild(t);
+      const hit = document.createElementNS(NS, 'circle');
+      hit.setAttribute('cx', lx.toFixed(2));
+      hit.setAttribute('cy', ly.toFixed(2));
+      hit.setAttribute('r', '14');
+      hit.setAttribute('class', 'city-hit');
+      hit.setAttribute('fill', 'transparent');
+      hit.setAttribute('role', 'button');
+      hit.setAttribute('tabindex', '0');
+      hit.setAttribute('aria-label', city.label);
+      hit.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        setFocusedCity(focusedCity === city ? null : city);
+      });
+      hit.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          setFocusedCity(focusedCity === city ? null : city);
+        }
+      });
+      group.appendChild(hit);
     }
     // City legend below the dial, 4-col grid; each entry: colored dot + name + UTC offset.
     if (cityListEl) {
@@ -410,6 +445,123 @@
         cityListEl.appendChild(row);
       });
     }
+  }
+
+  // -------- Camembert + focus state --------
+  // Build (or rebuild) the centred wedge group for the currently focused city.
+  // Each of the 4 slots (matin / midi / après-midi / soir) becomes a pie wedge
+  // anchored at the city's LOCAL hour-of-day on the 24 h dial. The 22-08 night
+  // gap is intentionally empty so the centre of the dial stays readable.
+  function buildCamembert(city) {
+    const group = document.getElementById('city-camembert');
+    if (!group) return;
+    group.innerHTML = '';
+    if (!city) { group.setAttribute('hidden', ''); return; }
+    group.removeAttribute('hidden');
+    const NS = 'http://www.w3.org/2000/svg';
+    const today = new Date();
+    const textColor = pickContrastText(city.color);
+    for (let s = 0; s < SLOTS.length; s++) {
+      const slot = SLOTS[s];
+      const f1 = localHourToDayFrac(city.tz, slot.from, today);
+      const f2 = localHourToDayFrac(city.tz, slot.to,   today);
+      const a1 = f1 * 2 * Math.PI - Math.PI / 2;
+      const a2 = f2 * 2 * Math.PI - Math.PI / 2;
+      const x1 = CAMEMBERT_R * Math.cos(a1);
+      const y1 = CAMEMBERT_R * Math.sin(a1);
+      const x2 = CAMEMBERT_R * Math.cos(a2);
+      const y2 = CAMEMBERT_R * Math.sin(a2);
+      let delta = f2 - f1; if (delta < 0) delta += 1;
+      const large = delta > 0.5 ? 1 : 0;
+      const d = 'M 0 0 L ' + x1.toFixed(2) + ' ' + y1.toFixed(2) +
+                ' A ' + CAMEMBERT_R + ' ' + CAMEMBERT_R + ' 0 ' + large +
+                ' 1 ' + x2.toFixed(2) + ' ' + y2.toFixed(2) + ' Z';
+      const wedge = document.createElementNS(NS, 'path');
+      wedge.setAttribute('d', d);
+      wedge.setAttribute('fill', city.color);
+      wedge.setAttribute('opacity', '0.85');
+      wedge.setAttribute('stroke', 'Canvas');
+      wedge.setAttribute('stroke-width', '0.5');
+      if (slot.dasharray) {
+        wedge.setAttribute('stroke-dasharray', slot.dasharray);
+        wedge.setAttribute('stroke-linecap', slot.linecap);
+      }
+      group.appendChild(wedge);
+    }
+    // Centre trigram + label so the focused city is named even at a glance.
+    const trig = document.createElementNS(NS, 'text');
+    trig.setAttribute('class', 'cam-trigram');
+    trig.setAttribute('x', '0');
+    trig.setAttribute('y', '-2');
+    trig.setAttribute('fill', textColor);
+    trig.textContent = city.code;
+    group.appendChild(trig);
+    const label = document.createElementNS(NS, 'text');
+    label.setAttribute('class', 'cam-label');
+    label.setAttribute('x', '0');
+    label.setAttribute('y', '8');
+    label.setAttribute('fill', textColor);
+    label.textContent = city.label;
+    group.appendChild(label);
+  }
+
+  // Move the inner end of every hand to the periphery of the camembert (or
+  // back to the centre when leaving focus mode). The animation each tick only
+  // touches `transform` — the x1/y1 we set here is therefore stable.
+  function setHandsInnerRadius(r) {
+    const hands = [handBloc, handCenti, handMilli, handBeat, handBlink];
+    hands.forEach(function (h) {
+      if (!h) return;
+      h.setAttribute('x1', '0');
+      h.setAttribute('y1', (-r).toFixed(2));
+    });
+  }
+
+  // Single entry-point for any change to the focused city. Idempotent.
+  function setFocusedCity(city) {
+    focusedCity = city || null;
+    // Dim the arc paths that belong to other cities; the trigrams/halos stay
+    // at full opacity so they remain clickable as switch targets.
+    const arcGroup = document.getElementById('city-arcs');
+    if (arcGroup) {
+      const paths = arcGroup.querySelectorAll('path[data-city-code]');
+      for (let i = 0; i < paths.length; i++) {
+        const p = paths[i];
+        const matches = focusedCity && p.dataset.cityCode === focusedCity.code;
+        if (focusedCity && !matches) {
+          p.setAttribute('opacity', '0.25');
+        } else {
+          p.setAttribute('opacity', '0.95');
+        }
+      }
+    }
+    buildCamembert(focusedCity);
+    setHandsInnerRadius(focusedCity ? HAND_INNER_R : 0);
+    // The blink dot sits inside the dial — keep it hidden while the camembert
+    // is on so it doesn't visually float through the wedges.
+    if (handBlinkDot) handBlinkDot.style.opacity = focusedCity ? '0' : '1';
+  }
+
+  // ESC unfocuses; the listener is always on (it's a no-op when focusedCity
+  // is already null) and is cheap.
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape' && focusedCity) {
+      setFocusedCity(null);
+    }
+  });
+
+  // Clicking on the analog dial background (anywhere outside a .city-hit)
+  // also exits focus mode. The handler is attached to the SVG so the rest of
+  // the page (face toggle, details, etc.) is unaffected.
+  function bindDialBackgroundClick() {
+    const svg = document.querySelector('.analog-dial');
+    if (!svg) return;
+    svg.addEventListener('click', function (ev) {
+      if (!focusedCity) return;
+      const t = ev.target;
+      if (t && t.classList && t.classList.contains('city-hit')) return;
+      setFocusedCity(null);
+    });
   }
 
   // -------- Face toggle (numeric ↔ analog) --------
@@ -598,6 +750,7 @@
     bindClickToCopy();
     bindShortcuts();
     bindConverter();
+    bindDialBackgroundClick();
     // ?face=numeric|analog overrides the saved face for this visit only —
     // a shared permalink must not silently overwrite the recipient's
     // preference. selectFace was already called at module init with

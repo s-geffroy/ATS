@@ -26,11 +26,11 @@ Base 12 has divisibility benefits (2, 3, 4, 6); base 20 matches the Mayan Long C
 
 ## How do I read `T+ Δ 20.7.8.0.61137` out loud?
 
-The spec does not standardize oral form. Three observed usages: digit-by-digit ("twenty dot seven dot eight dot zero dot six one one three seven"), grouped pairs ("twenty dot seven dot eight dot zero dot sixty-one thousand one hundred thirty-seven"), or short form ("twenty seven eight zero slash sixty-one").
+The spec does not standardize oral form. Three observed usages: digit-by-digit ("twenty dot seven dot eight dot zero dot six one one three seven"), grouped pairs ("twenty dot seven dot eight dot zero dot sixty-one thousand one hundred thirty-seven"), or short form ("twenty seven eight zero dash sixty-one dot one").
 
-## "Δ 20.7.8 / 65" — which day exactly?
+## "Δ20.7.8-65.1" — which day exactly?
 
-Ambiguous on purpose — that is why v0.1.2 **brought `Kin` back** into the short form: `Δ 20.7.8.5/65`. The short form is now precise to the day. Loss is bounded to Milli/Beat/Blink (±14 min 24 s).
+Ambiguous on purpose — that is why v0.1.2 **brought `Kin` back** into the short form: `Δ20.7.8.5-65.1`. The short form is now precise to the day. Since v0.7, the `Milli` digit after `.` shrinks the residual loss from ±14 min 24 s (Centi only) to ±1 min 26 s.
 
 ## Why no time zones?
 

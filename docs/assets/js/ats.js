@@ -48,10 +48,12 @@
     return `${ats.sign} Δ ${ats.kilo}.${ats.hecto}.${ats.deka}.${ats.kin}.${pad(ats.frac, ATS_DECIMALS)}`;
   }
 
-  // Short form: Δ K.H.D.Kin/cc  (Kin always shown even when 0, 2 fractional digits, sign assumed T+, no spaces around `/`).
+  // Short form: ΔK.H.D.Kin-BC.M  (no space, Kin always shown, 2-digit Bloc+Centi
+  // pair, single Milli digit always emitted, sign assumed T+).
   function toShort(ats) {
-    const cc = Math.floor(ats.frac / Math.pow(10, ATS_DECIMALS - 2));
-    return `Δ ${ats.kilo}.${ats.hecto}.${ats.deka}.${ats.kin}/${pad(cc, 2)}`;
+    const bc = Math.floor(ats.frac / Math.pow(10, ATS_DECIMALS - 2));
+    const milli = Math.floor(ats.frac / Math.pow(10, ATS_DECIMALS - 3)) % 10;
+    return `Δ${ats.kilo}.${ats.hecto}.${ats.deka}.${ats.kin}-${pad(bc, 2)}.${milli}`;
   }
 
   // Decode a canonical ATS string back to milliseconds UTC.

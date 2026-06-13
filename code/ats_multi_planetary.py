@@ -146,8 +146,9 @@ class BodyATSDateTime:
         )
 
     def to_short(self) -> str:
-        cc = self.frac // (10 ** (ATS_DECIMALS - 2))
-        return f"{self.body.ascii_symbol} {self.kilo}.{self.hecto}.{self.deka}.{self.kin}/{cc:02d}"
+        bc = self.frac // (10 ** (ATS_DECIMALS - 2))           # Bloc·Centi
+        m = (self.frac // (10 ** (ATS_DECIMALS - 3))) % 10     # Milli
+        return f"{self.body.ascii_symbol}{self.kilo}.{self.hecto}.{self.deka}.{self.kin}-{bc:02d}.{m}"
 
     def to_utc(self) -> datetime:
         """Project this body-anchored instant back onto UTC."""

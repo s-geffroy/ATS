@@ -115,25 +115,27 @@ En cas de réduction de précision, voir §6 (politique d'arrondi).
 Pour l'usage courant (montres, applis, oral), l'ATS définit une forme **courte** :
 
 ```
-Δ K.H.D.Kin/cc
+ΔK.H.D.Kin-BC.M
 ```
 
 - `K`, `H`, `D`, `Kin` sont les chiffres **Kilo**, **Hecto**, **Deka**, **Kin** (le Kilo est affiché en entier, potentiellement multi-chiffres ; `Kin` est **toujours affiché**, même à zéro, pour ne jamais perdre la référence calendaire).
-- `cc` est composé de deux chiffres de fraction de jour (Bloc + Centi).
-- `/` sépare la partie date de la partie fraction, **sans espace** autour, pour rester compact à l'affichage.
+- Aucun espace entre `Δ` et le premier chiffre.
+- `BC` est la paire 2 chiffres Bloc + Centi (toujours 2 chiffres, zero-padded).
+- `.M` est le chiffre **Milli** seul, **toujours émis** même à zéro — la forme courte garantit ainsi une précision plancher de ±1 min 26 s, là où l'ancienne forme à 2 chiffres tolérait ±14 min 24 s.
+- Les séparateurs font partie du format : `-` entre `Kin` et `BC`, `.` avant `M`, jamais d'espace.
 
 Exemple :
 
 ```
-Δ 20.7.8.2/50
+Δ20.7.8.2-50.0
 ```
 
 **Quand utiliser quoi :**
 
 - **Canonique :** logs, stockage, signature cryptographique, interop. Toujours `.` comme séparateur date/fraction (URL-safe, filename-safe).
-- **Court :** UI, montres, conversation. Utilise `/` collé aux chiffres pour la lisibilité.
+- **Court :** UI, montres, conversation. Utilise `-` entre la partie calendaire et la fraction de jour, et `.` avant le Milli.
 
-> **Tolérance d'entrée.** Les parseurs DOIVENT accepter les variantes avec espaces autour du `/` (`Δ 20.7.5.0 / 43`) à la lecture, par tolérance. Mais le format *émis* est strict : aucun espace.
+> **Tolérance d'entrée.** Le parseur court est **strict** — pas d'espace, pas de séparateur alternatif. L'ancienne forme `/cc` (avant v0.7) est **refusée** ; la conversion sans perte passe par la forme canonique à 5 chiffres.
 
 ---
 
@@ -187,13 +189,13 @@ Une implémentation Python de référence est fournie dans `code/ats.py`.
 
 ## 10. Décodage de la forme courte
 
-La forme courte `Δ K.H.D.Kin/cc` est intentionnellement *lossy* :
+La forme courte `ΔK.H.D.Kin-BC.M` est intentionnellement *lossy* :
 
 - Pas de signe (`T+` supposé).
-- Fraction sur deux chiffres seulement (Bloc + Centi ; les positions plus fines, Milli/Beat/Blink, sont supposées `0`).
+- Fraction sur trois chiffres seulement (Bloc + Centi + Milli ; les positions plus fines, Beat/Blink, sont supposées `0`).
 - Le Kilo est affiché en entier — il n'y a **pas de contexte Myriade** à reconstruire.
 
-Les implémentations qui décodent une forme courte en instant grégorien précis DOIVENT marquer le résultat comme approximatif (précision ±~14 min 24 s — la résolution d'un Centi).
+Les implémentations qui décodent une forme courte en instant grégorien précis DOIVENT marquer le résultat comme approximatif (précision ±~1 min 26 s — la résolution d'un Milli).
 
 ---
 

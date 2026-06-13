@@ -37,6 +37,7 @@
       <a href="./comparaison.html">Comparaison</a>
       <a href="./cadrans.html">Cadrans</a>
       <a href="./timeline.html">Frise</a>
+      <a href="./cities.html">Cités</a>
       <a class="active" href="./faq.html">FAQ</a>
       <a href="./age.html">Mon âge</a>
       <a href="./code.html">Code</a>
@@ -65,9 +66,9 @@
 <h2>Pourquoi pas la base 12 ou la base 20 ?</h2>
 <p>La base 12 a des avantages divisibilité (2, 3, 4, 6), la base 20 colle au Compte Long maya. Mais l'écosystème (numéraires, SI, informatique, finance) est entièrement en base 10. Le choix décimal réduit la friction d'adoption à ~0.</p>
 <h2>Comment lire <code>T+ Δ 20.7.8.0.61137</code> à voix haute ?</h2>
-<p>La spec ne fixe pas de standard oral. Trois usages observés : point-par-point ("Deux Zéro point Sept point Huit point Zéro point Six Un Un Trois Sept"), groupé par paire ("Vingt point Sept point Huit point Zéro point Six mille cent trente-sept"), ou court ("Vingt sept huit zéro / soixante-et-un").</p>
-<h2>"Δ 20.7.8 / 65", c'est ambigu sur quel jour ?</h2>
-<p>Oui — c'est précisément pourquoi v0.1.2 a <strong>rétabli <code>Kin</code></strong> dans la forme courte : <code>Δ 20.7.8.5/65</code>. La forme courte garde maintenant la précision au jour près. La perte ne porte plus que sur Milli/Beat/Blink (±14 min 24 s).</p>
+<p>La spec ne fixe pas de standard oral. Trois usages observés : point-par-point ("Deux Zéro point Sept point Huit point Zéro point Six Un Un Trois Sept"), groupé par paire ("Vingt point Sept point Huit point Zéro point Six mille cent trente-sept"), ou court ("Vingt sept huit zéro tiret soixante-et-un point un").</p>
+<h2>"Δ20.7.8-65.1", c'est ambigu sur quel jour ?</h2>
+<p>Oui — c'est précisément pourquoi v0.1.2 a <strong>rétabli <code>Kin</code></strong> dans la forme courte : <code>Δ20.7.8.5-65.1</code>. La forme courte garde la précision au jour près. Depuis v0.7, le chiffre <code>Milli</code> après le <code>.</code> ramène la perte résiduelle de ±14 min 24 s (Centi seul) à ±1 min 26 s.</p>
 <h2>Pourquoi pas de fuseau horaire ?</h2>
 <p>Parce que c'est la source #1 de bugs en logiciel. ATS = UTC strict. Pour calibrer ses activités au soleil local, on utilise la couche <strong>LST (Local Solar Time)</strong> comme surcouche informative (§7), jamais comme champ stocké.</p>
 <h2>Et les changements d'heure été/hiver ?</h2>

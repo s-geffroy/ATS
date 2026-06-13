@@ -37,6 +37,7 @@
       <a href="./comparaison.html">Comparaison</a>
       <a href="./cadrans.html">Cadrans</a>
       <a href="./timeline.html">Frise</a>
+      <a href="./cities.html">Cités</a>
       <a href="./faq.html">FAQ</a>
       <a href="./age.html">Mon âge</a>
       <a href="./code.html">Code</a>
@@ -228,23 +229,25 @@
 <hr>
 <h2>5. Format conversationnel (UI humaine)</h2>
 <p>Pour l'usage courant (montres, applis, oral), l'ATS définit une forme <strong>courte</strong> :</p>
-<pre><code>Δ K.H.D.Kin/cc
+<pre><code>ΔK.H.D.Kin-BC.M
 </code></pre>
 <ul>
 <li><code>K</code>, <code>H</code>, <code>D</code>, <code>Kin</code> sont les chiffres <strong>Kilo</strong>, <strong>Hecto</strong>, <strong>Deka</strong>, <strong>Kin</strong> (le Kilo est affiché en entier, potentiellement multi-chiffres ; <code>Kin</code> est <strong>toujours affiché</strong>, même à zéro, pour ne jamais perdre la référence calendaire).</li>
-<li><code>cc</code> est composé de deux chiffres de fraction de jour (Bloc + Centi).</li>
-<li><code>/</code> sépare la partie date de la partie fraction, <strong>sans espace</strong> autour, pour rester compact à l'affichage.</li>
+<li>Aucun espace entre <code>Δ</code> et le premier chiffre.</li>
+<li><code>BC</code> est la paire 2 chiffres Bloc + Centi (toujours 2 chiffres, zero-padded).</li>
+<li><code>.M</code> est le chiffre <strong>Milli</strong> seul, <strong>toujours émis</strong> même à zéro — la forme courte garantit ainsi une précision plancher de ±1 min 26 s, là où l'ancienne forme à 2 chiffres tolérait ±14 min 24 s.</li>
+<li>Les séparateurs font partie du format : <code>-</code> entre <code>Kin</code> et <code>BC</code>, <code>.</code> avant <code>M</code>, jamais d'espace.</li>
 </ul>
 <p>Exemple :</p>
-<pre><code>Δ 20.7.8.2/50
+<pre><code>Δ20.7.8.2-50.0
 </code></pre>
 <p><strong>Quand utiliser quoi :</strong></p>
 <ul>
 <li><strong>Canonique :</strong> logs, stockage, signature cryptographique, interop. Toujours <code>.</code> comme séparateur date/fraction (URL-safe, filename-safe).</li>
-<li><strong>Court :</strong> UI, montres, conversation. Utilise <code>/</code> collé aux chiffres pour la lisibilité.</li>
+<li><strong>Court :</strong> UI, montres, conversation. Utilise <code>-</code> entre la partie calendaire et la fraction de jour, et <code>.</code> avant le Milli.</li>
 </ul>
 <blockquote>
-<p><strong>Tolérance d'entrée.</strong> Les parseurs DOIVENT accepter les variantes avec espaces autour du <code>/</code> (<code>Δ 20.7.5.0 / 43</code>) à la lecture, par tolérance. Mais le format <em>émis</em> est strict : aucun espace.</p>
+<p><strong>Tolérance d'entrée.</strong> Le parseur court est <strong>strict</strong> — pas d'espace, pas de séparateur alternatif. L'ancienne forme <code>/cc</code> (avant v0.7) est <strong>refusée</strong> ; la conversion sans perte passe par la forme canonique à 5 chiffres.</p>
 </blockquote>
 <hr>
 <h2>6. Politique d'arrondi</h2>
@@ -286,10 +289,10 @@
 <p>Une implémentation Python de référence est fournie dans <code>code/ats.py</code>.</p>
 <hr>
 <h2>10. Décodage de la forme courte</h2>
-<p>La forme courte <code>Δ K.H.D.Kin/cc</code> est intentionnellement <em>lossy</em> :</p>
+<p>La forme courte <code>ΔK.H.D.Kin-BC.M</code> est intentionnellement <em>lossy</em> :</p>
 <ul>
 <li>Pas de signe (<code>T+</code> supposé).</li>
-<li>Fraction sur deux chiffres seulement (Bloc + Centi ; les positions plus fines, Milli/Beat/Blink, sont supposées <code>0</code>).</li>
+<li>Fraction sur trois chiffres seulement (Bloc + Centi + Milli ; les positions plus fines, Beat/Blink, sont supposées <code>0</code>).</li>
 <li>Le Kilo est affiché en entier — il n'y a <strong>pas de contexte Myriade</strong> à reconstruire.</li>
 </ul>
 <p>Les implémentations qui décodent une forme courte en instant grégorien précis DOIVENT marquer le résultat comme approximatif (précision ±~14 min 24 s — la résolution d'un Centi).</p>

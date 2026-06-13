@@ -1,0 +1,186 @@
+{
+  "version": "0.7",
+  "note_en": "Approximate cultural averages for representative world capitals — sourced from regional norms (working week, school hours, meal customs). Local times are the published medians; ATS values are computed live from each city's IANA timezone (DST-aware). Adjust to taste.",
+  "note_fr": "Moyennes culturelles indicatives pour des capitales représentatives — issues de normes régionales (semaine de travail, horaires scolaires, repas). Les heures locales sont des médianes publiées ; les valeurs ATS sont calculées en direct depuis le fuseau IANA de chaque ville (DST compris). À ajuster selon ton ressenti.",
+  "activities": [
+    { "key": "wake",       "label_en": "Wake-up",      "label_fr": "Réveil" },
+    { "key": "breakfast",  "label_en": "Breakfast",    "label_fr": "Petit-déj." },
+    { "key": "school_in",  "label_en": "School in",    "label_fr": "École in" },
+    { "key": "work_in",    "label_en": "Work in",      "label_fr": "Travail in" },
+    { "key": "lunch",      "label_en": "Lunch",        "label_fr": "Déjeuner" },
+    { "key": "school_out", "label_en": "School out",   "label_fr": "École out" },
+    { "key": "work_out",   "label_en": "Work out",     "label_fr": "Travail out" },
+    { "key": "dinner",     "label_en": "Dinner",       "label_fr": "Dîner" },
+    { "key": "tv_movie",   "label_en": "Prime-time",   "label_fr": "Film TV" }
+  ],
+  "cities": [
+    {
+      "code": "PAR", "name_en": "Paris", "name_fr": "Paris", "country": "FR", "region": "Europe", "tz": "Europe/Paris",
+      "times": { "wake": "07:00", "breakfast": "07:30", "school_in": "08:30", "work_in": "09:00", "lunch": "12:30", "school_out": "16:30", "work_out": "18:00", "dinner": "20:00", "tv_movie": "21:10" }
+    },
+    {
+      "code": "LDN", "name_en": "London", "name_fr": "Londres", "country": "GB", "region": "Europe", "tz": "Europe/London",
+      "times": { "wake": "06:45", "breakfast": "07:15", "school_in": "08:45", "work_in": "09:00", "lunch": "13:00", "school_out": "15:30", "work_out": "17:30", "dinner": "19:00", "tv_movie": "21:00" }
+    },
+    {
+      "code": "BER", "name_en": "Berlin", "name_fr": "Berlin", "country": "DE", "region": "Europe", "tz": "Europe/Berlin",
+      "times": { "wake": "06:30", "breakfast": "07:00", "school_in": "08:00", "work_in": "08:30", "lunch": "12:30", "school_out": "13:30", "work_out": "17:00", "dinner": "19:00", "tv_movie": "20:15" }
+    },
+    {
+      "code": "MAD", "name_en": "Madrid", "name_fr": "Madrid", "country": "ES", "region": "Europe", "tz": "Europe/Madrid",
+      "times": { "wake": "07:30", "breakfast": "08:00", "school_in": "09:00", "work_in": "09:00", "lunch": "14:30", "school_out": "16:30", "work_out": "19:00", "dinner": "21:30", "tv_movie": "22:30" }
+    },
+    {
+      "code": "ROM", "name_en": "Rome", "name_fr": "Rome", "country": "IT", "region": "Europe", "tz": "Europe/Rome",
+      "times": { "wake": "07:15", "breakfast": "07:45", "school_in": "08:15", "work_in": "09:00", "lunch": "13:30", "school_out": "13:30", "work_out": "18:30", "dinner": "20:30", "tv_movie": "21:30" }
+    },
+    {
+      "code": "LIS", "name_en": "Lisbon", "name_fr": "Lisbonne", "country": "PT", "region": "Europe", "tz": "Europe/Lisbon",
+      "times": { "wake": "07:30", "breakfast": "08:00", "school_in": "08:30", "work_in": "09:00", "lunch": "13:00", "school_out": "17:30", "work_out": "18:00", "dinner": "20:30", "tv_movie": "22:00" }
+    },
+    {
+      "code": "ATH", "name_en": "Athens", "name_fr": "Athènes", "country": "GR", "region": "Europe", "tz": "Europe/Athens",
+      "times": { "wake": "07:30", "breakfast": "08:00", "school_in": "08:15", "work_in": "09:00", "lunch": "14:30", "school_out": "14:00", "work_out": "17:00", "dinner": "21:00", "tv_movie": "22:00" }
+    },
+    {
+      "code": "STO", "name_en": "Stockholm", "name_fr": "Stockholm", "country": "SE", "region": "Europe", "tz": "Europe/Stockholm",
+      "times": { "wake": "06:30", "breakfast": "07:00", "school_in": "08:15", "work_in": "08:00", "lunch": "11:30", "school_out": "14:30", "work_out": "17:00", "dinner": "18:00", "tv_movie": "20:00" }
+    },
+    {
+      "code": "WAW", "name_en": "Warsaw", "name_fr": "Varsovie", "country": "PL", "region": "Europe", "tz": "Europe/Warsaw",
+      "times": { "wake": "06:30", "breakfast": "07:00", "school_in": "08:00", "work_in": "08:00", "lunch": "13:00", "school_out": "14:30", "work_out": "16:00", "dinner": "18:30", "tv_movie": "20:00" }
+    },
+    {
+      "code": "MOW", "name_en": "Moscow", "name_fr": "Moscou", "country": "RU", "region": "Europe", "tz": "Europe/Moscow",
+      "times": { "wake": "07:00", "breakfast": "07:30", "school_in": "08:30", "work_in": "09:00", "lunch": "13:00", "school_out": "14:30", "work_out": "18:00", "dinner": "19:30", "tv_movie": "21:00" }
+    },
+    {
+      "code": "DUB", "name_en": "Dublin", "name_fr": "Dublin", "country": "IE", "region": "Europe", "tz": "Europe/Dublin",
+      "times": { "wake": "07:00", "breakfast": "07:30", "school_in": "09:00", "work_in": "09:00", "lunch": "13:00", "school_out": "15:00", "work_out": "17:30", "dinner": "18:30", "tv_movie": "21:00" }
+    },
+    {
+      "code": "WAS", "name_en": "Washington D.C.", "name_fr": "Washington D.C.", "country": "US", "region": "Americas", "tz": "America/New_York",
+      "times": { "wake": "06:30", "breakfast": "07:00", "school_in": "08:00", "work_in": "08:30", "lunch": "12:30", "school_out": "15:00", "work_out": "17:30", "dinner": "18:30", "tv_movie": "20:00" }
+    },
+    {
+      "code": "OTT", "name_en": "Ottawa", "name_fr": "Ottawa", "country": "CA", "region": "Americas", "tz": "America/Toronto",
+      "times": { "wake": "06:45", "breakfast": "07:15", "school_in": "08:30", "work_in": "08:30", "lunch": "12:00", "school_out": "15:00", "work_out": "16:30", "dinner": "18:00", "tv_movie": "20:00" }
+    },
+    {
+      "code": "MEX", "name_en": "Mexico City", "name_fr": "Mexico", "country": "MX", "region": "Americas", "tz": "America/Mexico_City",
+      "times": { "wake": "06:30", "breakfast": "07:30", "school_in": "07:30", "work_in": "09:00", "lunch": "14:30", "school_out": "13:30", "work_out": "18:00", "dinner": "20:30", "tv_movie": "21:30" }
+    },
+    {
+      "code": "BSB", "name_en": "Brasília", "name_fr": "Brasília", "country": "BR", "region": "Americas", "tz": "America/Sao_Paulo",
+      "times": { "wake": "06:30", "breakfast": "07:00", "school_in": "07:30", "work_in": "08:30", "lunch": "12:30", "school_out": "12:00", "work_out": "18:00", "dinner": "20:00", "tv_movie": "21:00" }
+    },
+    {
+      "code": "BUE", "name_en": "Buenos Aires", "name_fr": "Buenos Aires", "country": "AR", "region": "Americas", "tz": "America/Argentina/Buenos_Aires",
+      "times": { "wake": "07:30", "breakfast": "08:00", "school_in": "08:00", "work_in": "09:00", "lunch": "13:30", "school_out": "12:30", "work_out": "18:00", "dinner": "21:30", "tv_movie": "22:30" }
+    },
+    {
+      "code": "LIM", "name_en": "Lima", "name_fr": "Lima", "country": "PE", "region": "Americas", "tz": "America/Lima",
+      "times": { "wake": "06:30", "breakfast": "07:00", "school_in": "07:45", "work_in": "09:00", "lunch": "13:00", "school_out": "13:00", "work_out": "18:00", "dinner": "20:00", "tv_movie": "21:00" }
+    },
+    {
+      "code": "SCL", "name_en": "Santiago", "name_fr": "Santiago", "country": "CL", "region": "Americas", "tz": "America/Santiago",
+      "times": { "wake": "07:00", "breakfast": "07:30", "school_in": "08:00", "work_in": "09:00", "lunch": "13:30", "school_out": "13:00", "work_out": "18:30", "dinner": "21:00", "tv_movie": "22:00" }
+    },
+    {
+      "code": "BOG", "name_en": "Bogotá", "name_fr": "Bogotá", "country": "CO", "region": "Americas", "tz": "America/Bogota",
+      "times": { "wake": "06:00", "breakfast": "06:30", "school_in": "07:00", "work_in": "08:00", "lunch": "12:30", "school_out": "13:30", "work_out": "17:30", "dinner": "19:30", "tv_movie": "20:30" }
+    },
+    {
+      "code": "CAI", "name_en": "Cairo", "name_fr": "Le Caire", "country": "EG", "region": "Africa", "tz": "Africa/Cairo",
+      "times": { "wake": "06:30", "breakfast": "07:00", "school_in": "07:30", "work_in": "09:00", "lunch": "14:30", "school_out": "13:30", "work_out": "17:00", "dinner": "21:00", "tv_movie": "22:00" }
+    },
+    {
+      "code": "ABV", "name_en": "Abuja", "name_fr": "Abuja", "country": "NG", "region": "Africa", "tz": "Africa/Lagos",
+      "times": { "wake": "05:30", "breakfast": "06:30", "school_in": "07:30", "work_in": "08:00", "lunch": "13:30", "school_out": "14:30", "work_out": "17:00", "dinner": "19:30", "tv_movie": "20:30" }
+    },
+    {
+      "code": "NBO", "name_en": "Nairobi", "name_fr": "Nairobi", "country": "KE", "region": "Africa", "tz": "Africa/Nairobi",
+      "times": { "wake": "06:00", "breakfast": "06:45", "school_in": "07:30", "work_in": "08:00", "lunch": "13:00", "school_out": "15:30", "work_out": "17:00", "dinner": "19:30", "tv_movie": "20:30" }
+    },
+    {
+      "code": "PRY", "name_en": "Pretoria", "name_fr": "Pretoria", "country": "ZA", "region": "Africa", "tz": "Africa/Johannesburg",
+      "times": { "wake": "06:00", "breakfast": "06:45", "school_in": "07:45", "work_in": "08:00", "lunch": "13:00", "school_out": "14:30", "work_out": "17:00", "dinner": "19:00", "tv_movie": "20:00" }
+    },
+    {
+      "code": "ALG", "name_en": "Algiers", "name_fr": "Alger", "country": "DZ", "region": "Africa", "tz": "Africa/Algiers",
+      "times": { "wake": "06:30", "breakfast": "07:00", "school_in": "08:00", "work_in": "08:30", "lunch": "12:30", "school_out": "15:30", "work_out": "16:30", "dinner": "20:00", "tv_movie": "21:30" }
+    },
+    {
+      "code": "RBA", "name_en": "Rabat", "name_fr": "Rabat", "country": "MA", "region": "Africa", "tz": "Africa/Casablanca",
+      "times": { "wake": "07:00", "breakfast": "07:30", "school_in": "08:00", "work_in": "08:30", "lunch": "13:00", "school_out": "16:00", "work_out": "18:00", "dinner": "21:00", "tv_movie": "22:00" }
+    },
+    {
+      "code": "DKR", "name_en": "Dakar", "name_fr": "Dakar", "country": "SN", "region": "Africa", "tz": "Africa/Dakar",
+      "times": { "wake": "06:00", "breakfast": "06:30", "school_in": "08:00", "work_in": "08:00", "lunch": "13:30", "school_out": "13:30", "work_out": "17:00", "dinner": "20:30", "tv_movie": "21:30" }
+    },
+    {
+      "code": "ADD", "name_en": "Addis Ababa", "name_fr": "Addis-Abeba", "country": "ET", "region": "Africa", "tz": "Africa/Addis_Ababa",
+      "times": { "wake": "06:00", "breakfast": "06:30", "school_in": "07:30", "work_in": "08:30", "lunch": "12:30", "school_out": "15:30", "work_out": "17:30", "dinner": "19:30", "tv_movie": "20:30" }
+    },
+    {
+      "code": "TKO", "name_en": "Tokyo", "name_fr": "Tokyo", "country": "JP", "region": "Asia", "tz": "Asia/Tokyo",
+      "times": { "wake": "06:30", "breakfast": "07:00", "school_in": "08:15", "work_in": "09:00", "lunch": "12:00", "school_out": "15:30", "work_out": "19:00", "dinner": "19:30", "tv_movie": "21:00" }
+    },
+    {
+      "code": "BJG", "name_en": "Beijing", "name_fr": "Pékin", "country": "CN", "region": "Asia", "tz": "Asia/Shanghai",
+      "times": { "wake": "06:30", "breakfast": "07:00", "school_in": "07:30", "work_in": "09:00", "lunch": "12:00", "school_out": "16:30", "work_out": "18:00", "dinner": "18:30", "tv_movie": "20:00" }
+    },
+    {
+      "code": "SEL", "name_en": "Seoul", "name_fr": "Séoul", "country": "KR", "region": "Asia", "tz": "Asia/Seoul",
+      "times": { "wake": "06:30", "breakfast": "07:00", "school_in": "08:30", "work_in": "09:00", "lunch": "12:30", "school_out": "16:30", "work_out": "19:00", "dinner": "19:30", "tv_movie": "21:00" }
+    },
+    {
+      "code": "DEL", "name_en": "New Delhi", "name_fr": "New Delhi", "country": "IN", "region": "Asia", "tz": "Asia/Kolkata",
+      "times": { "wake": "06:30", "breakfast": "08:00", "school_in": "07:30", "work_in": "09:30", "lunch": "13:30", "school_out": "13:30", "work_out": "18:30", "dinner": "21:00", "tv_movie": "21:30" }
+    },
+    {
+      "code": "JKT", "name_en": "Jakarta", "name_fr": "Jakarta", "country": "ID", "region": "Asia", "tz": "Asia/Jakarta",
+      "times": { "wake": "05:30", "breakfast": "06:00", "school_in": "07:00", "work_in": "08:00", "lunch": "12:00", "school_out": "13:30", "work_out": "17:00", "dinner": "19:30", "tv_movie": "20:30" }
+    },
+    {
+      "code": "BKK", "name_en": "Bangkok", "name_fr": "Bangkok", "country": "TH", "region": "Asia", "tz": "Asia/Bangkok",
+      "times": { "wake": "06:00", "breakfast": "07:00", "school_in": "08:00", "work_in": "08:30", "lunch": "12:00", "school_out": "15:30", "work_out": "17:30", "dinner": "19:00", "tv_movie": "20:30" }
+    },
+    {
+      "code": "MNL", "name_en": "Manila", "name_fr": "Manille", "country": "PH", "region": "Asia", "tz": "Asia/Manila",
+      "times": { "wake": "06:00", "breakfast": "06:30", "school_in": "07:30", "work_in": "08:30", "lunch": "12:30", "school_out": "14:30", "work_out": "17:30", "dinner": "19:30", "tv_movie": "20:30" }
+    },
+    {
+      "code": "HAN", "name_en": "Hanoi", "name_fr": "Hanoï", "country": "VN", "region": "Asia", "tz": "Asia/Ho_Chi_Minh",
+      "times": { "wake": "06:00", "breakfast": "06:30", "school_in": "07:30", "work_in": "08:00", "lunch": "11:30", "school_out": "16:30", "work_out": "17:30", "dinner": "19:00", "tv_movie": "20:30" }
+    },
+    {
+      "code": "DXB", "name_en": "Dubai", "name_fr": "Dubaï", "country": "AE", "region": "Middle East", "tz": "Asia/Dubai",
+      "times": { "wake": "06:30", "breakfast": "07:00", "school_in": "07:30", "work_in": "08:30", "lunch": "13:00", "school_out": "15:00", "work_out": "17:30", "dinner": "20:30", "tv_movie": "22:00" }
+    },
+    {
+      "code": "RUH", "name_en": "Riyadh", "name_fr": "Riyad", "country": "SA", "region": "Middle East", "tz": "Asia/Riyadh",
+      "times": { "wake": "07:00", "breakfast": "07:30", "school_in": "07:00", "work_in": "08:00", "lunch": "13:30", "school_out": "14:00", "work_out": "16:30", "dinner": "21:00", "tv_movie": "22:30" }
+    },
+    {
+      "code": "JER", "name_en": "Jerusalem", "name_fr": "Jérusalem", "country": "IL", "region": "Middle East", "tz": "Asia/Jerusalem",
+      "times": { "wake": "06:30", "breakfast": "07:00", "school_in": "08:00", "work_in": "08:30", "lunch": "13:00", "school_out": "13:30", "work_out": "17:00", "dinner": "19:30", "tv_movie": "21:00" }
+    },
+    {
+      "code": "IST", "name_en": "Ankara", "name_fr": "Ankara", "country": "TR", "region": "Middle East", "tz": "Europe/Istanbul",
+      "times": { "wake": "07:00", "breakfast": "07:30", "school_in": "08:30", "work_in": "09:00", "lunch": "12:30", "school_out": "15:30", "work_out": "18:00", "dinner": "20:00", "tv_movie": "21:30" }
+    },
+    {
+      "code": "THR", "name_en": "Tehran", "name_fr": "Téhéran", "country": "IR", "region": "Middle East", "tz": "Asia/Tehran",
+      "times": { "wake": "07:00", "breakfast": "07:30", "school_in": "07:30", "work_in": "08:00", "lunch": "13:30", "school_out": "13:00", "work_out": "16:30", "dinner": "21:00", "tv_movie": "22:00" }
+    },
+    {
+      "code": "CBR", "name_en": "Canberra", "name_fr": "Canberra", "country": "AU", "region": "Oceania", "tz": "Australia/Sydney",
+      "times": { "wake": "06:30", "breakfast": "07:00", "school_in": "08:45", "work_in": "09:00", "lunch": "12:30", "school_out": "15:15", "work_out": "17:00", "dinner": "18:30", "tv_movie": "20:30" }
+    },
+    {
+      "code": "WLG", "name_en": "Wellington", "name_fr": "Wellington", "country": "NZ", "region": "Oceania", "tz": "Pacific/Auckland",
+      "times": { "wake": "06:30", "breakfast": "07:00", "school_in": "08:50", "work_in": "08:30", "lunch": "12:30", "school_out": "15:00", "work_out": "17:00", "dinner": "18:30", "tv_movie": "20:30" }
+    }
+  ]
+}

@@ -462,6 +462,117 @@ a:hover { text-decoration: underline; }
    trigrams stay legible in any theme. The CSS rule only holds the opacity. */
 .city-halo  { opacity: 0.95; }
 
+/* Invisible enlarged hit target for trigram clicks (touch friendly).
+   The actual halo + text below it both keep pointer-events:none, so this
+   circle is the sole click target — it activates the city focus mode. */
+.city-hit   { cursor: pointer; }
+.city-hit:focus-visible { outline: 2px solid currentColor; outline-offset: 1px; }
+
+/* Centred camembert that appears when a trigram is clicked. 4 wedges of
+   the city colour, no labels on the wedges themselves — only the trigram
+   and full name at the centre, picked for contrast against the colour. */
+.cam-trigram {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 12px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.cam-label {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 7px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  opacity: 0.8;
+}
+
+/* Cities × activities page — wide matrix table. Sticky header row + first
+   column keep the city name and activity label visible while the user
+   scrolls horizontally on narrow screens. Each cell stacks the local
+   HH:MM on top and the ATS BC.M tail below (smaller, monospace). */
+.cities-note { max-width: 70ch; }
+.cities-controls { margin: 0 0 0.75rem 0; display: flex; gap: 0.5rem; }
+.cities-filter {
+  flex: 1; max-width: 320px;
+  padding: 0.4rem 0.6rem;
+  font: inherit;
+  border: 1px solid color-mix(in oklab, CanvasText 30%, transparent);
+  border-radius: 6px;
+  background: Canvas; color: CanvasText;
+}
+.cities-tablewrap { overflow-x: auto; border: 1px solid color-mix(in oklab, CanvasText 12%, transparent); border-radius: 8px; }
+.cities-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.9rem;
+}
+.cities-table thead th {
+  position: sticky; top: 0;
+  background: Canvas;
+  z-index: 2;
+  padding: 0.4rem 0.55rem;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom: 1px solid color-mix(in oklab, CanvasText 20%, transparent);
+  white-space: nowrap;
+}
+.cities-table th.cities-th-city { text-align: left; }
+.cities-table tbody tr:nth-child(even) { background: color-mix(in oklab, CanvasText 3%, transparent); }
+.cities-table tbody tr:hover { background: color-mix(in oklab, CanvasText 8%, transparent); }
+.cities-td-city {
+  position: sticky; left: 0;
+  background: Canvas;
+  padding: 0.45rem 0.6rem;
+  border-right: 1px solid color-mix(in oklab, CanvasText 12%, transparent);
+  white-space: nowrap;
+}
+.cities-table tbody tr:nth-child(even) .cities-td-city {
+  background: color-mix(in oklab, CanvasText 3%, Canvas);
+}
+.cities-table tbody tr:hover .cities-td-city {
+  background: color-mix(in oklab, CanvasText 8%, Canvas);
+}
+.cities-code {
+  display: inline-block;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 0.08rem 0.35rem;
+  margin-right: 0.45rem;
+  border-radius: 4px;
+  background: color-mix(in oklab, CanvasText 15%, transparent);
+  vertical-align: middle;
+}
+.cities-name { font-weight: 600; }
+.cities-tz {
+  display: block;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  margin-top: 0.1rem;
+}
+.cities-cell {
+  text-align: center;
+  padding: 0.35rem 0.4rem;
+  min-width: 4.6rem;
+}
+.cities-cell-local { font-weight: 600; font-variant-numeric: tabular-nums; }
+.cities-cell-ats {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  opacity: 0.7;
+  margin-top: 0.1rem;
+}
+.cities-cell-empty { opacity: 0.4; }
+.cities-empty td { padding: 1rem; text-align: center; }
+@media (max-width: 600px) {
+  .cities-table { font-size: 0.82rem; }
+  .cities-cell { min-width: 4.1rem; padding: 0.3rem; }
+}
+
 /* Options block at the end of the details panel */
 .options {
   margin-top: 1.25rem;
