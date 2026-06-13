@@ -6,6 +6,21 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — vers v1.0
 
+### Changed — Horloge analogique : 5 aiguilles et convention horlogère classique (spec v0.2)
+Refonte visuelle du cadran analogique de la page d'accueil (`/fr/`, `/en/`) :
+
+- **Ajout des aiguilles Beat (≈ 8,64 s) et Blink (≈ 0,864 s)** sur le cadran — auparavant absentes, présentes uniquement dans la lecture pédagogique. Le cadran représente désormais les 5 décompositions du jour (`Bloc · Centi · Milli · Beat · Blink`).
+- **Inversion des longueurs** pour suivre la convention horlogère grégorienne : l'aiguille la plus lente (Bloc) devient la plus courte (40), la plus rapide (Blink) devient la plus longue (95). Progression : Bloc 40 → Centi 55 → Milli 70 → Beat 82 → Blink 95.
+- **Décoration Blink** : petit disque plein (`r=3`) à 80 % de la longueur de l'aiguille (en `y=-76`), inclus dans le même groupe SVG `<g id="hand-blink">` pour pivoter avec elle. Évoque la bague de pointe d'une trotteuse.
+- **Couleurs étendues** : Beat en `#2bb673` (vert), Blink en `#ff5a5a` (rouge trotteuse). Progression froid → chaud renforce la lecture de vitesse.
+- **Lecture de date `Δ K.H.D.Kin` déplacée** de `(0, 64)` (sous le pivot) à `(0, -50)` (à mi-chemin entre le `0` du sommet et le pivot), libérant la moitié inférieure pour les nouvelles aiguilles longues.
+- **Mode strict étendu** : la case `strictAnalog` du panneau `<details>` fait désormais sauter Milli, **Beat et Blink** ensemble (au lieu de Milli seule).
+- **Limite documentée** : Blink se rafraîchit naturellement toutes les 864 ms (résolution native de `frac`) ; en mode non strict, le mouvement reste donc semi-saccadé à 10 Hz. Une interpolation sous-tick est autorisée par la spec mais non implémentée.
+- **Mise à jour de la spec** `docs/spec/analog-clock.{en,fr}.md` v0.1 → **v0.2** : §2 (Beat/Blink désormais affichés), §3 (position de la lecture date), §4 (nouveau tableau d'aiguilles + nouvelle convention de longueur), §5 (formules Beat/Blink), §6 (lecture centrale), §7 (politique de mouvement et limite Blink), §8 (5 angles à recalculer).
+- **a11y** : `aria-label` du `<svg>` mis à jour en EN et FR pour mentionner « 5 aiguilles (Bloc, Centi, Milli, Beat, Blink) ».
+
+Aucune modification du cœur `ats.js` ni des vecteurs de conformance — l'évolution est purement cosmétique côté affichage.
+
 ### Fixed — Tests bridges plus jamais skip silencieux
 Application de la méthode systematic-debugging (cause racine d'abord). Le baseline `python -m unittest discover tests` montrait **6 tests skipped** ; trois causes distinctes identifiées et corrigées en cascade :
 

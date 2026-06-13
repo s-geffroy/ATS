@@ -78,6 +78,8 @@
   const handBloc      = document.getElementById('hand-bloc');
   const handCenti     = document.getElementById('hand-centi');
   const handMilli     = document.getElementById('hand-milli');
+  const handBeat      = document.getElementById('hand-beat');
+  const handBlink     = document.getElementById('hand-blink');
   const analogDateEl  = document.getElementById('analog-date');
   const utcDisplayAnalogEl = document.getElementById('utcDisplayAnalog');
   const atsReadoutEl  = document.getElementById('atsReadout');
@@ -217,10 +219,16 @@
     const blocPos  = Math.floor(f * 10);
     const centiPos = Math.floor(f * 100) % 10;
     const milliRaw = (f * 1000) % 10;
+    const beatRaw  = (f * 10000) % 10;
+    const blinkRaw = (f * 100000) % 10;
     const milliPos = strictMode ? Math.floor(milliRaw) : milliRaw;
+    const beatPos  = strictMode ? Math.floor(beatRaw)  : beatRaw;
+    const blinkPos = strictMode ? Math.floor(blinkRaw) : blinkRaw;
     handBloc.setAttribute('transform',  'rotate(' + (blocPos  * 36).toFixed(3) + ')');
     handCenti.setAttribute('transform', 'rotate(' + (centiPos * 36).toFixed(3) + ')');
     handMilli.setAttribute('transform', 'rotate(' + (milliPos * 36).toFixed(3) + ')');
+    if (handBeat)  handBeat.setAttribute('transform',  'rotate(' + (beatPos  * 36).toFixed(3) + ')');
+    if (handBlink) handBlink.setAttribute('transform', 'rotate(' + (blinkPos * 36).toFixed(3) + ')');
     if (analogDateEl) {
       analogDateEl.textContent = 'Δ ' + ats.kilo + '.' + ats.hecto + '.' + ats.deka + '.' + ats.kin;
     }

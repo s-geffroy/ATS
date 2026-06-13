@@ -1,7 +1,9 @@
 # Δ ATS — Analog Clock Specification
 
-**Status:** Draft v0.1
+**Status:** Draft v0.2
 **Scope:** Home page (`/en/`, `/fr/`) gains a numeric ↔ analog toggle. This document specifies the analog face only.
+
+> **v0.2 changes:** 5-hand dial (Beat and Blink now displayed), hand lengths inverted to the classic watchmaker convention (slowest hand is shortest), Blink decorated with a small disc at 80 % of its length, date readout moved above the pivot.
 
 ---
 
@@ -13,13 +15,13 @@ Offer a familiar circular clock face that reads ATS the same way a Gregorian fac
 
 | What | Where | Resolution |
 |---|---|---|
-| Bloc (`0.1` day = 2 h 24 min) | Long hand | 10 positions per day |
-| Centi (`0.01` day = 14 min 24 s) | Medium hand | 100 positions per day |
-| Milli (`0.001` day = 1 min 26.4 s) | Short hand | 1 000 positions per day |
-| Date (`K.H.D.Kin`) | Digital readout, inside the dial at the bottom | Per day |
+| Bloc (`0.1` day = 2 h 24 min) | Shortest hand (slowest) | 10 positions per day |
+| Centi (`0.01` day = 14 min 24 s) | Short hand | 100 positions per day |
+| Milli (`0.001` day = 1 min 26.4 s) | Medium hand | 1 000 positions per day |
+| Beat (`0.0001` day ≈ 8.64 s) | Long hand | 10 000 positions per day |
+| Blink (`0.00001` day ≈ 0.864 s) | Longest hand, decorated with a small disc at 80 % of its length | 100 000 positions per day |
+| Date (`K.H.D.Kin`) | Digital readout, inside the dial above the pivot | Per day |
 | Gregorian UTC ISO | Below the dial card | Per second |
-
-Beat (≈ 8.64 s) and Blink (≈ 0.86 s) are **not displayed** — the analog face is intentionally lighter than the canonical digital one.
 
 ## 3. Geometry
 
@@ -32,7 +34,7 @@ SVG `viewBox="-110 -110 220 220"`. All radii are in viewBox units.
 | Minor tick (each `Centi` between Blocs) | 91 → 96 | 100 ticks at 3.6° increments, `stroke: var(--fg); opacity: 0.35; stroke-width: 1` |
 | Major tick label (digits 0..9) | 76 | `font-family: ui-monospace; font-size: 12px; fill: var(--fg); opacity: 0.7` (sits between the Centi hand tip and the Bloc hand tip) |
 | Center pivot disc | 5 | `fill: var(--fg)` |
-| Date readout (inside dial) | center at `(0, 60)` | small mono text, 14 px, `var(--fg)` |
+| Date readout (inside dial) | center at `(0, -50)` | small mono text, 14 px, `var(--fg)` (midway between the top `0` and the pivot) |
 
 **Angle convention.** Position `p` (`0 ≤ p < 10` for the Bloc dial) maps to SVG angle:
 
@@ -46,22 +48,26 @@ All hands originate at `(0, 0)` and point outward. Rotation is **clockwise** (Gr
 
 | Hand | Length | Width | Color | Movement |
 |---|---|---|---|---|
-| **Bloc** | 88 | 4 | `var(--fg)` (foreground) | Snap on Bloc completion (every 2 h 24) |
-| **Centi** | 70 | 3 | `var(--accent)` = `#4a6cff` | Snap on Centi completion (every 14 m 24 s) |
-| **Milli** | 55 | 1.6 | `color-mix(in oklab, var(--fg) 50%, transparent)` (muted) | Continuous interpolation at 10 Hz |
+| **Bloc** | 40 | 4 | `var(--fg)` (foreground) | Snap on Bloc completion (every 2 h 24) |
+| **Centi** | 55 | 3 | `var(--accent)` = `#4a6cff` | Snap on Centi completion (every 14 m 24 s) |
+| **Milli** | 70 | 2 | `color-mix(in oklab, var(--fg) 50%, transparent)` (muted) | Continuous interpolation at 10 Hz (strict-mode snaps it) |
+| **Beat** | 82 | 1.4 | `#2bb673` (green) | Continuous interpolation at 10 Hz (strict-mode snaps it) |
+| **Blink** | 95 | 1.2 | `#ff5a5a` (red, like a sweep second hand) + filled disc `r=3` at `y=-76` (80 % of length) | Continuous interpolation at 10 Hz (strict-mode snaps it); see §7 for the 864 ms refresh limit |
 
-**Length convention (ATS-native).** Unlike Gregorian (hour < minute < second), the most meaningful unit gets the longest hand: `Bloc > Centi > Milli`. This puts visual weight on the 2 h 24 reading window — the human attention block.
+**Length convention (watchmaker-style).** Hands are ordered by speed: the **slowest unit gets the shortest hand**, the fastest unit gets the longest hand — same convention as a Gregorian watch (hour < minute < second). The longest hand (Blink) carries a small decorative disc that mirrors a sweep second hand's tip ring, making it unambiguous at a glance.
 
-**Color hierarchy.** Bloc is monochrome (foreground), Centi is the brand accent, Milli is desaturated. The brand color emphasizes the social cycle (14 min ≈ academic quarter hour), which is the unit ATS most differentiates from Gregorian.
+**Color hierarchy.** Bloc is monochrome (foreground), Centi carries the brand accent (`#4a6cff`), Milli is desaturated, Beat is green, Blink is red. Cool-to-warm colors reinforce the visual cue: the warmer the hue, the faster the hand.
 
 ## 5. Hand-position mathematics
 
 Let `f` ∈ `[0, 1)` be the current day-fraction (`frac / 100_000` from the reference implementation).
 
 ```
-bloc_pos   = floor(f × 10)              // 0..9       (truncated)
-centi_pos  = floor(f × 100) mod 10      // 0..9       (truncated)
-milli_pos  = (f × 1000) mod 10          // 0..9       (continuous; not truncated)
+bloc_pos   = floor(f × 10)               // 0..9       (truncated)
+centi_pos  = floor(f × 100)    mod 10    // 0..9       (truncated)
+milli_pos  = (f × 1000)        mod 10    // 0..9       (continuous, unless strict)
+beat_pos   = (f × 10 000)      mod 10    // 0..9       (continuous, unless strict)
+blink_pos  = (f × 100 000)     mod 10    // 0..9       (continuous, unless strict)
 ```
 
 Hand SVG transforms:
@@ -70,25 +76,29 @@ Hand SVG transforms:
 bloc_angle_deg  = (bloc_pos  / 10) × 360 − 90
 centi_angle_deg = (centi_pos / 10) × 360 − 90
 milli_angle_deg = (milli_pos / 10) × 360 − 90
+beat_angle_deg  = (beat_pos  / 10) × 360 − 90
+blink_angle_deg = (blink_pos / 10) × 360 − 90
 ```
 
-Each hand is a `<line>` (or `<path>`) initially pointing up; the SVG `transform="rotate(angle, 0, 0)"` is set to the values above on every tick.
+The Blink decoration (small disc) is part of the same SVG group as the Blink line; rotating the group rotates both. Each line / group is initially pointing up; the SVG `transform="rotate(angle, 0, 0)"` is set to the values above on every tick.
 
-**Truncation rule (spec §6).** The Bloc and Centi positions are floor-truncated, so the hands never anticipate the next position. The Milli hand is *continuously interpolated* — a deliberate, documented exception (see §7).
+**Truncation rule (spec §6).** The Bloc and Centi positions are floor-truncated, so the hands never anticipate the next position. The Milli / Beat / Blink hands are *continuously interpolated* by default — a deliberate, documented exception (see §7). Strict mode (opt-in) snaps all three to floor positions.
 
 ## 6. Center readout
 
-A small element inside the dial at SVG `(0, 60)` shows the date triplet `K.H.D.Kin` in monospace, two digits per "."-separated group. Example:
+A small element inside the dial at SVG `(0, -50)` shows the date `K.H.D.Kin` in monospace, "."-separated. The position sits midway between the `0` mark at the top of the dial and the central pivot, keeping the lower half free for the longest hands.
 
 ```
 20.7.8.2
 ```
 
-If `Kilo > 99`, the readout extends to fit; if it would visually collide with the bottom ticks, the SVG `viewBox` shifts to leave room. A small `Δ` glyph precedes the readout for brand consistency:
+A small `Δ` glyph precedes the readout for brand consistency:
 
 ```
 Δ 20.7.8.2
 ```
+
+If `Kilo > 99`, the readout extends sideways; the text-anchor stays centered.
 
 ## 7. Movement policy
 
@@ -96,15 +106,19 @@ If `Kilo > 99`, the readout extends to fit; if it would visually collide with th
 |---|---|---|
 | Bloc | **Snap** (floor) | One snap per 2 h 24 — coherent with "counter of completed units" (manifesto §6). |
 | Centi | **Snap** (floor) | One snap per 14 min — still coherent; would feel dead if smooth. |
-| Milli | **Continuous** (10 Hz interpolation) | Pure floor would tick every 1 min 26 s; that is visible motion, but the face would feel *too* discrete. We accept a small philosophical exception in exchange for the "alive clock" feeling. |
+| Milli | **Continuous** (10 Hz interpolation) | Pure floor would tick every 1 min 26 s; visible, but too discrete for the "alive clock" feeling. |
+| Beat | **Continuous** (10 Hz interpolation) | Same rationale as Milli at a faster timescale. |
+| Blink | **Continuous** (10 Hz interpolation) — see limit below | Same rationale; provides a fast, eye-catching sweep cue. |
 
-**Strict mode (opt-in).** A checkbox **inside the `<details>` panel** of the clock card lets the user enable strict mode, which snaps the Milli hand as well (no smooth interpolation). The choice is persisted under `localStorage["ats-strict-analog"]`. Default: off (hybrid). The Web Component MAY also expose this as the attribute `<ats-clock face="analog" strict>`.
+**Blink refresh limit.** Because `frac` has 5 decimals (resolution 0.864 s), the Blink position only changes when `frac` actually increments — about once every 864 ms. At a 100 ms (10 Hz) tick rate, the Blink hand therefore visually jumps once per `frac` tick even in "continuous" mode. Sub-tick interpolation would require recomputing `frac` at millisecond precision; this is an allowed but not required optimization.
+
+**Strict mode (opt-in).** A checkbox **inside the `<details>` panel** of the clock card lets the user enable strict mode, which snaps Milli, Beat **and** Blink to floor positions (no smooth interpolation). The choice is persisted under `localStorage["ats-strict-analog"]`. Default: off (hybrid). The Web Component MAY also expose this as the attribute `<ats-clock face="analog" strict>`.
 
 ## 8. Animation
 
-A single `setInterval` at 100 ms (10 Hz) recomputes the three hand angles. Updates skip the SVG `transform` write when the angle has not changed (Bloc/Centi snap), which keeps DOM churn minimal.
+A single `setInterval` at 100 ms (10 Hz) recomputes the five hand angles. Updates skip the SVG `transform` write when the angle has not changed (Bloc/Centi snap), which keeps DOM churn minimal.
 
-Implementations MAY use `requestAnimationFrame` for the Milli hand for sub-frame smoothness; this is purely a rendering optimization and does not affect the ATS values.
+Implementations MAY use `requestAnimationFrame` for the Milli / Beat / Blink hands for sub-frame smoothness; this is purely a rendering optimization and does not affect the ATS values.
 
 ## 9. Toggle UX (home page)
 
