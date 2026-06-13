@@ -297,22 +297,95 @@
 <h2>11. Durées (Δd)</h2>
 <p>Jusqu'au §10, l'ATS décrit des <strong>instants</strong>. Une notation séparée est définie pour les <strong>durées</strong> (deltas entre instants).</p>
 <h3>11.1 Syntaxe</h3>
-<pre><code>Δd K.H.D.Kin.fffff
+<pre><code>T± Δd K.H.D.Kin.fffff
 </code></pre>
 <ul>
-<li>Toujours positive — les durées sont non signées.</li>
+<li><strong>Signée</strong> depuis v0.6 — voir §11.4. La forme canonique porte explicitement <code>T+</code> ou <code>T-</code> ; la valeur absolue est notée <code>|Δd|</code>.</li>
 <li>Même structure positionnelle qu'un instant (Kilo non borné ; Hecto / Deka / Kin chiffres 0..9 ; fffff chiffres fractionnaires).</li>
 <li>Le préfixe <code>Δd</code> ("delta-durée") distingue une durée d'un instant. <code>Δ</code> seul désigne toujours un instant.</li>
-<li>Soustraire deux instants ATS de même signe produit une durée : <code>Δd = |Δ(a) − Δ(b)|</code>.</li>
+<li>Soustraire deux instants ATS produit une durée signée : <code>Δd = Δ(a) − Δ(b)</code> (cf. §11.4).</li>
 </ul>
 <h3>11.2 Exemples</h3>
 <ul>
-<li>Un Hecto : <code>Δd 0.1.0.0.00000</code> (100 jours).</li>
-<li>Une année grégorienne d'usage (~365 j) : <code>Δd 0.3.6.5.00000</code>.</li>
-<li>"J'ai vécu 7 Kilos et 893 jours" → <code>Δd 7.8.9.3.00000</code>.</li>
+<li>Un Hecto : <code>T+ Δd 0.1.0.0.00000</code> (100 jours).</li>
+<li>Une année grégorienne d'usage (~365 j) : <code>T+ Δd 0.3.6.5.00000</code>.</li>
+<li>"J'ai vécu 7 Kilos et 893 jours" → <code>T+ Δd 7.8.9.3.00000</code>.</li>
+<li>Reculer d'un demi-jour : <code>T- Δd 0.0.0.0.50000</code>.</li>
 </ul>
 <h3>11.3 Contraintes</h3>
-<p>Les durées s'écrivent toujours en forme canonique ; <strong>aucune forme courte</strong> n'est définie. Leur précision suit celle des instants dont elles dérivent.</p>
+<p>Les durées s'écrivent toujours en forme canonique ; <strong>aucune forme courte</strong> n'est définie. Leur précision suit celle des instants dont elles dérivent — la règle du tronquage au sol (§6) s'applique aux deux côtés.</p>
+<h3>11.4 Algèbre des durées (v0.6+)</h3>
+<p>L'algèbre suivante définit les seules opérations licites sur les types <code>Δ</code> (instant) et <code>Δd</code> (durée signée). Toute autre combinaison est indéfinie.</p>
+<p><strong>Signatures.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Opération</th>
+<th>Type</th>
+<th>Résultat</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Δ + Δd</code></td>
+<td>(instant, durée)</td>
+<td><code>Δ</code></td>
+</tr>
+<tr>
+<td><code>Δd + Δ</code></td>
+<td>(durée, instant)</td>
+<td><code>Δ</code></td>
+</tr>
+<tr>
+<td><code>Δ − Δ</code></td>
+<td>(instant, instant)</td>
+<td><code>Δd</code> (signée)</td>
+</tr>
+<tr>
+<td><code>Δ − Δd</code></td>
+<td>(instant, durée)</td>
+<td><code>Δ</code></td>
+</tr>
+<tr>
+<td><code>Δd + Δd</code></td>
+<td>(durée, durée)</td>
+<td><code>Δd</code></td>
+</tr>
+<tr>
+<td><code>Δd − Δd</code></td>
+<td>(durée, durée)</td>
+<td><code>Δd</code></td>
+</tr>
+<tr>
+<td><code>Δd × n</code></td>
+<td>(durée, scalaire)</td>
+<td><code>Δd</code></td>
+</tr>
+<tr>
+<td><code>Δd ÷ n</code></td>
+<td>(durée, scalaire)</td>
+<td><code>Δd</code></td>
+</tr>
+<tr>
+<td><code>−Δd</code></td>
+<td>(durée)</td>
+<td><code>Δd</code> (opposée)</td>
+</tr>
+<tr>
+<td>`</td>
+<td>Δd</td>
+<td>`</td>
+</tr>
+</tbody></table>
+<p><code>n</code> est un entier ou un rationnel arbitraire ; les implémentations qui exposent les durées en virgule flottante documentent leur précision (le port JS de référence utilise <code>Number</code>/float64, ~15 digits significatifs).</p>
+<p><strong>Comparaisons.</strong> <code>&lt; ≤ = ≥ &gt;</code> sont définies sur deux <code>Δ</code> (via le compteur signé de jours, T- &lt; T+) et sur deux <code>Δd</code>. La comparaison <code>Δ ↔ Δd</code> n'est <strong>pas</strong> définie — ce sont des types disjoints.</p>
+<p><strong>Sémantique du débordement.</strong> Toute opération qui produit un instant ou une durée ré-écrit la forme canonique avec :</p>
+<ul>
+<li>Kilo non borné (peut grandir arbitrairement),</li>
+<li>Hecto, Deka, Kin chiffres 0..9,</li>
+<li><code>fffff</code> arrondi par tronquage au sol (<code>ROUND_FLOOR</code>, §6) à <code>ATS_DECIMALS = 5</code> chiffres par défaut.</li>
+</ul>
+<p><strong>Identités.</strong> <code>T+ Δd 0.0.0.0.00000 == T- Δd 0.0.0.0.00000</code> (la durée zéro est unique) ; idem pour <code>Δ</code> à l'époque : <code>T+ Δ 0.0.0.0.00000 == T- Δ 0.0.0.0.00000</code>.</p>
+<p><strong>Vecteurs de conformance.</strong> <code>docs/spec/test-vectors-arithmetic.json</code> (12 cas) couvre les sept opérations, le débordement Kin→Deka et Deka→Hecto→Kilo, le franchissement d'époque (T+ → T-) et les comparaisons inter-signes.</p>
 <hr>
 <h2>12. Encodage binaire</h2>
 <p>Pour le stockage, l'IoT et l'interop binaire, l'ATS définit un format <strong>64 bits fixes</strong> (big-endian, complément à deux sur le compteur de jours).</p>

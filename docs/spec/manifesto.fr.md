@@ -204,23 +204,56 @@ Jusqu'au §10, l'ATS décrit des **instants**. Une notation séparée est défin
 ### 11.1 Syntaxe
 
 ```
-Δd K.H.D.Kin.fffff
+T± Δd K.H.D.Kin.fffff
 ```
 
-- Toujours positive — les durées sont non signées.
+- **Signée** depuis v0.6 — voir §11.4. La forme canonique porte explicitement `T+` ou `T-` ; la valeur absolue est notée `|Δd|`.
 - Même structure positionnelle qu'un instant (Kilo non borné ; Hecto / Deka / Kin chiffres 0..9 ; fffff chiffres fractionnaires).
 - Le préfixe `Δd` ("delta-durée") distingue une durée d'un instant. `Δ` seul désigne toujours un instant.
-- Soustraire deux instants ATS de même signe produit une durée : `Δd = |Δ(a) − Δ(b)|`.
+- Soustraire deux instants ATS produit une durée signée : `Δd = Δ(a) − Δ(b)` (cf. §11.4).
 
 ### 11.2 Exemples
 
-- Un Hecto : `Δd 0.1.0.0.00000` (100 jours).
-- Une année grégorienne d'usage (~365 j) : `Δd 0.3.6.5.00000`.
-- "J'ai vécu 7 Kilos et 893 jours" → `Δd 7.8.9.3.00000`.
+- Un Hecto : `T+ Δd 0.1.0.0.00000` (100 jours).
+- Une année grégorienne d'usage (~365 j) : `T+ Δd 0.3.6.5.00000`.
+- "J'ai vécu 7 Kilos et 893 jours" → `T+ Δd 7.8.9.3.00000`.
+- Reculer d'un demi-jour : `T- Δd 0.0.0.0.50000`.
 
 ### 11.3 Contraintes
 
-Les durées s'écrivent toujours en forme canonique ; **aucune forme courte** n'est définie. Leur précision suit celle des instants dont elles dérivent.
+Les durées s'écrivent toujours en forme canonique ; **aucune forme courte** n'est définie. Leur précision suit celle des instants dont elles dérivent — la règle du tronquage au sol (§6) s'applique aux deux côtés.
+
+### 11.4 Algèbre des durées (v0.6+)
+
+L'algèbre suivante définit les seules opérations licites sur les types `Δ` (instant) et `Δd` (durée signée). Toute autre combinaison est indéfinie.
+
+**Signatures.**
+
+| Opération | Type | Résultat |
+|---|---|---|
+| `Δ + Δd` | (instant, durée) | `Δ` |
+| `Δd + Δ` | (durée, instant) | `Δ` |
+| `Δ − Δ` | (instant, instant) | `Δd` (signée) |
+| `Δ − Δd` | (instant, durée) | `Δ` |
+| `Δd + Δd` | (durée, durée) | `Δd` |
+| `Δd − Δd` | (durée, durée) | `Δd` |
+| `Δd × n` | (durée, scalaire) | `Δd` |
+| `Δd ÷ n` | (durée, scalaire) | `Δd` |
+| `−Δd` | (durée) | `Δd` (opposée) |
+| `|Δd|` | (durée) | `Δd ≥ 0` |
+
+`n` est un entier ou un rationnel arbitraire ; les implémentations qui exposent les durées en virgule flottante documentent leur précision (le port JS de référence utilise `Number`/float64, ~15 digits significatifs).
+
+**Comparaisons.** `< ≤ = ≥ >` sont définies sur deux `Δ` (via le compteur signé de jours, T- < T+) et sur deux `Δd`. La comparaison `Δ ↔ Δd` n'est **pas** définie — ce sont des types disjoints.
+
+**Sémantique du débordement.** Toute opération qui produit un instant ou une durée ré-écrit la forme canonique avec :
+- Kilo non borné (peut grandir arbitrairement),
+- Hecto, Deka, Kin chiffres 0..9,
+- `fffff` arrondi par tronquage au sol (`ROUND_FLOOR`, §6) à `ATS_DECIMALS = 5` chiffres par défaut.
+
+**Identités.** `T+ Δd 0.0.0.0.00000 == T- Δd 0.0.0.0.00000` (la durée zéro est unique) ; idem pour `Δ` à l'époque : `T+ Δ 0.0.0.0.00000 == T- Δ 0.0.0.0.00000`.
+
+**Vecteurs de conformance.** `docs/spec/test-vectors-arithmetic.json` (12 cas) couvre les sept opérations, le débordement Kin→Deka et Deka→Hecto→Kilo, le franchissement d'époque (T+ → T-) et les comparaisons inter-signes.
 
 ---
 

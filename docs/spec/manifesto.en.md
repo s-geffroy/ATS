@@ -204,23 +204,56 @@ ATS up to §10 describes **instants**. A separate notation is defined for **dura
 ### 11.1 Syntax
 
 ```
-Δd K.H.D.Kin.fffff
+T± Δd K.H.D.Kin.fffff
 ```
 
-- Always positive — durations are unsigned.
+- **Signed** since v0.6 — see §11.4. The canonical form carries an explicit `T+` or `T-`; the absolute value is written `|Δd|`.
 - Same positional structure as an instant (Kilo unbounded; Hecto / Deka / Kin digits 0..9; fffff fractional digits).
 - Prefix `Δd` ("delta-duration") distinguishes a duration from an instant. `Δ` alone always denotes an instant.
-- Subtracting two ATS instants of the same sign yields a duration: `Δd = |Δ(a) − Δ(b)|`.
+- Subtracting two ATS instants yields a signed duration: `Δd = Δ(a) − Δ(b)` (see §11.4).
 
 ### 11.2 Examples
 
-- One Hecto: `Δd 0.1.0.0.00000` (100 days).
-- One year of Gregorian usage (~365 days): `Δd 0.3.6.5.00000`.
-- "I have lived for 7 Kilos and 893 days" → `Δd 7.8.9.3.00000`.
+- One Hecto: `T+ Δd 0.1.0.0.00000` (100 days).
+- One year of Gregorian usage (~365 days): `T+ Δd 0.3.6.5.00000`.
+- "I have lived for 7 Kilos and 893 days" → `T+ Δd 7.8.9.3.00000`.
+- Step back half a day: `T- Δd 0.0.0.0.50000`.
 
 ### 11.3 Constraints
 
-Durations are always written in canonical form; **no short form** is defined. Their precision matches the instants from which they are derived.
+Durations are always written in canonical form; **no short form** is defined. Their precision matches the instants from which they are derived — the floor-truncation rule (§6) applies on both sides.
+
+### 11.4 Algebra of durations (v0.6+)
+
+The following algebra defines the only legal operations on the `Δ` (instant) and `Δd` (signed duration) types. Any other combination is undefined.
+
+**Signatures.**
+
+| Operation | Types | Result |
+|---|---|---|
+| `Δ + Δd` | (instant, duration) | `Δ` |
+| `Δd + Δ` | (duration, instant) | `Δ` |
+| `Δ − Δ` | (instant, instant) | `Δd` (signed) |
+| `Δ − Δd` | (instant, duration) | `Δ` |
+| `Δd + Δd` | (duration, duration) | `Δd` |
+| `Δd − Δd` | (duration, duration) | `Δd` |
+| `Δd × n` | (duration, scalar) | `Δd` |
+| `Δd ÷ n` | (duration, scalar) | `Δd` |
+| `−Δd` | (duration) | `Δd` (negated) |
+| `|Δd|` | (duration) | `Δd ≥ 0` |
+
+`n` is any integer or rational; implementations that expose durations as floating-point document their precision (the reference JS port uses `Number`/float64, ~15 significant digits).
+
+**Comparisons.** `< ≤ = ≥ >` are defined on two `Δ` (via the signed day counter, T- < T+) and on two `Δd`. `Δ ↔ Δd` comparison is **not** defined — they are disjoint types.
+
+**Overflow semantics.** Any operation that produces an instant or a duration re-emits the canonical form with:
+- Kilo unbounded (may grow arbitrarily),
+- Hecto, Deka, Kin digits 0..9,
+- `fffff` truncated via floor (`ROUND_FLOOR`, §6) to `ATS_DECIMALS = 5` default digits.
+
+**Identities.** `T+ Δd 0.0.0.0.00000 == T- Δd 0.0.0.0.00000` (the zero duration is unique); likewise for `Δ` at the epoch: `T+ Δ 0.0.0.0.00000 == T- Δ 0.0.0.0.00000`.
+
+**Conformance vectors.** `docs/spec/test-vectors-arithmetic.json` (12 cases) covers the seven operations, the Kin→Deka and Deka→Hecto→Kilo carries, the epoch crossing (T+ → T-), and the cross-sign comparisons.
 
 ---
 

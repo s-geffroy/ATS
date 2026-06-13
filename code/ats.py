@@ -1,5 +1,5 @@
 """
-ATS — Apollonian Time System v0.5 reference implementation.
+ATS — Apollonian Time System v0.6 reference implementation.
 
 Spec: ../spec/manifesto.en.md
 Epoch: 1969-07-20T00:00:00Z (start of the Apollo 11 landing day, UTC).
@@ -20,6 +20,13 @@ Short format (UI): "Δ K.H.D.Kin/cc"
   - Decoding the short form is intentionally lossy: lower fractional
     digits (Milli/Beat/Blink) assumed 0; sign assumed T+. Parsers accept
     optional whitespace around `/`.
+
+Duration type Δd (v0.6+, spec §11.4):
+  ATSDuration represents a signed amount of days as a Decimal, independent
+  of any anchor. Use ``Δ - Δ → Δd`` for instant differences, ``Δ + Δd → Δ``
+  to advance an instant, ``Δd ± Δd``, ``Δd * n``, ``Δd / n`` for plain
+  duration algebra. Canonical form: ``T± Δd K.H.D.Kin.fffff`` (sign carried
+  explicitly, K unbounded, frac floored to ATS_DECIMALS digits).
 
 Rounding policy (spec §6): strict floor truncation (ROUND_FLOOR) is used
 when reducing precision for display. ATS is a counter of completed
@@ -45,7 +52,10 @@ ATS_EPOCH = datetime(1969, 7, 20, 0, 0, 0, tzinfo=timezone.utc)
 _US_PER_DAY = 86_400_000_000
 
 
-@dataclass(frozen=True)
+ATS_DURATION_SYMBOL = "Δd"
+
+
+@dataclass(frozen=True, eq=False)
 class ATSDateTime:
     """ATS instant.
 
@@ -81,6 +91,15 @@ class ATSDateTime:
     def total_days_decimal(self) -> Decimal:
         return Decimal(self.integer_days) + Decimal(self.frac) / Decimal(ATS_SCALE)
 
+    def _signed_decimal_days(self) -> Decimal:
+        """Total days as a signed Decimal (negative when sign == 'T-').
+
+        T+ 0 and T- 0 collapse to the same Decimal(0), so equality across
+        signs at the epoch behaves correctly.
+        """
+        d = self.total_days_decimal
+        return -d if self.sign == "T-" else d
+
     def to_canonical(self) -> str:
         return (
             f"{self.sign} {ATS_SYMBOL} "
@@ -100,6 +119,172 @@ class ATSDateTime:
 
     def __str__(self) -> str:
         return self.to_canonical()
+
+    # -- Arithmetic (spec §11.4) -----------------------------------------
+
+    def __add__(self, other: object) -> "ATSDateTime":
+        if isinstance(other, ATSDuration):
+            return _ats_from_signed_days(self._signed_decimal_days() + other.signed_days)
+        return NotImplemented
+
+    def __radd__(self, other: object) -> "ATSDateTime":
+        # Allows ATSDuration + ATSDateTime; the duration's __add__ returns
+        # NotImplemented for the (Δd, Δ) case so Python falls back here.
+        return self.__add__(other)
+
+    def __sub__(self, other: object):
+        if isinstance(other, ATSDateTime):
+            return ATSDuration(self._signed_decimal_days() - other._signed_decimal_days())
+        if isinstance(other, ATSDuration):
+            return _ats_from_signed_days(self._signed_decimal_days() - other.signed_days)
+        return NotImplemented
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, ATSDateTime):
+            return self._signed_decimal_days() == other._signed_decimal_days()
+        return NotImplemented
+
+    def __lt__(self, other: object) -> bool:
+        if isinstance(other, ATSDateTime):
+            return self._signed_decimal_days() < other._signed_decimal_days()
+        return NotImplemented
+
+    def __le__(self, other: object) -> bool:
+        if isinstance(other, ATSDateTime):
+            return self._signed_decimal_days() <= other._signed_decimal_days()
+        return NotImplemented
+
+    def __gt__(self, other: object) -> bool:
+        if isinstance(other, ATSDateTime):
+            return self._signed_decimal_days() > other._signed_decimal_days()
+        return NotImplemented
+
+    def __ge__(self, other: object) -> bool:
+        if isinstance(other, ATSDateTime):
+            return self._signed_decimal_days() >= other._signed_decimal_days()
+        return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash(self._signed_decimal_days())
+
+
+@dataclass(frozen=True, eq=False)
+class ATSDuration:
+    """ATS signed duration Δd, spec §11.4 (v0.6+).
+
+    Stores the signed amount of days as an arbitrary-precision Decimal.
+    Independent of any anchor — pure quantity. Display uses
+    ``T± Δd K.H.D.Kin.fffff`` with the same floor-truncation policy as
+    ATSDateTime (spec §6).
+    """
+
+    signed_days: Decimal = Decimal(0)
+
+    def __post_init__(self) -> None:
+        # Coerce to Decimal so callers may pass int / str / float without
+        # surprises. frozen dataclasses require object.__setattr__ to mutate.
+        if not isinstance(self.signed_days, Decimal):
+            object.__setattr__(self, "signed_days", Decimal(self.signed_days))
+
+    @classmethod
+    def zero(cls) -> "ATSDuration":
+        return cls(Decimal(0))
+
+    @property
+    def sign(self) -> str:
+        return "T-" if self.signed_days < 0 else "T+"
+
+    @property
+    def abs_days(self) -> Decimal:
+        return -self.signed_days if self.signed_days < 0 else self.signed_days
+
+    def to_canonical(self) -> str:
+        integer_days, frac_int = _split_abs_days_floor(self.abs_days)
+        kilo, hecto, deka, kin = _integer_days_to_places(integer_days)
+        return (
+            f"{self.sign} {ATS_DURATION_SYMBOL} "
+            f"{kilo}.{hecto}.{deka}.{kin}."
+            f"{frac_int:0{ATS_DECIMALS}d}"
+        )
+
+    def __str__(self) -> str:
+        return self.to_canonical()
+
+    def __add__(self, other: object) -> "ATSDuration":
+        if isinstance(other, ATSDuration):
+            return ATSDuration(self.signed_days + other.signed_days)
+        # Δd + Δ delegates to ATSDateTime.__radd__.
+        return NotImplemented
+
+    def __sub__(self, other: object) -> "ATSDuration":
+        if isinstance(other, ATSDuration):
+            return ATSDuration(self.signed_days - other.signed_days)
+        return NotImplemented
+
+    def __mul__(self, n: object) -> "ATSDuration":
+        if isinstance(n, (int, Decimal)):
+            return ATSDuration(self.signed_days * Decimal(n))
+        return NotImplemented
+
+    __rmul__ = __mul__
+
+    def __truediv__(self, n: object) -> "ATSDuration":
+        if isinstance(n, (int, Decimal)):
+            return ATSDuration(self.signed_days / Decimal(n))
+        return NotImplemented
+
+    def __neg__(self) -> "ATSDuration":
+        return ATSDuration(-self.signed_days)
+
+    def __abs__(self) -> "ATSDuration":
+        return ATSDuration(self.abs_days)
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, ATSDuration):
+            return self.signed_days == other.signed_days
+        return NotImplemented
+
+    def __lt__(self, other: object) -> bool:
+        if isinstance(other, ATSDuration):
+            return self.signed_days < other.signed_days
+        return NotImplemented
+
+    def __le__(self, other: object) -> bool:
+        if isinstance(other, ATSDuration):
+            return self.signed_days <= other.signed_days
+        return NotImplemented
+
+    def __gt__(self, other: object) -> bool:
+        if isinstance(other, ATSDuration):
+            return self.signed_days > other.signed_days
+        return NotImplemented
+
+    def __ge__(self, other: object) -> bool:
+        if isinstance(other, ATSDuration):
+            return self.signed_days >= other.signed_days
+        return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash(self.signed_days)
+
+
+def _ats_from_signed_days(d: Decimal) -> ATSDateTime:
+    """Build an ATSDateTime from a signed Decimal day count.
+
+    Floor truncation is applied to the absolute value (spec §6).
+    """
+    sign = "T-" if d < 0 else "T+"
+    abs_d = -d if d < 0 else d
+    integer_days, frac_int = _split_abs_days_floor(abs_d)
+    kilo, hecto, deka, kin = _integer_days_to_places(integer_days)
+    return ATSDateTime(
+        sign=sign,
+        kilo=kilo,
+        hecto=hecto,
+        deka=deka,
+        kin=kin,
+        frac=frac_int,
+    )
 
 
 def _timedelta_to_decimal_days(td: timedelta) -> Decimal:
@@ -224,3 +409,11 @@ if __name__ == "__main__":
     back = ats_to_gregorian(ats_now.to_canonical(), out_tz="UTC")
     print("Round-trip UTC:", back.isoformat())
     print("Drift (us)    :", abs((now_utc - back).total_seconds()) * 1e6)
+
+    # v0.6: Δd arithmetic demo (spec §11.4)
+    one_day = ATSDuration(Decimal(1))
+    print("Δd one day     :", one_day.to_canonical())
+    tomorrow = ats_now + one_day
+    print("Δ tomorrow     :", tomorrow.to_canonical())
+    delta = tomorrow - ats_now
+    print("Δd round-trip  :", delta.to_canonical(), "(== 1 day:", delta == one_day, ")")

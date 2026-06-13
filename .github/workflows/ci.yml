@@ -33,8 +33,8 @@ jobs:
           ruff check code tests
       - name: Run module demo
         run: python code/ats.py
-      - name: Conformance tests (test-vectors.json)
-        run: python -m unittest tests.test_vectors -v
+      - name: Conformance tests (all suites)
+        run: python -m unittest discover tests -v
 
   javascript:
     name: JavaScript (Node ${{ matrix.node }})
@@ -54,8 +54,10 @@ jobs:
         run: |
           node --check docs/assets/js/ats.js
           for f in docs/assets/js/*.js; do node --check "$f"; done
-      - name: Conformance tests (test-vectors.json)
-        run: node tests/test_vectors.mjs
+      - name: Conformance tests (all suites)
+        run: |
+          node tests/test_vectors.mjs
+          node tests/test_arithmetic.mjs
 
   pages-preview:
     name: Pages structure check
@@ -70,6 +72,7 @@ jobs:
           test -f docs/spec/manifesto.en.md
           test -f docs/spec/manifesto.fr.md
           test -f docs/spec/test-vectors.json
+          test -f docs/spec/test-vectors-arithmetic.json
           test -f docs/assets/css/style.css
           test -f docs/assets/js/ats.js
           echo "Pages tree looks healthy."

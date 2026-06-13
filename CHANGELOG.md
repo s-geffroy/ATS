@@ -6,6 +6,15 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — v0.6.0 (en cours, Δ 20.7.8.2/45)
 
+### Added — Algèbre Δ/Δd (Vague 2 — §2.1, spec §11.4)
+- **Spec §11.4 « Algèbre des durées »** ajoutée à `manifesto.{en,fr}.md` : signatures formelles `Δ+Δd→Δ`, `Δ−Δ→Δd` (signée), `Δd+Δd→Δd`, `Δd × n`, `Δd ÷ n`, `−Δd`, `|Δd|`. Comparaisons `<,≤,=,≥,>` définies sur `Δ` (compteur signé, T- < T+) et sur `Δd`. La comparaison `Δ ↔ Δd` reste explicitement indéfinie.
+- **§11.1–11.3 amendées** : les durées sont désormais **signées** (forme canonique `T± Δd K.H.D.Kin.fffff`). L'ancien `|Δd|` reste accessible via `abs()`. Pas de breaking sur les 12 vecteurs `test-vectors.json` originaux.
+- **`code/ats.py`** : nouvelle dataclass `ATSDuration(signed_days: Decimal)` (frozen) avec `__add__/__sub__/__mul__/__truediv__/__neg__/__abs__` et comparateurs. Sur `ATSDateTime` : `__add__(Δd)→Δ`, `__sub__(Δ)→Δd`, `__sub__(Δd)→Δ`, et `<,<=,==,>=,>`. Helper interne `_signed_decimal_days()` + `_ats_from_signed_days()`. `T+ 0 == T- 0` est respecté.
+- **`docs/assets/js/ats.js`** : portage Number (float64) — `ATS.dur(n)`, `ATS.durToCanonical`, `ATS.durFromCanonical`, `ATS.add/sub` polymorphiques, `ATS.mul/div/neg/abs`, `ATS.cmp/lt/le/eq/gt/ge`. Précision documentée : ~15 chiffres significatifs (vs Decimal exact côté Python).
+- **Vecteurs** : `docs/spec/test-vectors-arithmetic.json` — 12 cas couvrant les 7 opérations + carry Kin→Deka, carry jusqu'au Kilo, franchissement d'époque (T+→T-), comparaisons inter-signes.
+- **Tests** : `tests/test_arithmetic.py` (Python, 4 sub-tests) et `tests/test_arithmetic.mjs` (JS, 15 assertions). Les deux suites se chargent depuis le même JSON.
+- **CI** : matrice étendue à `unittest discover tests` (Python) et `node tests/test_arithmetic.mjs` (JS). Check « pages structure » exige désormais `test-vectors-arithmetic.json`.
+
 ### Changed — Pré-rendu Markdown (§1.1)
 - **8 pages MD pré-rendues au build** (`manifeste`/`philosophie`/`comparaison`/`faq` × FR + EN). Le HTML rendu est inliné directement dans les pages — plus aucun `<script src=".../marked@13.0.3">` ni `<script src=".../dompurify@3.2.4">` en CDN, plus aucun `fetch('../spec/*.md')` au runtime.
   - Script de build : `scripts/render-md.mjs` (Node 20 ESM + `marked@13` + `isomorphic-dompurify`), exécuté via Docker — `docker run --rm -v "$PWD:/app" -w /app/scripts node:20-slim sh -c 'npm install --silent && node render-md.mjs'`. Idempotent (marqueur `<!-- ATS:INLINE <source.md> -->` détecté pour ré-exécution).
