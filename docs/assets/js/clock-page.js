@@ -80,6 +80,7 @@
   const handMilli     = document.getElementById('hand-milli');
   const handBeat      = document.getElementById('hand-beat');
   const handBlink     = document.getElementById('hand-blink');
+  const handBlinkDot  = document.getElementById('hand-blink-dot');
   const analogDateEl  = document.getElementById('analog-date');
   const utcDisplayAnalogEl = document.getElementById('utcDisplayAnalog');
   const atsReadoutEl  = document.getElementById('atsReadout');
@@ -228,7 +229,11 @@
     handCenti.setAttribute('transform', 'rotate(' + (centiPos * 36).toFixed(3) + ')');
     handMilli.setAttribute('transform', 'rotate(' + (milliPos * 36).toFixed(3) + ')');
     if (handBeat)  handBeat.setAttribute('transform',  'rotate(' + (beatPos  * 36).toFixed(3) + ')');
-    if (handBlink) handBlink.setAttribute('transform', 'rotate(' + (blinkPos * 36).toFixed(3) + ')');
+    if (handBlink) {
+      const blinkAngle = 'rotate(' + (blinkPos * 36).toFixed(3) + ')';
+      handBlink.setAttribute('transform', blinkAngle);
+      if (handBlinkDot) handBlinkDot.setAttribute('transform', blinkAngle);
+    }
     if (analogDateEl) {
       analogDateEl.textContent = 'Δ ' + ats.kilo + '.' + ats.hecto + '.' + ats.deka + '.' + ats.kin;
     }
@@ -243,8 +248,11 @@
       const blink = fr % 10;
       const fracStr = String(fr).padStart(5, '0');
       atsReadoutEl.innerHTML =
-        'Bloc ' + bloc + ' · Centi ' + centi + ' · Milli ' + milli +
-        ' · Beat ' + beat + ' · Blink ' + blink +
+        '<span class="u-bloc">Bloc</span> '   + bloc  +
+        ' · <span class="u-centi">Centi</span> ' + centi +
+        ' · <span class="u-milli">Milli</span> ' + milli +
+        ' · <span class="u-beat">Beat</span> '   + beat  +
+        ' · <span class="u-blink">Blink</span> ' + blink +
         '<span class="frac">.' + fracStr + '</span>';
     }
   }

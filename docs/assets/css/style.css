@@ -376,6 +376,12 @@ a:hover { text-decoration: underline; }
   opacity: 0.55;
   margin-left: 0.4rem;
 }
+/* Color each unit label to match its hand on the analog dial. */
+.ats-readout .u-bloc  { color: var(--fg); }
+.ats-readout .u-centi { color: var(--accent); }
+.ats-readout .u-milli { color: var(--fg); opacity: 0.5; }
+.ats-readout .u-beat  { color: #2bb673; }
+.ats-readout .u-blink { color: #ff5a5a; }
 
 /* World-cities color legend (matin / midi / soir) and city list. */
 .city-legend {

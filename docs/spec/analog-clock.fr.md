@@ -80,7 +80,7 @@ beat_angle_deg  = (beat_pos  / 10) × 360 − 90
 blink_angle_deg = (blink_pos / 10) × 360 − 90
 ```
 
-Le disque décoratif de Blink appartient au même groupe SVG que la ligne Blink ; rotation du groupe = rotation des deux. Chaque ligne / groupe est initialement vertical ; le `transform="rotate(angle, 0, 0)"` est posé sur chaque tick.
+La ligne Blink et son disque décoratif sont des éléments SVG **frères** (pas enveloppés dans un `<g>` — certaines versions Chromium ne re-peignent pas un `<g>` dont le `transform` est mis à jour via `setAttribute`). Les deux éléments partagent la même rotation Blink, appliquée séparément en JavaScript à chaque tick. Chaque ligne est initialement verticale ; le `transform="rotate(angle, 0, 0)"` est posé sur chaque tick.
 
 **Règle de troncature (spec §6).** Les positions Bloc et Centi sont tronquées au plancher, donc les aiguilles ne devancent jamais la suivante. Les aiguilles Milli, Beat et Blink sont *interpolées en continu* par défaut — exception délibérée et documentée (cf §7). Le mode strict (opt-in) les fait toutes trois sauter.
 

@@ -80,7 +80,7 @@ beat_angle_deg  = (beat_pos  / 10) × 360 − 90
 blink_angle_deg = (blink_pos / 10) × 360 − 90
 ```
 
-The Blink decoration (small disc) is part of the same SVG group as the Blink line; rotating the group rotates both. Each line / group is initially pointing up; the SVG `transform="rotate(angle, 0, 0)"` is set to the values above on every tick.
+The Blink line and its decorative disc are sibling SVG elements (not wrapped in a `<g>` — some Chromium builds fail to repaint a `<g>` whose `transform` is updated via `setAttribute`). Both elements share the same Blink rotation, applied independently in JavaScript every tick. Each line is initially pointing up; the SVG `transform="rotate(angle, 0, 0)"` is set to the values above on every tick.
 
 **Truncation rule (spec §6).** The Bloc and Centi positions are floor-truncated, so the hands never anticipate the next position. The Milli / Beat / Blink hands are *continuously interpolated* by default — a deliberate, documented exception (see §7). Strict mode (opt-in) snaps all three to floor positions.
 

@@ -6,6 +6,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — vers v1.0
 
+### Fixed — Horloge analogique : Blink ne tournait pas dans Chromium + lecture pédagogique colorée
+- **Bug Chromium** : l'aiguille Blink était initialement implémentée comme un `<g>` enveloppant la ligne et le disque décoratif. Chrome ne re-peignait pas le groupe quand son `transform` était mis à jour via `setAttribute` à 10 Hz (Safari fonctionnait correctement). Restructuration en **éléments frères** : `<line id="hand-blink">` + `<circle id="hand-blink-dot">`, tous deux pivotés indépendamment par le contrôleur. Plus de groupe, plus de bug.
+- **Lecture pédagogique colorée** : `Bloc · Centi · Milli · Beat · Blink` sous le cadran utilise désormais le même code couleur que les aiguilles (`var(--fg)`, `var(--accent)`, atténué, vert, rouge). Nouvelles classes CSS `.ats-readout .u-bloc/.u-centi/.u-milli/.u-beat/.u-blink` dans `style.css` ; spans correspondants ajoutés dans `clock-page.js`.
+- Mise à jour de la spec `analog-clock.{en,fr}.md` §5 : note explicative sur la structure ligne+disque (vs `<g>`) et le bug Chromium.
+
 ### Changed — Horloge analogique : 5 aiguilles et convention horlogère classique (spec v0.2)
 Refonte visuelle du cadran analogique de la page d'accueil (`/fr/`, `/en/`) :
 
