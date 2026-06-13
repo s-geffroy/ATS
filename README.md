@@ -24,7 +24,10 @@ Lecture : 20 Kilos, 7 Hecto, 8 Deka, 2 Kin, fraction de jour `.50000` (= Bloc 5 
 |---|---|
 | `docs/spec/manifesto.{en,fr}.md` | **Manifeste v0.5** — source de vérité |
 | `docs/spec/{philosophy,comparison,faq}.{en,fr}.md` | Annexes : philosophie, comparatif, FAQ |
+| `docs/spec/_rendered/*.html` | Fragments HTML pré-rendus (générés par `scripts/render-md.mjs`) |
 | `docs/spec/test-vectors.json` | **12 instants de référence** — contrat de conformance |
+| `scripts/render-md.mjs` | Pré-rendu Markdown au build (élimine `marked` + `dompurify` du runtime) |
+| `lighthouse/` | Harness de mesure Lighthouse + baselines qualitatives |
 | `code/ats.py` | Module Python — conversion Grégorien ↔ ATS (Python ≥ 3.9) |
 | `docs/assets/js/ats.js` | Routines JS de référence |
 | `docs/assets/js/ats-clock.js` | Web Component `<ats-clock>` |
@@ -37,12 +40,23 @@ Lecture : 20 Kilos, 7 Hecto, 8 Deka, 2 Kin, fraction de jour `.50000` (= Bloc 5 
 Publié depuis `main`, dossier `/docs`. Pages bilingues :
 
 - **Horloge** interactive (`/fr/`, `/en/`) — adaptative, conversion bidirectionnelle, permalien `?t=`, copy-on-click, raccourcis `C`/`D`/`N`/`L`.
-- **Manifeste, Philosophie, Comparaison, FAQ** — rendu Markdown depuis `docs/spec/`.
+- **Manifeste, Philosophie, Comparaison, FAQ** — Markdown **pré-rendu** au build (depuis v0.6) ; pas de `marked` ni `dompurify` au runtime, pas de `fetch('*.md')` côté client.
 - **Cadrans / Dials** — comparatif visuel 24 h vs 10 Blocs (SVG temps réel).
 - **Frise / Timeline** — ~17 jalons historiques en Δ avec tags couleur (Espace, Sciences, Tech, Politique), badge ★ sur l'alunissage à l'intérieur de Δ 0, et conventions ATS (Hecto-fête Δ 100, Kilo-versaire 1 Δ 1000).
 - **Mon âge** — calculateur ATS personnel + export `.ics` (Kilo-versaires + Hecto-fêtes).
 - **Intégrer / Embed** — guide one-liner avec Web Component, badge.
 - **Code** — module Python téléchargeable, lien GitHub raw.
+
+## Régénérer les pages Markdown
+
+Le rendu Markdown est exécuté au build (et non plus au runtime côté navigateur). Pour régénérer les 8 fragments HTML après une édition de `docs/spec/*.md` :
+
+```bash
+docker run --rm -v "$PWD:/app" -w /app/scripts node:20-slim \
+  sh -c 'npm install --silent --no-fund --no-audit && node render-md.mjs'
+```
+
+Sortie : `docs/spec/_rendered/<source>.html` (fragments standalone) et inlining direct dans `docs/{fr,en}/{manifeste,philosophie,comparaison,faq}.html`. Le script est idempotent (marqueur `<!-- ATS:INLINE source.md -->` détecté pour les ré-exécutions).
 
 ## Usage rapide
 

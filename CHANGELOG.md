@@ -6,6 +6,15 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — v0.6.0 (en cours, Δ 20.7.8.2/45)
 
+### Changed — Pré-rendu Markdown (§1.1)
+- **8 pages MD pré-rendues au build** (`manifeste`/`philosophie`/`comparaison`/`faq` × FR + EN). Le HTML rendu est inliné directement dans les pages — plus aucun `<script src=".../marked@13.0.3">` ni `<script src=".../dompurify@3.2.4">` en CDN, plus aucun `fetch('../spec/*.md')` au runtime.
+  - Script de build : `scripts/render-md.mjs` (Node 20 ESM + `marked@13` + `isomorphic-dompurify`), exécuté via Docker — `docker run --rm -v "$PWD:/app" -w /app/scripts node:20-slim sh -c 'npm install --silent && node render-md.mjs'`. Idempotent (marqueur `<!-- ATS:INLINE <source.md> -->` détecté pour ré-exécution).
+  - Fragments dans `docs/spec/_rendered/*.html` pour usages tiers.
+  - **CSP resserrée** sur ces 8 pages : `cdn.jsdelivr.net` retiré de `script-src` et `style-src` (plus utile). Les autres pages (code.html, dials.html) conservent leur CSP existante (Prism reste en CDN).
+  - Diff transfert (gzip estimé, première visite) : `~36 KB → ~8 KB` par page MD (élimination de marked/dompurify CDN + round-trip fetch MD). Mesure complète via `lighthouse/capture-baseline.sh` (`baseline-v0.5.json` → `v0.6.0.json`).
+- **§1.4‑post Baseline v0.6.0** : `lighthouse/v0.6.0.json` capture l'état post‑§1.1 — `has_runtime_md_fetch=false`, `has_inlined_md=true` pour les 8 pages.
+- **README** : nouvelle section « Régénérer les pages Markdown ».
+
 ### Added — Mesure & qualité (Vague 1)
 - **§1.4 Harness Lighthouse + baseline qualitative v0.5** : nouveau répertoire `lighthouse/` avec deux outils :
   - `capture-baseline.sh` (toujours opérationnel, sans Chrome) : capture les métriques d'architecture reproductibles (poids HTML par page, scripts CDN chargés, présence du marqueur `<!-- ATS:INLINE -->`, poids des sources Markdown, payloads CDN raw + gzip).

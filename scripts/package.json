@@ -1,0 +1,13 @@
+{
+  "name": "ats-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Build-time scripts for ATS docs. Run via Docker (node:20-slim).",
+  "dependencies": {
+    "marked": "^13.0.3",
+    "isomorphic-dompurify": "^2.16.0"
+  },
+  "scripts": {
+    "render-md": "node render-md.mjs"
+  }
+}
