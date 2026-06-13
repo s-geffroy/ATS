@@ -1,0 +1,96 @@
+{
+  "description": "Islamic (tabular Kuwaiti)↔ATS bridge — start-of-day UTC anchor",
+  "version": 1,
+  "vectors": [
+    {
+      "label": "Today (1447 Dhul Hijjah 27)",
+      "islamic": {
+        "year": 1447,
+        "month": 12,
+        "day": 27
+      },
+      "ats_canonical": "T+ Δ 20.7.8.2.00000"
+    },
+    {
+      "label": "Hijra (1 AH, 1 Muharram)",
+      "islamic": {
+        "year": 1,
+        "month": 1,
+        "day": 1
+      },
+      "ats_canonical": "T- Δ 491.9.8.3.00000"
+    },
+    {
+      "label": "Ramadan start 1444",
+      "islamic": {
+        "year": 1444,
+        "month": 9,
+        "day": 1
+      },
+      "ats_canonical": "T+ Δ 19.6.0.4.00000"
+    },
+    {
+      "label": "Eid al-Adha 1445",
+      "islamic": {
+        "year": 1445,
+        "month": 12,
+        "day": 10
+      },
+      "ats_canonical": "T+ Δ 20.0.5.6.00000"
+    },
+    {
+      "label": "Mid 1500 AH",
+      "islamic": {
+        "year": 1500,
+        "month": 6,
+        "day": 15
+      },
+      "ats_canonical": "T+ Δ 39.3.7.5.00000"
+    },
+    {
+      "label": "Far past 800 AH",
+      "islamic": {
+        "year": 800,
+        "month": 1,
+        "day": 1
+      },
+      "ats_canonical": "T- Δ 208.8.4.4.00000"
+    },
+    {
+      "label": "Mid 1300 AH",
+      "islamic": {
+        "year": 1300,
+        "month": 6,
+        "day": 1
+      },
+      "ats_canonical": "T- Δ 31.5.1.3.00000"
+    },
+    {
+      "label": "1430 AH start of year",
+      "islamic": {
+        "year": 1430,
+        "month": 1,
+        "day": 1
+      },
+      "ats_canonical": "T+ Δ 14.4.0.7.00000"
+    },
+    {
+      "label": "Eid al-Fitr 1444",
+      "islamic": {
+        "year": 1444,
+        "month": 10,
+        "day": 1
+      },
+      "ats_canonical": "T+ Δ 19.6.3.4.00000"
+    },
+    {
+      "label": "1500 AH last day",
+      "islamic": {
+        "year": 1500,
+        "month": 12,
+        "day": 29
+      },
+      "ats_canonical": "T+ Δ 39.5.6.6.00000"
+    }
+  ]
+}
