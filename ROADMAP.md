@@ -132,6 +132,66 @@ Plan de travail consolidé pour les versions à venir (v0.4+). Les items sont in
 
 ---
 
+## Route vers v1.0 — blocants identifiés
+
+Items dérivés de l'audit « que manque-t-il pour une v1.0 vraiment solide ? » post-v0.6.0. L'item 1 (engagement de stabilité : `versioning.{en,fr}.md`, `SECURITY.md`, `GOVERNANCE.md`, `spec_version` dans les vecteurs) est **livré dans v0.6.0**. Les 9 suivants sont à traiter avant de tagger v1.0.
+
+### V1.0-A · Spec multi-planétaire (§3.1) · **M**
+Le manifeste §1 promet « multi-planétaire ». La spec ne définit rien au-delà de la Terre. À traiter **avant code** : amender la spec avec le drift sol↔jour (sol martien = 88 775,244 s ≠ 86 400 s, ratio non-entier). Plusieurs choix à trancher :
+- **Ancrage Mars** : Curiosity touchdown (2012-08-06T05:17:57Z) · Mars Pathfinder (1997-07-04) · ou Mars Sol Date 0 = 1873-12-29 (astronomique, neutre).
+- **Notation** : `Δ♂` / `Δ⊕` / `Δ☾` (symboles astronomiques) ou `Δ_Mars` / `Δ_Earth` (suffixes).
+- **Lune** : ancrage 1969-07-20T20:17:40Z (touchdown) ou même époque que Terre.
+- **Périmètre** : Mars + Lune uniquement, ou aussi Vénus / Jupiter / système solaire entier.
+- **Modèle de drift** : sol fixe à 88 775,244 s ou avec variations long terme (négligeable < quelques siècles).
+
+Livrables : `docs/spec/multi-planetary.{en,fr}.md` (annexe **normative**), `code/ats_mars.py`, `code/ats_moon.py`, page « Multi-planetary » avec horloges synchronisées, vecteurs `test-vectors-multi-planetary.json` (10+ par corps céleste).
+
+### V1.0-B · 3ᵉ implémentation de référence (Rust ou Go) · **L**
+Sans une implémentation hors Python + JS, l'argument « standard universel » ne passe pas un comité. À choisir :
+- **Rust** (`ats` crate sur crates.io) — argumentaire systèmes / IoT / embedded, `no_std`-friendly.
+- **Go** (module `github.com/s-geffroy/ats`) — argumentaire serveurs / CLI / infra cloud.
+- **Les deux** (effort 2× L).
+
+Périmètre minimal de chaque implémentation : core `gregorian_to_ats` / `ats_to_gregorian` + algèbre §11.4 + parser canonique/court. Bridges calendaires optionnels. **CI matrix étendue** (matrix Rust stable/nightly ou Go 1.21+). **74 vecteurs verts**.
+
+### V1.0-C · UI converter calendaire en JS · **M**
+Les 5 ponts (Hebrew, Islamic, Chinese, Hindu, Maya) sont Python-only. La promesse « universel » côté site n'est pas tenue. Porter Hebrew + Islamic + Maya (algorithmes courts, ~50–100 LoC chacun) en JS, ajouter dropdown calendar-source dans `clock-page.js`. Chinese (tables HKO 1900–2100) + Hindu (panchanga régional) restent Python-only documenté.
+
+### V1.0-D · Lighthouse réel en CI Linux · **S**
+Le harness `lighthouse/` existe mais Apple Silicon empêche l'exécution locale. **GitHub Actions Linux runner** qui exécute `lighthouse/run-lighthouse.sh` sur chaque PR + assert ≥ 90 sur 4 catégories (Performance / Accessibility / Best Practices / SEO) sur les 4 pages cibles. Échec bloque le merge.
+
+### V1.0-E · i18n minimal au-delà FR/EN · **M**
+Un « standard universel » en 2 langues européennes est une contradiction. Ajouter **navigation + UI horloge** dans ES, DE, ZH, JA (4 langues couvrant ≈ 50 % des locuteurs natifs). Manifeste reste FR/EN ; seul le chrome multilingue. Outils : `data-i18n` attribute + `i18n/<lang>.json` chargés par `site.js`.
+
+### V1.0-F · Tests durcis · **S**
+- **Property-based** (Hypothesis) sur round-trip Δ → grégorien → Δ aléatoire sur 1 000 instants.
+- **Bornes** : Δ très négatif (kilo grand), Δ très futur (kilo ≥ 10 000), parsing d'inputs malformés (regex injection, séparateurs incorrects, frac > 5 chiffres).
+- **Leap second policy §8** : test explicite sur les instants 2016-12-31T23:59:60Z (skip / fold avec POSIX day = 86 400 s).
+- **Performance regression** : `bench/test_perf.py` qui mesure `gregorian_to_ats` à < 50 µs et publie en CI ; alarme si régression > 2×.
+
+### V1.0-G · Background sync §5.6 — revoir · **S**
+Ce qui est livré (Periodic Background Sync) ne fonctionne que sur Chrome desktop/Android avec PWA installée + permission. Sur > 95 % des configs, ça ne notifie jamais. Trois options :
+- **Retirer** et documenter comme expérimental, garder seulement le fallback in-page sur `age.html`.
+- **Backend Web Push** (compte hébergement requis, ~5 €/mois).
+- **Conserver tel quel** avec bandeau d'avertissement explicite dans `age.html`.
+
+### V1.0-H · Branding & artefacts release · **M**
+- **`npm publish`** de `@s-geffroy/ats` (l'entrée existe dans `package.json`, mais jamais poussée).
+- **`twine upload`** de `ats-time` sur PyPI (idem pour `pyproject.toml`).
+- **GitHub Releases signées GPG** avec `git tag -s v0.6.0`.
+- Jeu favicon complet : `favicon.ico` (16/32/48), `apple-touch-icon.png` 180×180, `mstile-*.png` Windows.
+- Page « Press kit » : logo SVG/PNG en plusieurs résolutions, palette officielle (`#0b0f17 / #4a6cff / #e8eef7`), do/don't du symbole Δ.
+
+### V1.0-I · Adoption tierce (signal externe) · **L** (effort éditorial)
+v1.0 sans **≥ 3 utilisateurs externes documentés** reste un projet personnel auto-déclaré standard. Critères mesurables :
+- ≥ 100 ★ GitHub + 10 forks indépendants, OU
+- ≥ 1 projet OSS tiers qui dépend de `@s-geffroy/ats` ou `ats-time`, OU
+- ≥ 1 mention dans un article de blog tiers / talk de conf / RFC / discussion ISO.
+
+Précurseurs : `Show HN`, `Bluesky`, `Reddit r/ISO8601`, soumission lightning talk OSCON / FOSDEM, article de blog « Why ATS » (déjà cité plus bas).
+
+---
+
 ## Hors-roadmap (mais à garder en tête)
 
 - **Show HN / Bluesky / Reddit `r/ISO8601`** — campagne d'annonce après Vague 3 (PWA + multi-planétaire).
