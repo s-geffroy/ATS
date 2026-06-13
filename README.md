@@ -3,7 +3,7 @@
 > Standard temporel décimal, linéaire, universel — ancré sur le **début du jour** de l'alunissage d'Apollo 11 (1969‑07‑20T00:00:00Z). **Bloc 5 = 12:00 UTC.**
 
 **Symbole :** Δ
-**Statut :** Pré-release **v0.5** (manifeste et code synchronisés)
+**Statut :** Pré-release **v0.6.0** (Δ/Δd algebra · 5 ponts calendaires · PWA · Pagefind)
 **Site :** https://s-geffroy.github.io/ATS/ (bilingue FR / EN)
 **Badge :** [![I run on Δ ATS](https://s-geffroy.github.io/ATS/assets/badge.svg)](https://s-geffroy.github.io/ATS/)
 

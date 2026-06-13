@@ -1,3 +1,4 @@
+// ATS — Apollonian Time System v0.6 reference (browser).
 /**
  * <ats-clock> — Web Component for the Apollonian Time System.
  *

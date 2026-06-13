@@ -4,7 +4,7 @@ Toutes les modifications notables du projet ATS sont consignées ici.
 
 Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la nomenclature [SemVer](https://semver.org/lang/fr/).
 
-## [Unreleased] — v0.6.0 (en cours, Δ 20.7.8.2/45)
+## [0.6.0] — 2026-06-13 (Δ 20.7.8.2/48)
 
 ### Added — Recherche statique Pagefind (§5.3)
 - **Index Pagefind** dans `docs/_pagefind/` (~900 KB, généré au build via `docker run --rm -v "$PWD:/app" -w /app/docs node:20-slim sh -c "npx --yes pagefind --site . --output-path _pagefind"`) — 25 pages indexées sur 2 langues (FR + EN), 3 199 mots distincts.

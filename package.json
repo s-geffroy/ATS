@@ -1,7 +1,7 @@
 {
   "name": "@s-geffroy/ats",
-  "version": "0.5.0",
-  "description": "Apollonian Time System — decimal/linear time standard anchored to the day of the Apollo 11 lunar landing (1969-07-20T00:00:00Z).",
+  "version": "0.6.0",
+  "description": "Apollonian Time System — decimal/linear time standard anchored to the day of the Apollo 11 lunar landing (1969-07-20T00:00:00Z). Δ/Δd algebra, calendar bridges, PWA.",
   "license": "MIT",
   "author": "Sylvain Geffroy",
   "homepage": "https://s-geffroy.github.io/ATS/",
