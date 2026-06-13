@@ -1,0 +1,96 @@
+{
+  "description": "Indian National (Saka)↔ATS bridge — start-of-day UTC anchor",
+  "version": 1,
+  "vectors": [
+    {
+      "label": "Today (Saka 1948 Jyaishtha 23)",
+      "hindu": {
+        "year": 1948,
+        "month": 3,
+        "day": 23
+      },
+      "ats_canonical": "T+ Δ 20.7.8.2.00000"
+    },
+    {
+      "label": "Republic Day epoch (Saka 1879)",
+      "hindu": {
+        "year": 1879,
+        "month": 1,
+        "day": 1
+      },
+      "ats_canonical": "T- Δ 4.5.0.3.00000"
+    },
+    {
+      "label": "Saka 1945 mid-year",
+      "hindu": {
+        "year": 1945,
+        "month": 6,
+        "day": 15
+      },
+      "ats_canonical": "T+ Δ 19.7.7.1.00000"
+    },
+    {
+      "label": "Saka 2000 start",
+      "hindu": {
+        "year": 2000,
+        "month": 1,
+        "day": 1
+      },
+      "ats_canonical": "T+ Δ 39.6.9.2.00000"
+    },
+    {
+      "label": "Saka 1900 start",
+      "hindu": {
+        "year": 1900,
+        "month": 1,
+        "day": 1
+      },
+      "ats_canonical": "T+ Δ 3.1.6.7.00000"
+    },
+    {
+      "label": "Saka 1948 Phalguna 30",
+      "hindu": {
+        "year": 1948,
+        "month": 12,
+        "day": 30
+      },
+      "ats_canonical": "T+ Δ 21.0.6.3.00000"
+    },
+    {
+      "label": "Saka 1947 last day",
+      "hindu": {
+        "year": 1947,
+        "month": 12,
+        "day": 30
+      },
+      "ats_canonical": "T+ Δ 20.6.9.8.00000"
+    },
+    {
+      "label": "Saka 1950 mid",
+      "hindu": {
+        "year": 1950,
+        "month": 6,
+        "day": 1
+      },
+      "ats_canonical": "T+ Δ 21.5.8.4.00000"
+    },
+    {
+      "label": "Saka 1925 mid",
+      "hindu": {
+        "year": 1925,
+        "month": 7,
+        "day": 15
+      },
+      "ats_canonical": "T+ Δ 12.4.9.7.00000"
+    },
+    {
+      "label": "Saka 1880 mid",
+      "hindu": {
+        "year": 1880,
+        "month": 5,
+        "day": 10
+      },
+      "ats_canonical": "T- Δ 4.0.0.6.00000"
+    }
+  ]
+}
