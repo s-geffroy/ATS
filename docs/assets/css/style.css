@@ -634,6 +634,24 @@ a:hover { text-decoration: underline; }
   .cities-pin-icon { font-size: 10px; }
   .cities-tooltip { font-size: 0.82rem; min-width: 12rem; }
 }
+@media (max-width: 400px) {
+  /* Compact layout for small phones (iPhone SE 360 px etc.) */
+  .cities-legend { font-size: 0.78rem; gap: 0.3rem 0.6rem; }
+  .cities-tooltip { min-width: 11rem; padding: 0.45rem 0.55rem; }
+  .cities-pin-icon { font-size: 9px; }
+  .cities-pin-dot { stroke-width: 1; }
+}
+
+/* Print: hide chrome, expand content, prefer ink-saving. */
+@media print {
+  header.site, footer.site, .face-toggle, .converter, .actions,
+  .cities-controls, .cities-tooltip, .toast { display: none !important; }
+  main, .container { padding: 0; max-width: none; }
+  body { color: #000; background: #fff; }
+  a { color: inherit; text-decoration: none; }
+  details { open: true; }
+  details > summary { list-style: none; }
+}
 
 /* Options block at the end of the details panel */
 .options {

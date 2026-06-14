@@ -52,6 +52,7 @@ jobs:
           canonical = f'T+ Δ {kilo}.{hecto}.{deka}.{kin}.{frac_int:05d}'
           display = f'Δ{kilo}.{hecto}.{deka}.{kin}-{bc:02d}.{milli}'
           data = {
+              'spec_version': '0.7',
               'utc': now.strftime('%Y-%m-%dT%H:%M:%SZ'),
               'ats_canonical': canonical,
               'ats_display': display,

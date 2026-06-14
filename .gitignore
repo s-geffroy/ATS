@@ -24,3 +24,6 @@ build/
 # Local-only
 *.log
 .env
+*.local.json
+*.local.env
+.ruff_cache/
