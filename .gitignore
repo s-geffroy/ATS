@@ -27,3 +27,6 @@ build/
 *.local.json
 *.local.env
 .ruff_cache/
+
+# Lighthouse CI ephemeral reports (uploaded as workflow artifact, not committed)
+lighthouse/ci-reports/

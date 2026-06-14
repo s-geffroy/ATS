@@ -1,0 +1,54 @@
+name: Lighthouse
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel a running build if a newer push arrives on the same ref —
+# CI capacity goes to the newer code, not stale Lighthouse passes.
+concurrency:
+  group: lighthouse-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    name: Lighthouse mobile + desktop, 4 pages × 4 categories ≥ 90
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Lighthouse + chrome-launcher
+        run: npm install --no-save lighthouse@12 chrome-launcher@1
+
+      - name: Serve docs/ on :8088
+        # python3 is pre-installed on ubuntu-latest; no extra deps.
+        run: |
+          cd docs
+          python3 -m http.server 8088 --bind 127.0.0.1 >/tmp/server.log 2>&1 &
+          for i in {1..20}; do
+            curl -fsS http://127.0.0.1:8088/fr/index.html >/dev/null && break
+            sleep 0.5
+          done
+
+      - name: Run Lighthouse and assert ≥ 90 on every category
+        run: node lighthouse/ci-assert.mjs
+
+      - name: Upload full Lighthouse JSON reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: lighthouse/ci-reports/
+          retention-days: 14
