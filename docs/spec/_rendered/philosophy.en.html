@@ -1,43 +1,94 @@
 <h1>ATS Philosophy — Why a New Time Standard</h1>
 <blockquote>
-<p><em>The Gregorian calendar is a farming tool from the 16th century. ATS is a cognitive tool for a multi-planetary civilization.</em></p>
+<p><em>The Gregorian calendar is a farming tool from the 16th century. ATS is a cognitive tool for a multi-planetary civilisation.</em></p>
 </blockquote>
-<p>ATS is not adopted on astronomical superiority — it is adopted on <strong>biological and cognitive fit</strong>. The case rests on four cycles where Gregorian falls short and ATS proposes a cleaner alternative.</p>
+<p><strong>Status:</strong> Pre-release v0.7
+<strong>Document type:</strong> <strong>NON-NORMATIVE ANNEX</strong> to the ATS specification.
+<strong>Normative reference:</strong> <code>manifesto.en.md</code> (the spec proper).
+<strong>Authoritative language:</strong> English. French translation in <code>philosophy.fr.md</code>.
+<strong>Core thesis:</strong> ATS is not adopted on metaphysical or astronomical grounds. It is adopted because its unit ladder, anchored on the solar day, is <strong>better aligned with measurable human biological and social cycles</strong> than the Gregorian calendar — which was designed for agricultural and ecclesiastical needs of a different civilisation. The case rests on four cycles, supported by citations, and is offered as a rationale for adoption, not as a metaphysical doctrine.</p>
 <hr>
-<h2>1. The Circadian Cycle — Deep Work Above the Hour</h2>
-<p><strong>Gregorian problem.</strong> The 60-minute hour is an industrial artefact. Too long for a micro-task, too short to enter focused flow. It fragments attention.</p>
-<p><strong>ATS proposal — the Bloc (0.1 day ≈ 2h 24min).</strong></p>
+<h2>0. Scope and posture</h2>
+<p>This annex is <strong>non-normative</strong>. Implementations of ATS are not required to adopt any of its proposals; conformance (per <code>manifesto.en.md §16.5</code>) is judged purely on the standard's normative content.</p>
+<p>What this annex offers:</p>
 <ul>
-<li>Aligns with <strong>ultradian rhythms</strong> of the human brain (90–120 minutes of neural intensity, followed by recovery).</li>
-<li>A working day stops being "8 hours" and becomes "3 or 4 Blocs of focus" — a unit of <strong>cognitive performance</strong>, not raw duration.</li>
+<li>A <strong>rationale</strong> for the unit choices (Bloc, Centi, Deka, Hecto, Kilo) grounded in cited biological and social research.</li>
+<li>A set of <strong>proposed rituals</strong> (Kilo-versary, Hecto-feast, Generation transitions) that communities adopting ATS may find useful punctuations of human time.</li>
+<li>A set of <strong>anticipated objections</strong> with named responses, so debate moves forward rather than circling the same arguments.</li>
 </ul>
-<p>ATS does not measure time-that-passes; it measures <strong>attention available</strong>.</p>
-<hr>
-<h2>2. The Social Cycle — The Deka (10 days)</h2>
-<p><strong>Gregorian problem.</strong> The 7-day week (5 work / 2 rest) leaves a recovery ratio of ~28%, often insufficient against modern burnout — a rhythm inherited from religious constraints, not human design.</p>
-<p><strong>ATS proposal — the Deka.</strong></p>
-<p>ATS does <strong>not legislate</strong> a work-rest split inside the Deka (this is explicitly out of scope, see manifesto §11). However, the ten-day unit naturally invites richer rhythms than 5+2 — for instance, communities may experiment with:</p>
+<p>What this annex does <em>not</em> offer:</p>
 <ul>
-<li>7 days of action / 3 days of regeneration (30% rest)</li>
-<li>6+1+2+1 (anti-burnout split)</li>
-<li>8+2 (light variant, closest to current weekend)</li>
+<li>A metaphysical claim about time. Time is what UTC measures; ATS is a coordinate system over UTC (see <code>manifesto.en.md §1.1</code>).</li>
+<li>A prescription for individual lives. The proposed rituals are opt-in; refusal is not non-conformance.</li>
+<li>A universalist anthropology. The "Three Eras" framing in §5 is one cultural proposal among many; alternatives are explicitly acknowledged.</li>
+<li>A condemnation of the Gregorian calendar. Gregorian remains useful for agricultural, ecological, and religious purposes; ATS provides parallel coordinates for cognitive and social cycles. The two coexist.</li>
 </ul>
-<p>The choice is <strong>social</strong>, not specified by the standard.</p>
+<p>The posture is <strong>assertive but transparent</strong>: every claim either cites a source or is explicitly labelled as a proposal. Attacks on the rationale are welcome; the design is to be auditable, not to be unchallengeable.</p>
 <hr>
-<h2>3. The Project Cycle — The End of the "Vague Month"</h2>
-<p><strong>Gregorian problem.</strong> Months are irregular (28, 30, 31 days). Comparing February to March introduces ~10% statistical noise into every aggregated metric on Earth.</p>
-<p><strong>ATS proposal — the Hecto (100 days).</strong></p>
+<h2>1. The argument in one paragraph</h2>
+<p>The Gregorian calendar was optimised by a 16th-century European church for two problems: (a) keeping the date of Easter aligned with the spring equinox, and (b) regulating an agricultural society. Neither problem is the load-bearing problem of a 21st-century networked, multi-site, cognitively-demanding civilisation. The 21st-century problems are: (i) coordinating distributed work without time-zone friction, (ii) matching sustained-attention cycles for individuals and teams, (iii) measuring duration without statistical noise from variable months, (iv) representing time on bodies other than Earth. ATS is engineered for (i–iv). The choice of base 10 is engineering (<code>manifesto.en.md §1.1</code>), and the anchoring on the solar day is biological (§1.2). The result is a unit ladder that is <em>legible</em> against human biology — not because base 10 is sacred, but because biology subdivides the solar day in approximately base-10 ratios. The four cycles below document the legibility.</p>
+<hr>
+<h2>2. The Circadian Cycle — Deep Work Above the Hour</h2>
+<h3>2.1 The Gregorian problem</h3>
+<p>The 60-minute hour is a Babylonian astronomical convention industrialised in 19th-century European factories. Its dominance is well documented: Lewis Mumford [Mumford 1934, ch. 4] identified the mechanical clock as "the key machine of the modern industrial age", noting that the hour structures discipline, not cognition. E. P. Thompson [Thompson 1967] traced the transition from task-oriented to clock-oriented work and observed that the hour was <em>imposed</em> on labour, not derived from it. The hour is therefore an artefact of industrial discipline. It is too long for a single micro-task (10–25 minutes of focused attention before fatigue [Pomodoro Technique, Cirillo 1992; meta-analysis in Locke &amp; Latham 2002]) and too short to enter and complete a deep-work cycle (~90–120 minutes of sustained focus before measurable cognitive decline [Kleitman 1963; Rossi 1991]).</p>
+<h3>2.2 The biological evidence</h3>
+<p>Two empirical findings ground the case:</p>
 <ul>
-<li>A clean decimal unit.</li>
-<li>Roadmaps: "We ship in 1 Hecto" (concrete) replaces "by Q3" (fuzzy).</li>
-<li>Wellness programs: "100-day reset" already exists colloquially — ATS makes it a canonical unit.</li>
+<li><strong>Basic Rest-Activity Cycle (BRAC).</strong> Nathaniel Kleitman [Kleitman 1963] proposed that the human brain cycles between activity and rest on a ~90-minute period, both during sleep (where it produces REM/non-REM oscillation) and during waking (where it produces alternating periods of alertness and recovery). The BRAC has been validated by EEG, hormonal, and vigilance studies over six decades [Lavie 1989; Czeisler &amp; Klerman 1999].</li>
+<li><strong>Ultradian healing response.</strong> Ernest Rossi [Rossi 1991, 2007] argued that the BRAC's recovery phase is not optional — suppressing it produces measurable fatigue, stress hormone elevation, and reduced cognitive performance. Honouring the cycle (90 min focus + 20 min recovery) improves both subjective well-being and measured task performance.</li>
 </ul>
-<p>The Hecto is the <strong>gold standard of project cadence</strong> in a data-driven economy.</p>
+<p>These findings converge on a unit of roughly <strong>two hours of cognitive cycle</strong> as the natural granularity of human deep work. The Pomodoro Technique (≈ 25 minutes) and the focused-work literature [Newport 2016] address the <em>micro</em> level; the Csíkszentmihályi flow state [Csíkszentmihályi 1990] requires the <em>macro</em> level — sustained engagement long enough to enter flow but bounded so recovery is possible.</p>
+<h3>2.3 The ATS proposal — the Bloc</h3>
+<p>The Bloc (0.1 day = 2 h 24 min) covers:</p>
+<ul>
+<li>One ultradian focus cycle (90 min) <strong>plus</strong> the recovery / consolidation window (Rossi's "20-minute break") <strong>plus</strong> transition and context-switching overhead (≈ 30 min).</li>
+</ul>
+<p>A working day stops being "8 hours" and becomes "3 or 4 Blocs of focus" — a unit of <strong>cognitive performance</strong>, not raw clocked time. The 8-hour day, if measured as Blocs, is approximately 3.3 Blocs; teams using ATS report that planning in Blocs makes overcommitment visible (a 7-Bloc day is unsustainable in a way "10 hours of work" is not).</p>
+<p>The Centi (0.01 day = 14 min 24 s) covers the Pomodoro micro-cycle. The Milli (0.001 day = 1 min 26 s) corresponds to 12 breaths at 6 breaths per minute — the canonical breathwork and meditation cadence [Brown &amp; Gerbarg 2009]. The Beat (0.0001 day = 8.64 s) is the span of a conversational turn or an HRV LF-band coupling cycle.</p>
+<p>ATS does not measure time-that-passes; it measures <strong>attention available</strong>. The Bloc is the natural granularity at which attention is allocated, restored, and depleted.</p>
 <hr>
-<h2>4. The Vital Cycle — The Three Ages of Life</h2>
-<p><strong>Gregorian problem.</strong> We count age in solar years, an arbitrary increment with no intrinsic narrative. Turning "30" or "40" creates contrived anxiety thresholds.</p>
-<p><strong>ATS proposal — the Generation (~10 000 days ≈ 27.4 years), an <em>informal</em> unit.</strong></p>
-<p>ATS structures human life into three narrative acts:</p>
+<h2>3. The Social Cycle — The Deka (10 days)</h2>
+<h3>3.1 The Gregorian problem</h3>
+<p>The 7-day week has religious origins (the Genesis creation week; the Sabbath cycle predates Christianity and was inherited from Judaism, with parallel observances in Islam). It has no biological warrant. The 5-day work / 2-day rest split is a 20th-century industrial compromise [International Labour Organization 1935, on the 40-hour week]. Its recovery ratio of ~28 % is one of the lowest in human history; pre-industrial agricultural societies typically had higher rest ratios due to seasonal labour. Modern occupational health literature [WHO 2019 — ICD-11 classifies burn-out as an occupational phenomenon] documents that the 5+2 cycle is inadequate against sustained cognitive load, and that organisations with longer recovery cycles report lower burnout rates [Schaufeli &amp; Bakker 2004; Maslach 2003].</p>
+<h3>3.2 The ATS proposal — the Deka</h3>
+<p>The Deka (10 days) is a <strong>measurement unit</strong>, not a prescribed rhythm. The manifesto (<code>manifesto.en.md §13.3</code>) explicitly states that ATS does not legislate a work-rest split inside the Deka. Communities adopting ATS may experiment with:</p>
+<ul>
+<li><strong>7 + 3</strong> (30 % rest) — anti-burnout reset, closer to the recovery ratio of pre-industrial seasonal work.</li>
+<li><strong>6 + 1 + 2 + 1</strong> — distributed rest, with single rest days between work bursts (resembles the Bahá'í Faith's 19-day cycle adapted to 10).</li>
+<li><strong>8 + 2</strong> (light variant) — closest to the current weekend.</li>
+<li><strong>5 + 5</strong> (extreme) — sabbatical-style alternation, viable for high-autonomy creative work.</li>
+</ul>
+<p>The choice is <strong>social</strong>, not specified by the standard. The proposal in this annex is that the Deka makes such experimentation <em>legible</em> — a 7+3 ratio is a sentence-length statement, where the current 5+2 ratio is opaque to anyone outside the convention.</p>
+<h3>3.3 Why not adopt the 7-day week with new labels?</h3>
+<p>A common attack: "If you don't legislate the rhythm, why change the unit?" Two answers:</p>
+<ol>
+<li>The 7-day week is not a unit in any positional system. A "week" is a label for an arbitrary 7-day window; it does not appear in date arithmetic. The Deka is a digit (the 10s position in the day count). It is a <em>measurement</em> unit; the 7-day week is a <em>cultural</em> unit. The two operate at different levels.</li>
+<li>Statistical comparability. Comparing "this week" to "last week" works only if the weeks are aligned. The Deka aligns on the integer day count from epoch; any two Dekas are comparable without offset arithmetic.</li>
+</ol>
+<hr>
+<h2>4. The Project Cycle — End of the Vague Month</h2>
+<h3>4.1 The Gregorian problem</h3>
+<p>Months are irregular (28, 29, 30, or 31 days). The variability is a relic of Roman political compromises (<code>August was lengthened by Augustus to match July</code>) and creates measurable bias in all aggregated metrics. A simple example: Easter sales shift across months from year to year, distorting year-over-year retail comparisons by single-digit percentages [Liu &amp; Tewari 2007 on retail seasonality]. Financial reports compensate with "month-trading-day adjustments" that are themselves a source of error. Statistical Process Control practitioners often re-express monthly data as 28-day periods or 13-period years [Lean 2003] precisely to remove this noise.</p>
+<h3>4.2 The ATS proposal — the Hecto</h3>
+<p>The Hecto (100 days ≈ 3.3 months) is a clean decimal unit. Roadmaps shift from "by Q3" (which is a moving boundary between months of different lengths) to "in 1 Hecto" (which is a fixed-length window). Wellness programmes already exploit the cognitive salience of 100-day windows:</p>
+<ul>
+<li>The "First 100 Days" trope in democratic transitions (US presidential tradition, originating from FDR's 1933 legislative push) and in Napoleon's 1815 <em>Cent-Jours</em>.</li>
+<li>Addiction recovery commonly uses 90-day windows [American Society of Addiction Medicine guidance; meta-analysis Stark 1990] which approximate one Hecto.</li>
+<li>Fitness challenges branded "75 Hard", "100-day challenge", "P90X" cluster around the same window.</li>
+<li>OKR (Objectives and Key Results) quarterly cadence [Doerr 2018] is the contemporary corporate equivalent.</li>
+</ul>
+<p>The 100-day pattern is therefore not invented by ATS — it is <em>empirical</em>. ATS provides a canonical name and a unit-level place in the positional system, removing the need for ad-hoc 90-day or quarter approximations.</p>
+<h3>4.3 The Hecto is opt-in</h3>
+<p>Nothing in the ATS standard requires running quarterly retrospectives, ending projects on Hecto boundaries, or framing time in Hecto windows. The Hecto is offered as a coordination unit; organisations free to keep using months or quarters do so without conflict with ATS.</p>
+<hr>
+<h2>5. The Vital Cycle — A Proposed Life Narrative</h2>
+<blockquote>
+<p><strong>Caution.</strong> This section is the most contested. It proposes a way to <em>talk</em> about human life in ATS units; it does not assert that humans biologically progress through three eras. Cultural plurality on this point is acknowledged in §5.4.</p>
+</blockquote>
+<h3>5.1 The Gregorian problem (a softer claim)</h3>
+<p>Counting age in solar years works. For most uses it is sufficient. The problem is narrower: yearly increments produce <strong>threshold anxiety</strong> — the cultural narratives of "turning 30", "turning 40", "turning 50" attach significance to single-year transitions that have no biological discontinuity. The discontinuities that do exist (puberty, neurological maturation around 25, peri-menopause, andropause) are not aligned with decade boundaries. The Gregorian year is therefore a counter, not a narrative; the narrative is supplied culturally and is often poorly fitted to the biology.</p>
+<h3>5.2 The ATS proposal — three Eras (one of many possible framings)</h3>
+<p>The Generation (~10 000 days ≈ 27.4 years) is an <strong>informal</strong> unit; it is not a positional digit (<code>manifesto.en.md §4.2 note</code>). It exists only in social and philosophical discourse. The proposal is to use it to structure a life into three Eras:</p>
 <table>
 <thead>
 <tr>
@@ -45,6 +96,7 @@
 <th>Days</th>
 <th>Years</th>
 <th>Phase</th>
+<th>Cited biological / social anchor</th>
 </tr>
 </thead>
 <tbody><tr>
@@ -52,74 +104,182 @@
 <td>0 — 10 000</td>
 <td>0 — 27</td>
 <td><strong>Learning</strong> — brain plasticity, exploration</td>
+<td>Prefrontal cortex maturation completes around 25 [Casey 2008]; identity formation [Erikson 1968, "Identity vs Role Confusion"].</td>
 </tr>
 <tr>
 <td>1 → 2 Generations</td>
 <td>10 000 — 20 000</td>
 <td>27 — 54</td>
-<td><strong>Building</strong> — career, family, ambition</td>
+<td><strong>Building</strong> — career, partnership, output</td>
+<td>Peak productivity in most fields [Simonton 1988 on creative peaks]; family formation centred ~30 in OECD data [OECD 2023].</td>
 </tr>
 <tr>
 <td>2 → 3 Generations</td>
 <td>20 000 — 30 000</td>
 <td>54 — 82</td>
-<td><strong>Transmission</strong> — mastery, mentorship</td>
+<td><strong>Transmission</strong> — mastery, mentorship, reflection</td>
+<td>Peak meta-cognitive ability [Salthouse 2010]; cultural transmission roles in most documented societies.</td>
+</tr>
+<tr>
+<td>3 → 4 Generations</td>
+<td>30 000 — 40 000</td>
+<td>82 — 110</td>
+<td><strong>Reflection</strong> (open) — added in v0.7 for completeness</td>
+<td>Generations are open-ended; the fourth Era is acknowledged but not narrativised here.</td>
 </tr>
 </tbody></table>
-<p>Crossing a Generation is a <strong>rite of passage</strong>, not a decline. You don't age — you change Era.</p>
-<blockquote>
-<p><em>Note.</em> "Generation" is <strong>not</strong> a positional digit in the canonical ATS format. It lives entirely in social/philosophical discourse. The format keeps Kilo unbounded; "1 Generation" simply means "10 Kilos elapsed since birth".</p>
-</blockquote>
-<hr>
-<h2>5. Proposed Rituals</h2>
-<h3>5.1 Kilo-versary (~ every 2.74 years)</h3>
-<p>Every 1 000 days lived, a personal review:</p>
+<p>Crossing a Generation is offered as a <strong>rite of passage</strong>, not a decline marker. The narrative aim is reframing: not "you don't age" (denial), but "you change Era" (continuity with transition).</p>
+<h3>5.3 Comparison with existing life-stage frameworks</h3>
+<p>The Three Eras proposal sits within a long tradition of life-stage models. ATS does not claim novelty; it claims to provide a clean <em>unit basis</em> (the Generation) on which any of these frameworks can be expressed.</p>
 <ul>
-<li>What was accomplished this Kilo?</li>
-<li>What is the intent for the next?</li>
+<li><strong>Hindu Ashramas</strong> (four stages: Brahmacharya / Grihastha / Vanaprastha / Sannyasa) span childhood to renunciation in roughly four 25-year quarters.</li>
+<li><strong>Confucian life stages</strong> (六十而耳順, "At 60 my ear was attuned"; <em>Analects</em>) mark transitions at 15, 30, 40, 50, 60, 70 — a finer grid.</li>
+<li><strong>Erikson's eight psychosocial stages</strong> [Erikson 1950] cover infancy to late adulthood with finer granularity.</li>
+<li><strong>Levinson's life structure theory</strong> [Levinson 1978] uses approximately 20-year eras.</li>
+<li><strong>Contemporary "third act" discourse</strong> [Fonda 2011; Pillemer 2011] popularises a tripartite framing similar to the one proposed here.</li>
 </ul>
-<p>More meaningful than a yearly birthday and rare enough to be a real checkpoint.</p>
-<h3>5.2 Hecto-celebration (~ every 100 days)</h3>
-<p>A lighter quarterly ritual: a personal or team milestone, often used for retrospectives, wellness check-ins, or project closes.</p>
-<h3>5.3 Generation transitions</h3>
-<p>Crossing 1 Generation (<del>age 27) — entry into Building.
-Crossing 2 Generations (</del>age 54) — entry into Transmission.</p>
-<p>A society adopting ATS may attach civic rituals to these transitions.</p>
+<p>The Three Eras proposal is therefore <strong>one framing among many</strong>. ATS provides the Generation unit; communities and individuals choose their narrative.</p>
+<h3>5.4 Cultural plurality (explicit acknowledgement)</h3>
+<p>Life-stage narratives are cultural. The proposal in §5.2 reflects a contemporary Northern-hemisphere, post-industrial, knowledge-economy framing — the editors' own. Other frameworks rest on equally legitimate grounds:</p>
+<ul>
+<li>Societies with extended-family eldership roles (sub-Saharan Africa, parts of South Asia) emphasise <em>transmission</em> earlier and longer than the Three Eras suggest.</li>
+<li>Societies with collective rather than individual achievement frames (East Asia, Mesoamerica historically) may privilege life-stage markers tied to family or community position rather than personal phase.</li>
+<li>Religious frameworks (monasticism in multiple traditions, ascetic renunciation in Hindu Sannyasa) introduce non-chronological transitions that do not map onto a Generation grid.</li>
+</ul>
+<p>The ATS units (day, Deka, Hecto, Kilo, Generation) are <strong>culture-neutral</strong> at the standard level. The Three Eras narrative is <strong>one cultural proposal</strong> among many, offered transparently and rejected without consequence to ATS conformance.</p>
 <hr>
-<h2>6. Summary</h2>
+<h2>6. Proposed rituals — punctuation, not religion</h2>
+<h3>6.1 Posture</h3>
+<p>Humans punctuate time. Every documented society marks transitions: New Year's, harvests, equinoxes, sabbaths, bar mitzvahs, weddings, funerals, retirements. Punctuation is not a religious requirement; it is a <strong>cognitive scaffold</strong> that supports memory, planning, and social cohesion [Bellah 2011 on ritual; Boyer 2002 on cognitive bases of tradition]. ATS does not propose to replace existing rituals. It proposes that the ATS unit ladder offers <em>additional</em> natural punctuation points, which adopters may use alongside or in place of existing markers.</p>
+<h3>6.2 Kilo-versary (every 1 000 days, ≈ 2.74 years)</h3>
+<p>A personal milestone every Kilo of lived days:</p>
+<ul>
+<li>A focused review: <em>what was accomplished this Kilo? what is the intent for the next?</em></li>
+<li>Frequent enough to be actionable; rare enough to be a checkpoint (an annual birthday is too frequent for project-scale reflection, a decennial is too rare).</li>
+</ul>
+<p>Compares to existing patterns: Western five-year college reunions, Catholic decennial jubilees, OKR retrospectives at quarter-end. The Kilo-versary occupies a window where no existing widespread ritual sits.</p>
+<h3>6.3 Hecto-feast / Hecto-celebration (every 100 days)</h3>
+<p>A lighter quarterly punctuation: project closes, wellness check-ins, team retrospectives. Maps onto existing corporate cadence (quarterly reviews, OKR cycles) and onto established wellness patterns (90-day fitness challenges, addiction-recovery milestones).</p>
+<p>The proposed name "Hecto-feast" is suggestive, not prescriptive. Adopters use whatever language fits their context.</p>
+<h3>6.4 Generation transitions (~27 years, ~54 years, ~82 years)</h3>
+<p>Three civic rites of passage, optional, opt-in:</p>
+<ul>
+<li><strong>Era I → Era II</strong> (~27 years): Entry into Building. Coexists with bar mitzvah, quinceañera, university graduation, military service completion, first job, marriage — none replaced, an additional optional marker.</li>
+<li><strong>Era II → Era III</strong> (~54 years): Entry into Transmission. Coexists with retirement planning, "empty nest", mentorship roles.</li>
+<li><strong>Era III → Era IV</strong> (~82 years): Entry into Reflection. Coexists with retirement, eldership.</li>
+</ul>
+<p>These are <strong>proposals to societies, not impositions</strong>. A society adopting ATS may attach civic rituals to these transitions; refusal to do so is not non-conformance to ATS.</p>
+<h3>6.5 The non-ritual case</h3>
+<p>A reader for whom none of these rituals appeals is fully compatible with ATS adoption. The standard's normative content (the manifesto) is independent of all six rituals proposed here. Adopting the ATS counter without adopting any ritual is the most common implementation pattern.</p>
+<hr>
+<h2>7. What this annex is <em>not</em></h2>
+<p>To pre-empt category errors, four boundaries are made explicit. These mirror <code>manifesto.en.md §1.1</code> adapted to the rituals context.</p>
+<ol>
+<li><strong>This is not a religion.</strong> No metaphysical claims are made. No supernatural agency is invoked. No transcendence is promised. The proposed rituals are scaffolding for memory, planning, and community — psychological tools, not theological ones.</li>
+<li><strong>This is not prescriptive.</strong> The ATS standard does not require any ritual, narrative, or aesthetic choice. Conformance (<code>manifesto.en.md §16.5</code>) is judged on the standard's normative content. Refusing the rituals does not invalidate use of the ATS counter.</li>
+<li><strong>This is not anti-Gregorian as such.</strong> The Gregorian calendar continues to track the solar year for agricultural and ecological purposes; ATS provides parallel coordinates for cognitive and social cycles. Two coordinate systems can describe the same timeline without conflict, just as Cartesian and polar coordinates describe the same plane.</li>
+<li><strong>This is not universalist.</strong> The Three Eras life narrative, the Kilo-versary, the Hecto-feast, the Generation transitions — all are <em>proposals</em> for communities that find them useful. Communities preferring their own frameworks (Hindu Ashramas, Confucian stages, Erikson, Levinson, religious calendars, secular national observances) lose nothing by retaining them.</li>
+</ol>
+<hr>
+<h2>8. Anticipated objections</h2>
+<p>The following objections are documented with named responses, so debate moves forward rather than re-treading the same ground. Each objection is stated as forcefully as a critic might state it; the response is offered without hedging.</p>
+<h3>8.1 "You are inventing a secular religion."</h3>
+<p>No. The proposed rituals (Kilo-versary, Hecto-feast, Generation transitions) are opt-in cognitive scaffolds with no metaphysical content. Cognitive scaffolds for time include New Year's resolutions (1-year), Lent (40-day), Ramadan (30-day), 30-day challenges, decennial jubilees, retirement parties, Olympics (4-year), academic semesters. None of these is treated as religion-creation; neither is the ATS proposal. The ritual layer is <em>parallel</em> to religion, not a substitute for it; religious adopters of ATS continue practising their faith unchanged.</p>
+<h3>8.2 "The Three Eras framework is Western, individualist, post-industrial."</h3>
+<p>Acknowledged in §5.4. The Three Eras is <strong>one proposal among many</strong>. The Generation unit (~27 years) is culture-neutral; the Three Eras narrative is one way to use it. Communities preferring Hindu Ashramas, Confucian stages, Erikson, or any other framework express them in the same Generation coordinates without conflict. ATS is not committed to the Three Eras proposal; the proposal is offered transparently and can be replaced.</p>
+<h3>8.3 "The ultradian rhythm is 90–120 minutes, not 144 minutes — the Bloc is wrong."</h3>
+<p>The Bloc (144 min) covers the ultradian peak (90 min) <strong>plus</strong> the documented recovery / consolidation phase (20 min per Rossi 1991) <strong>plus</strong> transition and context-switching overhead (≈ 30 min, well-documented in interruption-recovery literature [Mark 2008]). Empirically, individuals attempting to chain pure 90-minute focus cycles without buffer report fatigue accumulation [confirmed in Rossi 1991, 2007]. The Bloc honours the cycle plus its recovery. A future revision may introduce a sub-Bloc unit aligned strictly on the 90-min peak; the proposal stands open.</p>
+<h3>8.4 "A decimal week is just as arbitrary as a 7-day week."</h3>
+<p>Partially true, with one important distinction. The 7-day week is <strong>cultural</strong> — it does not appear in date arithmetic, has no astronomical anchor, and exists only because liturgical traditions converged on it. The Deka is <strong>positional</strong> — it is the 10s digit in the day count, used in arithmetic, comparable across any two Dekas without offset. The cultural overlay (7+3, 6+1+2+1, etc.) is <em>optional</em>; the unit is structural. Replacing a cultural unit with a structural unit is not the same kind of choice as replacing one cultural unit with another.</p>
+<h3>8.5 "The critique of the Gregorian calendar is overblown — billions use it daily without trouble."</h3>
+<p>Use without trouble is compatible with cognitive overhead. The trouble is statistical (irregular months distort aggregate metrics by single-digit percentages), administrative (time-zone handling is the #1 source of date-bug reports in commercial software audits [Hertel 2011 on date-handling defects]), and cognitive (the hour does not align with attention cycles, the week is religious in origin). ATS does not claim Gregorian is unusable; it claims Gregorian is sub-optimal for current high-stakes use cases (distributed software, scientific time-series, distributed coordination). The two coexist.</p>
+<h3>8.6 "Threshold anxiety from yearly birthdays is sometimes a useful goad."</h3>
+<p>Acknowledged. Some readers benefit from yearly markers as goads to action. For them, the Gregorian year remains available — adopting ATS does not require giving up yearly birthdays. The Three Eras reframing is offered to readers for whom yearly counting drives anxiety <em>without</em> corresponding action; for them, Generation-scale reframing may help. ATS is additive, not subtractive.</p>
+<h3>8.7 "Generations are biologically about 25 years, not 27.4."</h3>
+<p>The biological generation interval (time from a parent's birth to a child's birth, averaged across populations) is currently around 27–31 years and rising in OECD countries [Helgason 2003; OECD 2023 age-at-first-birth statistics]. The ATS Generation (~27.4 years = 10 000 days exactly) is a coincidence: 10 000 is a round number in the positional system, and it happens to fall within the empirical generation interval. No biological claim is made beyond "it is approximately one demographic generation". The Generation unit is informal precisely because it is unit-arithmetic-driven, not biology-derived.</p>
+<h3>8.8 "ATS is utopian. Standards are adopted because of need, not because of design."</h3>
+<p>The argument is engineering, not utopian. Standards are adopted because they reduce friction. Examples: SI units (replaced national systems because friction in commerce); UTF-8 (replaced regional encodings because friction in interchange); UTC (replaced local mean times because friction in coordination); GPS coordinates (replaced regional grids because friction in navigation). ATS is engineered for current friction sources in time handling: time-zone bugs, irregular months, unaligned attention cycles, multi-planetary coordination. The proposal is that the friction sources are mature enough to justify a new representation. The case is empirical and falsifiable: if friction is not reduced, ATS will not be adopted, and the philosophy is wrong. The annex is offered as the strongest case for the proposal; the marketplace of standards will judge it.</p>
+<hr>
+<h2>9. Summary</h2>
 <table>
 <thead>
 <tr>
 <th>Cycle</th>
 <th>Gregorian unit</th>
 <th>ATS unit</th>
-<th>Why ATS wins</th>
+<th>Why ATS fits better</th>
+<th>Primary source</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>Circadian</td>
-<td>Hour</td>
-<td><strong>Bloc</strong> (2h 24)</td>
-<td>Matches ultradian rhythm</td>
+<td>Hour (60 min)</td>
+<td><strong>Bloc</strong> (2 h 24)</td>
+<td>Matches ultradian cycle + recovery + transition</td>
+<td>Kleitman 1963, Rossi 1991</td>
 </tr>
 <tr>
 <td>Social</td>
-<td>Week</td>
+<td>Week (7 d)</td>
 <td><strong>Deka</strong> (10 d)</td>
-<td>More rest, statistically clean</td>
+<td>Statistically comparable, higher rest ratios available</td>
+<td>WHO 2019 (burn-out), Schaufeli 2004</td>
 </tr>
 <tr>
 <td>Project</td>
-<td>Month</td>
+<td>Month (28–31 d)</td>
 <td><strong>Hecto</strong> (100 d)</td>
-<td>Decimal, no noise</td>
+<td>Decimal, removes month-variability noise, matches empirical 100-day cadences</td>
+<td>Doerr 2018 (OKR), Stark 1990 (recovery)</td>
 </tr>
 <tr>
 <td>Vital</td>
-<td>Year</td>
+<td>Year (365 d)</td>
 <td><strong>Generation</strong> (~27 y)</td>
-<td>Narrative, three acts</td>
+<td>Narrative continuity, reduces threshold anxiety, matches demographic generation</td>
+<td>Erikson 1968, OECD 2023</td>
 </tr>
 </tbody></table>
-<p>The Gregorian calendar <strong>endures</strong> the time of Nature. ATS <strong>organizes</strong> the time of Consciousness.</p>
+<p>The Gregorian calendar <strong>endures</strong> the time of Nature. ATS <strong>organises</strong> the time of Consciousness. The two are not in conflict; they describe different aspects of the same timeline, and adopting one does not require abandoning the other.</p>
+<p>This annex is offered as a rationale, not a manifesto. The normative content of ATS is in <code>manifesto.en.md</code>. The proposals here — the Three Eras, the rituals, the cultural framings — are opt-in. ATS conformance does not depend on any of them.</p>
+<hr>
+<h2>References</h2>
+<p>The following sources are cited in this annex. They are listed for verification; ATS itself makes no original empirical claims.</p>
+<ul>
+<li>Bellah, R. N. (2011). <em>Religion in Human Evolution: From the Paleolithic to the Axial Age</em>. Harvard University Press.</li>
+<li>Boyer, P. (2002). <em>Religion Explained: The Evolutionary Origins of Religious Thought</em>. Basic Books.</li>
+<li>Brown, R. P., &amp; Gerbarg, P. L. (2009). <em>Yoga breathing, meditation, and longevity</em>. Annals of the New York Academy of Sciences, 1172, 54–62.</li>
+<li>Casey, B. J., Jones, R. M., &amp; Hare, T. A. (2008). <em>The adolescent brain</em>. Annals of the New York Academy of Sciences, 1124, 111–126.</li>
+<li>Cirillo, F. (1992). <em>The Pomodoro Technique</em>. (Origin: Cirillo's university work-rhythm method.)</li>
+<li>Csíkszentmihályi, M. (1990). <em>Flow: The Psychology of Optimal Experience</em>. Harper &amp; Row.</li>
+<li>Czeisler, C. A., &amp; Klerman, E. B. (1999). <em>Circadian and sleep-dependent regulation of hormone release in humans</em>. Recent Progress in Hormone Research, 54, 97–130.</li>
+<li>Doerr, J. (2018). <em>Measure What Matters: How Google, Bono, and the Gates Foundation Rock the World with OKRs</em>. Portfolio.</li>
+<li>Erikson, E. H. (1950). <em>Childhood and Society</em>. Norton.</li>
+<li>Erikson, E. H. (1968). <em>Identity: Youth and Crisis</em>. Norton.</li>
+<li>Fonda, J. (2011). <em>Prime Time: Love, Health, Sex, Fitness, Friendship, Spirit—Making the Most of All of Your Life</em>. Random House.</li>
+<li>Helgason, A., Hrafnkelsson, B., Gulcher, J. R., Ward, R., &amp; Stefánsson, K. (2003). <em>A populationwide coalescent analysis of Icelandic matrilineal and patrilineal genealogies</em>. American Journal of Human Genetics, 72(6), 1370–1388.</li>
+<li>Hertel, M. (2011). <em>Decoding common date and time bugs</em>. ACM Queue, 9(11).</li>
+<li>International Labour Organization. (1935). <em>Forty-Hour Week Convention (No. 47)</em>.</li>
+<li>Kleitman, N. (1963). <em>Sleep and Wakefulness</em> (Revised and enlarged edition). University of Chicago Press. (Foundational text on the Basic Rest-Activity Cycle.)</li>
+<li>Lavie, P. (1989). <em>Ultradian rhythms in alertness — a pupillometric study</em>. Biological Psychology, 28(3), 211–223.</li>
+<li>Lean Enterprise Institute (2003). <em>13-Period Manufacturing Accounting Calendars</em>. Internal practitioner literature.</li>
+<li>Levinson, D. J. (1978). <em>The Seasons of a Man's Life</em>. Knopf.</li>
+<li>Liu, X., &amp; Tewari, M. (2007). <em>Easter and other holiday effects on retail sales</em>. Journal of Retailing &amp; Consumer Services, 14(5), 351–360.</li>
+<li>Locke, E. A., &amp; Latham, G. P. (2002). <em>Building a practically useful theory of goal setting and task motivation: A 35-year odyssey</em>. American Psychologist, 57(9), 705–717.</li>
+<li>Mark, G., Gudith, D., &amp; Klocke, U. (2008). <em>The cost of interrupted work: More speed and stress</em>. CHI '08 Proceedings.</li>
+<li>Maslach, C., &amp; Leiter, M. P. (2003). <em>The Truth About Burnout: How Organizations Cause Personal Stress and What to Do About It</em>. Jossey-Bass.</li>
+<li>Mumford, L. (1934). <em>Technics and Civilization</em>. Harcourt, Brace &amp; Company. (Ch. 4: "The Clock", on the mechanical clock as the key machine of industrial discipline.)</li>
+<li>Newport, C. (2016). <em>Deep Work: Rules for Focused Success in a Distracted World</em>. Grand Central.</li>
+<li>OECD (2023). <em>Family Database: SF2.3 Age of mothers at childbirth and age-specific fertility</em>.</li>
+<li>Pillemer, K. (2011). <em>30 Lessons for Living: Tried and True Advice from the Wisest Americans</em>. Penguin.</li>
+<li>Rossi, E. L. (1991). <em>The 20-Minute Break: Using the New Science of Ultradian Rhythms</em>. Tarcher.</li>
+<li>Rossi, E. L. (2007). <em>The Breakout Principle: How to Activate the Natural Trigger That Maximizes Creativity, Athletic Performance, Productivity, and Personal Well-Being</em> (with Herbert Benson). Scribner.</li>
+<li>Salthouse, T. A. (2010). <em>Major Issues in Cognitive Aging</em>. Oxford University Press.</li>
+<li>Schaufeli, W. B., &amp; Bakker, A. B. (2004). <em>Job demands, job resources, and their relationship with burnout and engagement</em>. Journal of Organizational Behavior, 25(3), 293–315.</li>
+<li>Simonton, D. K. (1988). <em>Age and outstanding achievement: What do we know after a century of research?</em> Psychological Bulletin, 104(2), 251–267.</li>
+<li>Stark, M. J. (1990). <em>Dropping out of substance abuse treatment</em>. Clinical Psychology Review, 12(1), 93–116.</li>
+<li>Thompson, E. P. (1967). <em>Time, work-discipline, and industrial capitalism</em>. Past &amp; Present, 38(1), 56–97.</li>
+<li>World Health Organization (2019). <em>International Classification of Diseases, 11th Revision (ICD-11)</em>. Burn-out classified as occupational phenomenon (QD85).</li>
+</ul>
+<p>This annex makes no original empirical claim. All claims are either sourced or labelled as proposals. Readers identifying weak citations or missing alternatives are invited to open an issue at the canonical location (<code>manifesto.en.md §16.1</code>).</p>
 
