@@ -33,6 +33,7 @@ from ats import (
     ATSDuration,
     _integer_days_to_places,
     _split_abs_days_floor,
+    _US_PER_DAY,
 )
 
 # -- Body registry -------------------------------------------------------
@@ -235,7 +236,7 @@ def utc_to_body(utc: datetime, body: Body) -> BodyATSDateTime:
     if utc.tzinfo is None:
         raise ValueError("utc must be timezone-aware")
     delta = utc - body.epoch
-    total_us = delta.days * 86_400_000_000 + delta.seconds * 1_000_000 + delta.microseconds
+    total_us = delta.days * _US_PER_DAY + delta.seconds * _US_PER_SECOND + delta.microseconds
     signed_seconds = Decimal(total_us) / Decimal(_US_PER_SECOND)
     signed_days = signed_seconds / body.day_seconds
     return _from_signed_days(body, signed_days)

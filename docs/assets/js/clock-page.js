@@ -298,28 +298,9 @@
     return yiq >= 140 ? '#000000' : '#ffffff';
   }
 
-  function getTzOffsetMin(tz, date) {
-    try {
-      const fmt = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'longOffset' });
-      const tzn = fmt.formatToParts(date).find(p => p.type === 'timeZoneName').value;
-      const m = /GMT(?:([+-])(\d{1,2})(?::(\d{2}))?)?/.exec(tzn);
-      if (!m) return 0;
-      if (!m[1]) return 0;
-      const sign = m[1] === '-' ? -1 : 1;
-      const hours = parseInt(m[2], 10);
-      const minutes = parseInt(m[3] || '0', 10);
-      return sign * (hours * 60 + minutes);
-    } catch (e) {
-      return 0;
-    }
-  }
-
-  function localHourToDayFrac(tz, hour, today) {
-    const offsetMin = getTzOffsetMin(tz, today);
-    let utcHourMin = hour * 60 - offsetMin;       // minutes from UTC midnight
-    utcHourMin = ((utcHourMin % 1440) + 1440) % 1440;
-    return utcHourMin / 1440;
-  }
+  // Timezone helpers live in tz-utils.js (shared with cities-page.js).
+  const getTzOffsetMin     = window.ATSTzUtils.getTzOffsetMin;
+  const localHourToDayFrac = window.ATSTzUtils.localHourToDayFrac;
 
   function arcPath(r, startFrac, endFrac) {
     const a1 = startFrac * 2 * Math.PI - Math.PI / 2;

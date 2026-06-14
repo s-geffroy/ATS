@@ -348,7 +348,7 @@ _ATS_CANON_RE = re.compile(
 )
 
 _ATS_SHORT_RE = re.compile(
-    r"^\s*Δ(\d+)\.(\d)\.(\d)\.(\d)-(\d{2})\.(\d)\s*$"
+    r"^Δ(\d+)\.(\d)\.(\d)\.(\d)-(\d{2})\.(\d)$"
 )
 
 

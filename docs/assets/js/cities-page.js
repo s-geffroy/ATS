@@ -54,26 +54,9 @@
     return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
   }
 
-  // IANA tz offset in minutes east of UTC, DST-aware via Intl.
-  function getTzOffsetMin(tz, date) {
-    try {
-      const fmt = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'longOffset' });
-      const tzn = fmt.formatToParts(date).find(p => p.type === 'timeZoneName').value;
-      const m = /GMT(?:([+-])(\d{1,2})(?::(\d{2}))?)?/.exec(tzn);
-      if (!m || !m[1]) return 0;
-      const sign = m[1] === '-' ? -1 : 1;
-      const hours = parseInt(m[2], 10);
-      const minutes = parseInt(m[3] || '0', 10);
-      return sign * (hours * 60 + minutes);
-    } catch (e) { return 0; }
-  }
-
-  // UTC minute-of-day → ATS Bloc·Centi (BC, 00-99) + Milli (0-9).
-  function utcMinToBCM(utcMin) {
-    const frac = utcMin / 1440;
-    const five = Math.floor(frac * 100000);
-    return { bc: Math.floor(five / 1000), milli: Math.floor(five / 100) % 10 };
-  }
+  // Timezone helpers live in tz-utils.js (shared with clock-page.js).
+  const getTzOffsetMin = window.ATSTzUtils.getTzOffsetMin;
+  const utcMinToBCM    = window.ATSTzUtils.utcMinToBCM;
 
   function fmtAtsBCM(bcm) { return pad2(bcm.bc) + '.' + bcm.milli; }
   function fmtLocalHHMM(m) { return pad2(Math.floor(m / 60)) + ':' + pad2(m % 60); }
