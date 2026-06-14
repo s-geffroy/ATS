@@ -51,7 +51,79 @@
 
   <main class="container">
     <h1>Conformance vectors</h1>
-    <p class="muted">7 ATS vector sets — core instants, Δ/Δd arithmetic, and 5 calendar bridges. Filterable tables, one-click copy of JSON or canonical form. Works offline (Service Worker since v0.6).</p>
+    <p class="muted">The contract that turns ATS from a personal project into a reliable standard. Every conformant implementation produces <strong>bit-identical</strong> output on these 104 vectors across 9 datasets. Filterable tables, one-click JSON copy, works offline (Service Worker since v0.6).</p>
+
+    <section class="vec-guide">
+      <h2>What conformance vectors are</h2>
+      <p>A conformance vector is a deterministic test case: a UTC instant plus the ATS encoding(s) that an implementation <strong>must</strong> produce when given that input. The set of vectors below is the executable form of the spec's conformance contract — running them is how a third-party library proves it implements ATS correctly. The normative definition lives in <a href="./manifesto.html#section-16">manifesto §16.5</a> (conformance) and <a href="./manifesto.html#section-9">§9.3</a> (conversion contract); the vector additivity policy lives in <a href="https://github.com/s-geffroy/ATS/blob/main/docs/spec/versioning.en.md" rel="noopener">versioning §4</a>.</p>
+
+      <h2>The nine datasets</h2>
+      <div class="cities-tablewrap">
+      <table class="vec-meta">
+        <thead><tr><th>Dataset</th><th>Vectors</th><th>Scope</th><th>Spec reference</th></tr></thead>
+        <tbody>
+          <tr><td><code>test-vectors.json</code></td><td>12</td><td>Core Earth instants (epoch, landing, Bloc 5 = 12:00 UTC, T- branch, large Kilo, frac edge cases)</td><td><a href="./manifesto.html#section-9">manifesto §9</a></td></tr>
+          <tr><td><code>test-vectors-arithmetic.json</code></td><td>12</td><td>Δ/Δd algebra (the 7 typed operations + carries + epoch crossing + cross-sign comparisons)</td><td><a href="./manifesto.html#section-11">manifesto §11.4</a></td></tr>
+          <tr><td><code>test-vectors-multi-planetary-mars.json</code></td><td>10</td><td>Δ_Mars (epoch + Pathfinder touchdown + round sols + 2050+ dates)</td><td><a href="https://github.com/s-geffroy/ATS/blob/main/docs/spec/multi-planetary.en.md" rel="noopener">multi-planetary §3.2</a></td></tr>
+          <tr><td><code>test-vectors-multi-planetary-moon.json</code></td><td>10</td><td>Δ_Moon (epoch shared with Earth + synodic day length + 2050+ dates)</td><td><a href="https://github.com/s-geffroy/ATS/blob/main/docs/spec/multi-planetary.en.md" rel="noopener">multi-planetary §3.3</a></td></tr>
+          <tr><td><code>test-vectors-bridges-hebrew.json</code></td><td>10</td><td>Hebrew (lunisolar) calendar interop</td><td><code>code/bridges/hebrew.py</code></td></tr>
+          <tr><td><code>test-vectors-bridges-islamic.json</code></td><td>10</td><td>Islamic (lunar Hijri) calendar interop</td><td><code>code/bridges/islamic.py</code></td></tr>
+          <tr><td><code>test-vectors-bridges-chinese.json</code></td><td>10</td><td>Chinese (lunisolar) calendar interop</td><td><code>code/bridges/chinese.py</code></td></tr>
+          <tr><td><code>test-vectors-bridges-hindu.json</code></td><td>10</td><td>Hindu / Indian civil (Saka) calendar interop</td><td><code>code/bridges/hindu.py</code></td></tr>
+          <tr><td><code>test-vectors-bridges-maya.json</code></td><td>10</td><td>Mayan Long Count interop</td><td><code>code/bridges/maya.py</code></td></tr>
+          <tr><th>Total</th><th>104</th><th colspan="2">across 9 datasets, all carrying <code>spec_version: "0.7"</code></th></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>Schema (illustrated by the core file)</h2>
+      <pre><code>{
+  "spec_version": "0.7",          // MAJOR.MINOR of the spec that produced these vectors
+  "epoch_utc": "1969-07-20T00:00:00Z",
+  "precision": 5,                  // default fractional digits (manifesto §4.4)
+  "vectors": [
+    {
+      "label": "Epoch (start of Apollo 11 landing day)",
+      "utc": "1969-07-20T00:00:00Z",
+      "canonical": "T+ Δ 0.0.0.0.00000",
+      "display": "Δ0.0.0.0-00.0",
+      "sign": "T+",
+      "kilo": 0, "hecto": 0, "deka": 0, "kin": 0,
+      "frac": 0
+    },
+    …
+  ]
+}</code></pre>
+      <p>The <code>spec_version</code> field is mandatory on every vector file (<a href="https://github.com/s-geffroy/ATS/blob/main/docs/spec/versioning.en.md" rel="noopener">versioning §2</a>). The arithmetic and bridge files use small variations on this schema — the JS controller below adapts automatically.</p>
+
+      <h2>How to run them</h2>
+      <p>Pick the reference implementation closest to your stack and adapt:</p>
+      <pre><code># Python — covers all 9 datasets bit-for-bit
+docker run --rm -v "$PWD:/app" -w /app python:3.13-slim \
+  sh -c 'pip install --quiet ".[bridges,tests]" &amp;&amp; python -m unittest discover tests'</code></pre>
+      <pre><code>// JavaScript — covers the Earth core + arithmetic
+docker run --rm -v "$PWD:/app" -w /app node:20-slim \
+  node tests/test_vectors.mjs
+# 12/12 JS vectors pass</code></pre>
+      <p>A claim of conformance to ATS v0.7 means passing the core (12) and arithmetic (12) sets bit-for-bit (<a href="./manifesto.html#section-16">manifesto §16.5</a>). The multi-planetary, bridge sets are optional and must be declared explicitly if claimed.</p>
+
+      <h2>Why exactly these numbers</h2>
+      <ul>
+        <li><strong>12 core</strong> — covers the epoch, the touchdown remarkable instant, the four anchors of the day (Bloc 0/5 = midnight/noon UTC), large Kilo (verifies unboundedness), fractional edge cases (frac=99999 limit), and the T- branch.</li>
+        <li><strong>12 arithmetic</strong> — exercises all seven typed Δ/Δd operations from <a href="./manifesto.html#section-11">§11.4</a>, the Kin → Deka → Hecto → Kilo carries, the epoch-crossing direction flip, and cross-sign comparisons.</li>
+        <li><strong>10 per body / bridge</strong> — minimum coverage required by <a href="https://github.com/s-geffroy/ATS/blob/main/docs/spec/multi-planetary.en.md" rel="noopener">multi-planetary §6.3</a>: epoch, round milestones, complex fractions, T-, a 2050+ date, and contemporary instants.</li>
+      </ul>
+
+      <h2>For implementers</h2>
+      <ul>
+        <li><strong>Vectors are additive only.</strong> A published vector is never modified after release (<a href="https://github.com/s-geffroy/ATS/blob/main/docs/spec/versioning.en.md" rel="noopener">versioning §4.1</a>). If an error is found, the corrected vector is <em>added</em> and the wrong one marked <code>deprecated: true</code>.</li>
+        <li><strong>Spec-version drift.</strong> A consumer claiming conformance to <code>vX.Y</code> must reject files declaring <code>spec_version &gt; vX.Y</code> and must pass every non-deprecated vector with <code>spec_version ≤ vX.Y</code>.</li>
+        <li><strong>Forward compatibility</strong> (skipping unknown vectors with a warning) is RECOMMENDED but not REQUIRED.</li>
+        <li><strong>Proposing new vectors</strong> follows the lightweight RFC procedure in <a href="https://github.com/s-geffroy/ATS/blob/main/docs/spec/versioning.en.md" rel="noopener">versioning §6</a> — minimum 14 days of public comment.</li>
+      </ul>
+    </section>
+
+    <h2>Browse the vectors</h2>
     <section id="vec-root"></section>
     <p class="muted">Source: <a href="https://github.com/s-geffroy/ATS/tree/main/docs/spec" rel="noopener">docs/spec/test-vectors*.json</a></p>
   </main>

@@ -51,7 +51,79 @@
 
   <main class="container">
     <h1>Vecteurs de conformance</h1>
-    <p class="muted">7 jeux de vecteurs ATS — instants core, arithmétique Δ/Δd, et 5 ponts calendaires. Tables filtrables, copie JSON ou canonique en un clic. Tout fonctionne en mode hors-ligne (Service Worker depuis v0.6).</p>
+    <p class="muted">Le contrat qui transforme ATS d'un projet personnel en standard fiable. Chaque implémentation conformante produit une sortie <strong>bit-à-bit identique</strong> sur ces 104 vecteurs répartis en 9 jeux. Tables filtrables, copie JSON en un clic, fonctionne hors-ligne (Service Worker depuis v0.6).</p>
+
+    <section class="vec-guide">
+      <h2>Que sont les vecteurs de conformance</h2>
+      <p>Un vecteur de conformance est un cas de test déterministe : un instant UTC plus l'encodage ATS qu'une implémentation <strong>doit</strong> produire pour cette entrée. L'ensemble de vecteurs ci-dessous est la forme exécutable du contrat de conformance de la spec — les exécuter, c'est ainsi qu'une bibliothèque tierce prouve qu'elle implémente ATS correctement. La définition normative vit dans <a href="./manifeste.html#section-16">manifeste §16.5</a> (conformance) et <a href="./manifeste.html#section-9">§9.3</a> (contrat de conversion) ; la politique d'additivité des vecteurs vit dans <a href="https://github.com/s-geffroy/ATS/blob/main/docs/spec/versioning.fr.md" rel="noopener">versioning §4</a>.</p>
+
+      <h2>Les neuf jeux de données</h2>
+      <div class="cities-tablewrap">
+      <table class="vec-meta">
+        <thead><tr><th>Jeu</th><th>Vecteurs</th><th>Périmètre</th><th>Référence spec</th></tr></thead>
+        <tbody>
+          <tr><td><code>test-vectors.json</code></td><td>12</td><td>Instants Terre principaux (époque, alunissage, Bloc 5 = 12:00 UTC, branche T-, grand Kilo, cas limites fractionnaires)</td><td><a href="./manifeste.html#section-9">manifeste §9</a></td></tr>
+          <tr><td><code>test-vectors-arithmetic.json</code></td><td>12</td><td>Algèbre Δ/Δd (les 7 opérations typées + retenues + franchissement d'époque + comparaisons inter-signes)</td><td><a href="./manifeste.html#section-11">manifeste §11.4</a></td></tr>
+          <tr><td><code>test-vectors-multi-planetary-mars.json</code></td><td>10</td><td>Δ_Mars (époque + touchdown Pathfinder + sols ronds + dates 2050+)</td><td><a href="https://github.com/s-geffroy/ATS/blob/main/docs/spec/multi-planetary.fr.md" rel="noopener">multi-planétaire §3.2</a></td></tr>
+          <tr><td><code>test-vectors-multi-planetary-moon.json</code></td><td>10</td><td>Δ_Moon (époque partagée avec la Terre + longueur jour synodique + dates 2050+)</td><td><a href="https://github.com/s-geffroy/ATS/blob/main/docs/spec/multi-planetary.fr.md" rel="noopener">multi-planétaire §3.3</a></td></tr>
+          <tr><td><code>test-vectors-bridges-hebrew.json</code></td><td>10</td><td>Interop calendrier hébraïque (luni-solaire)</td><td><code>code/bridges/hebrew.py</code></td></tr>
+          <tr><td><code>test-vectors-bridges-islamic.json</code></td><td>10</td><td>Interop calendrier islamique (lunaire hijri)</td><td><code>code/bridges/islamic.py</code></td></tr>
+          <tr><td><code>test-vectors-bridges-chinese.json</code></td><td>10</td><td>Interop calendrier chinois (luni-solaire)</td><td><code>code/bridges/chinese.py</code></td></tr>
+          <tr><td><code>test-vectors-bridges-hindu.json</code></td><td>10</td><td>Interop calendrier hindou / civil indien (Saka)</td><td><code>code/bridges/hindu.py</code></td></tr>
+          <tr><td><code>test-vectors-bridges-maya.json</code></td><td>10</td><td>Interop Long Count maya</td><td><code>code/bridges/maya.py</code></td></tr>
+          <tr><th>Total</th><th>104</th><th colspan="2">à travers 9 jeux, tous portant <code>spec_version: "0.7"</code></th></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>Schéma (illustré par le fichier core)</h2>
+      <pre><code>{
+  "spec_version": "0.7",          // MAJEUR.MINEUR de la spec qui a produit ces vecteurs
+  "epoch_utc": "1969-07-20T00:00:00Z",
+  "precision": 5,                  // chiffres fractionnaires par défaut (manifeste §4.4)
+  "vectors": [
+    {
+      "label": "Epoch (start of Apollo 11 landing day)",
+      "utc": "1969-07-20T00:00:00Z",
+      "canonical": "T+ Δ 0.0.0.0.00000",
+      "display": "Δ0.0.0.0-00.0",
+      "sign": "T+",
+      "kilo": 0, "hecto": 0, "deka": 0, "kin": 0,
+      "frac": 0
+    },
+    …
+  ]
+}</code></pre>
+      <p>Le champ <code>spec_version</code> est obligatoire sur chaque fichier de vecteurs (<a href="https://github.com/s-geffroy/ATS/blob/main/docs/spec/versioning.fr.md" rel="noopener">versioning §2</a>). Les fichiers arithmétique et bridges utilisent de petites variations de ce schéma — le contrôleur JS ci-dessous s'adapte automatiquement.</p>
+
+      <h2>Comment les exécuter</h2>
+      <p>Choisissez l'implémentation de référence la plus proche de votre stack et adaptez :</p>
+      <pre><code># Python — couvre les 9 jeux bit-à-bit
+docker run --rm -v "$PWD:/app" -w /app python:3.13-slim \
+  sh -c 'pip install --quiet ".[bridges,tests]" &amp;&amp; python -m unittest discover tests'</code></pre>
+      <pre><code>// JavaScript — couvre le core Terre + arithmétique
+docker run --rm -v "$PWD:/app" -w /app node:20-slim \
+  node tests/test_vectors.mjs
+# 12/12 JS vectors pass</code></pre>
+      <p>Revendiquer la conformance à ATS v0.7 signifie passer les jeux core (12) et arithmétique (12) bit-à-bit (<a href="./manifeste.html#section-16">manifeste §16.5</a>). Les jeux multi-planétaire et bridges sont optionnels et doivent être déclarés explicitement si revendiqués.</p>
+
+      <h2>Pourquoi exactement ces nombres</h2>
+      <ul>
+        <li><strong>12 core</strong> — couvre l'époque, l'instant remarquable du touchdown, les quatre ancrages du jour (Bloc 0/5 = minuit/midi UTC), grand Kilo (vérifie non-bornitude), cas limites fractionnaires (frac=99999 limite), et la branche T-.</li>
+        <li><strong>12 arithmétique</strong> — exerce les sept opérations typées Δ/Δd du <a href="./manifeste.html#section-11">§11.4</a>, les retenues Kin → Deka → Hecto → Kilo, le flip de direction au franchissement d'époque, et les comparaisons inter-signes.</li>
+        <li><strong>10 par corps / bridge</strong> — couverture minimale requise par <a href="https://github.com/s-geffroy/ATS/blob/main/docs/spec/multi-planetary.fr.md" rel="noopener">multi-planétaire §6.3</a> : époque, jalons ronds, fractions complexes, T-, une date 2050+, et instants contemporains.</li>
+      </ul>
+
+      <h2>Pour les implémenteurs</h2>
+      <ul>
+        <li><strong>Les vecteurs sont additifs uniquement.</strong> Un vecteur publié n'est jamais modifié après la release (<a href="https://github.com/s-geffroy/ATS/blob/main/docs/spec/versioning.fr.md" rel="noopener">versioning §4.1</a>). Si une erreur est trouvée, le vecteur corrigé est <em>ajouté</em> et le mauvais marqué <code>deprecated: true</code>.</li>
+        <li><strong>Dérive de spec-version.</strong> Un consommateur revendiquant la conformance à <code>vX.Y</code> doit rejeter les fichiers déclarant <code>spec_version &gt; vX.Y</code> et doit passer chaque vecteur non déprécié avec <code>spec_version ≤ vX.Y</code>.</li>
+        <li><strong>La compatibilité ascendante</strong> (sauter les vecteurs inconnus avec un avertissement) est RECOMMANDÉE mais non REQUISE.</li>
+        <li><strong>Proposer de nouveaux vecteurs</strong> suit la procédure RFC légère dans <a href="https://github.com/s-geffroy/ATS/blob/main/docs/spec/versioning.fr.md" rel="noopener">versioning §6</a> — minimum 14 jours de commentaire public.</li>
+      </ul>
+    </section>
+
+    <h2>Parcourir les vecteurs</h2>
     <section id="vec-root"></section>
     <p class="muted">Source : <a href="https://github.com/s-geffroy/ATS/tree/main/docs/spec" rel="noopener">docs/spec/test-vectors*.json</a></p>
   </main>

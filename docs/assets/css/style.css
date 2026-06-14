@@ -96,6 +96,51 @@
 .theme-toggle:hover { opacity: 1; }
 .theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+/* Test vectors page — implementer guide section (header above the JS-rendered tables) */
+.vec-guide {
+  margin: 1.5rem 0 2rem 0;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  background: color-mix(in oklab, CanvasText 5%, Canvas);
+  border: 1px solid color-mix(in oklab, CanvasText 12%, transparent);
+}
+.vec-guide h2 {
+  font-size: 1.15rem;
+  margin: 1.25rem 0 0.4rem 0;
+  border: none;
+  padding: 0;
+}
+.vec-guide h2:first-of-type { margin-top: 0; }
+.vec-guide p, .vec-guide ul, .vec-guide ol { font-size: 0.94rem; line-height: 1.55; }
+.vec-guide pre {
+  background: color-mix(in oklab, CanvasText 9%, Canvas);
+  border: 1px solid color-mix(in oklab, CanvasText 14%, transparent);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+.vec-guide code { font-size: 0.88em; }
+.vec-meta { width: 100%; border-collapse: collapse; font-size: 0.86rem; margin: 0.5rem 0 1rem 0; }
+.vec-meta th, .vec-meta td {
+  text-align: left;
+  padding: 0.45rem 0.65rem;
+  border-bottom: 1px solid color-mix(in oklab, CanvasText 12%, transparent);
+  vertical-align: top;
+}
+.vec-meta thead th {
+  font-weight: 700;
+  background: color-mix(in oklab, CanvasText 8%, transparent);
+  border-bottom: 2px solid color-mix(in oklab, CanvasText 25%, transparent);
+}
+.vec-meta tbody tr:last-child th,
+.vec-meta tbody tr:last-child td {
+  border-bottom: none;
+  font-weight: 600;
+  background: color-mix(in oklab, CanvasText 6%, transparent);
+}
+
 /* Test vectors page (§5.5) */
 .vec-card {
   border: 1px solid var(--border);
