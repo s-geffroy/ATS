@@ -1,214 +1,392 @@
 /**
  * cities-page.js — controller for /{fr,en}/cities.html.
  *
- * Renders a sortable/filterable matrix of representative world capitals
- * × daily activities (wake, breakfast, school, work, lunch, etc.). Each
- * cell shows the cultural-median LOCAL time plus the corresponding ATS
- * BC.M micro slice for that local hour, computed from each city's IANA
- * timezone (DST-aware via Intl.DateTimeFormat).
+ * Renders a world map (Natural Earth 110m land, equirectangular projection)
+ * with ~40 representative capitals plotted at their lat/lon. Each city dot
+ * carries an emoji that morphs with what's happening LOCALLY at the current
+ * reference UTC instant (sleep / wake / breakfast / work / lunch / dinner /
+ * leisure). Hovering or focusing a dot reveals: city name, local HH:MM,
+ * ATS BC.M slice, and the activity label.
  *
- * Data: /assets/data/cities.json. ATS values are derived client-side so
- * DST transitions don't drift the static dataset.
+ * Reference instant:
+ *   • Live by default — re-renders every second from the wall clock.
+ *   • A slider lets the user scrub a virtual UTC instant across the day
+ *     and watch the world cycle through its routines. "Now" returns live.
+ *
+ * Data: /assets/data/cities.json + /assets/data/world-land.geo.json. All
+ * ATS values are derived client-side so DST transitions don't drift the
+ * static dataset.
  */
 
 (function () {
   'use strict';
 
   const lang = (document.body.dataset.lang || 'en').toLowerCase();
-  const DATA_URL = '../assets/data/cities.json';
+  const DATA_URL  = '../assets/data/cities.json';
+  const WORLD_URL = '../assets/data/world-land.geo.json';
+  const NS = 'http://www.w3.org/2000/svg';
 
-  const T = {
+  const T = ({
     en: {
-      title: 'Capitals × daily activities — local hour and ATS micro units',
-      filter: 'Filter…',
-      city: 'City',
-      tz: 'Time zone',
-      region: 'Region',
-      loadError: 'Failed to load city data.',
-      empty: 'No city matches the filter.',
+      loadError: 'Failed to load map data.',
+      now: 'Now',
+      scrub: 'Drag to scrub through 24 h UTC',
+      live: 'Live',
+      frozen: 'Frozen',
+      legend: 'Hover or tap a city to see local time, ATS slice, and current activity.',
     },
     fr: {
-      title: 'Capitales × activités quotidiennes — heure locale et unités micro ATS',
-      filter: 'Filtrer…',
-      city: 'Ville',
-      tz: 'Fuseau',
-      region: 'Région',
-      loadError: 'Échec du chargement des données.',
-      empty: 'Aucune ville ne correspond au filtre.',
+      loadError: 'Échec du chargement de la carte.',
+      now: 'Maintenant',
+      scrub: 'Faire défiler les 24 h UTC',
+      live: 'En direct',
+      frozen: 'Figé',
+      legend: 'Survoler ou toucher une ville pour voir l\'heure locale, l\'éclat ATS et l\'activité en cours.',
     },
-  }[lang] || {};
+  })[lang] || {};
 
-  // Convert a "HH:MM" local time + IANA tz to ATS Bloc/Centi/Milli digits
-  // for *today* in UTC. Same approach as the analog dial: ask Intl for the
-  // current named offset, subtract from local minutes to get UTC minutes,
-  // wrap mod 1440, divide by 1440 to get day-fraction.
+  // -------- Helpers --------
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function parseHM(s) {
+    const m = /^(\d{2}):(\d{2})$/.exec(s || '');
+    if (!m) return null;
+    return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+  }
+
+  // IANA tz offset in minutes east of UTC, DST-aware via Intl.
   function getTzOffsetMin(tz, date) {
     try {
       const fmt = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'longOffset' });
       const tzn = fmt.formatToParts(date).find(p => p.type === 'timeZoneName').value;
       const m = /GMT(?:([+-])(\d{1,2})(?::(\d{2}))?)?/.exec(tzn);
-      if (!m) return 0;
-      if (!m[1]) return 0;
+      if (!m || !m[1]) return 0;
       const sign = m[1] === '-' ? -1 : 1;
       const hours = parseInt(m[2], 10);
       const minutes = parseInt(m[3] || '0', 10);
       return sign * (hours * 60 + minutes);
-    } catch (e) {
-      return 0;
-    }
+    } catch (e) { return 0; }
   }
 
-  function localHHMMToAtsBCM(tz, hhmm, today) {
-    const m = /^(\d{2}):(\d{2})$/.exec(hhmm);
-    if (!m) return { bc: 0, milli: 0 };
-    const localMin = parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
-    const offsetMin = getTzOffsetMin(tz, today);
-    let utcMin = localMin - offsetMin;
-    utcMin = ((utcMin % 1440) + 1440) % 1440;
-    const frac = utcMin / 1440;                // 0..1
-    const five = Math.floor(frac * 100000);    // BCMBb
-    const bc = Math.floor(five / 1000);        // 00..99
-    const milli = Math.floor(five / 100) % 10; // 0..9
-    return { bc, milli };
+  // UTC minute-of-day → ATS Bloc·Centi (BC, 00-99) + Milli (0-9).
+  function utcMinToBCM(utcMin) {
+    const frac = utcMin / 1440;
+    const five = Math.floor(frac * 100000);
+    return { bc: Math.floor(five / 1000), milli: Math.floor(five / 100) % 10 };
   }
 
-  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+  function fmtAtsBCM(bcm) { return pad2(bcm.bc) + '.' + bcm.milli; }
+  function fmtLocalHHMM(m) { return pad2(Math.floor(m / 60)) + ':' + pad2(m % 60); }
+  function fmtUTCHHMM(m)  { return pad2(Math.floor(m / 60)) + ':' + pad2(m % 60) + ' UTC'; }
 
-  function makeCell(localHHMM, ats) {
-    const td = document.createElement('td');
-    td.className = 'cities-cell';
-    const top = document.createElement('div');
-    top.className = 'cities-cell-local';
-    top.textContent = localHHMM;
-    const bot = document.createElement('div');
-    bot.className = 'cities-cell-ats';
-    bot.textContent = pad2(ats.bc) + '.' + ats.milli;
-    td.appendChild(top);
-    td.appendChild(bot);
-    return td;
+  // Project lat/lon onto an equirectangular 720×360 viewBox.
+  function projectLatLon(lat, lon) {
+    return { x: (lon + 180) * 2, y: (90 - lat) * 2 };
   }
 
+  // Derive the city's current state key from its local minute-of-day and
+  // its activity timestamps. Returns one of the keys in `states` (sleep,
+  // wake, breakfast, commute, work, lunch, evening, dinner, leisure).
+  // Conservative state machine — boundaries blur the activity windows so a
+  // city is rarely caught between buckets.
+  function stateAt(times, mLocal) {
+    const wake = parseHM(times.wake);
+    const br   = parseHM(times.breakfast);
+    const si   = parseHM(times.school_in);
+    const wi   = parseHM(times.work_in);
+    const lu   = parseHM(times.lunch);
+    const so   = parseHM(times.school_out);
+    const wo   = parseHM(times.work_out);
+    const di   = parseHM(times.dinner);
+    const tv   = parseHM(times.tv_movie);
+
+    const startWork = Math.min(si == null ? wi : si, wi == null ? si : wi);
+    const endWork   = Math.max(so == null ? wo : so, wo == null ? so : wo);
+    const bedtime   = Math.min(tv + 90, 1439);
+    const morning   = Math.max(wake - 30, 0);
+
+    if (mLocal >= bedtime || mLocal < morning) return 'sleep';
+    if (mLocal < wake + 30) return 'wake';
+    if (mLocal < br   + 30) return 'breakfast';
+    if (mLocal < startWork - 5)  return 'breakfast';
+    if (mLocal < startWork + 15) return 'commute';
+    if (mLocal < lu - 15) return 'work';
+    if (mLocal < lu + 60) return 'lunch';
+    if (mLocal < endWork - 15) return 'work';
+    if (mLocal < endWork + 30) return 'commute';
+    if (mLocal < di - 15) return 'evening';
+    if (mLocal < di + 60) return 'dinner';
+    if (mLocal < tv + 90) return 'leisure';
+    return 'sleep';
+  }
+
+  // -------- Boot --------
   async function boot() {
     const root = document.getElementById('cities-root');
     if (!root) return;
     root.innerHTML = '<p class="muted">…</p>';
-    let payload;
+
+    let payload, world;
     try {
-      const r = await fetch(DATA_URL, { cache: 'no-store' });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      payload = await r.json();
+      const [r1, r2] = await Promise.all([
+        fetch(DATA_URL, { cache: 'no-store' }),
+        fetch(WORLD_URL, { cache: 'force-cache' }),
+      ]);
+      if (!r1.ok) throw new Error('cities ' + r1.status);
+      if (!r2.ok) throw new Error('world '  + r2.status);
+      payload = await r1.json();
+      world   = await r2.json();
     } catch (e) {
       root.innerHTML = '<p class="err">' + T.loadError + '</p>';
       return;
     }
 
-    const note = lang === 'fr' ? payload.note_fr : payload.note_en;
-    const activities = payload.activities;
+    const note   = lang === 'fr' ? payload.note_fr : payload.note_en;
     const cities = payload.cities;
-    const today = new Date();
+    const states = payload.states || [];
+    const stateMap = {};
+    states.forEach(function (s) { stateMap[s.key] = s; });
 
     root.innerHTML = '';
 
+    // ---- Intro note + legend strip ----
     const intro = document.createElement('p');
     intro.className = 'muted cities-note';
     intro.textContent = note;
     root.appendChild(intro);
 
-    const controls = document.createElement('div');
-    controls.className = 'cities-controls';
-    const filter = document.createElement('input');
-    filter.type = 'search';
-    filter.placeholder = T.filter;
-    filter.className = 'cities-filter';
-    filter.setAttribute('aria-label', T.filter);
-    controls.appendChild(filter);
-    root.appendChild(controls);
-
-    const wrap = document.createElement('div');
-    wrap.className = 'cities-tablewrap';
-    const table = document.createElement('table');
-    table.className = 'cities-table';
-    wrap.appendChild(table);
-    root.appendChild(wrap);
-
-    const thead = document.createElement('thead');
-    const headRow = document.createElement('tr');
-    const thCity = document.createElement('th');
-    thCity.textContent = T.city;
-    thCity.className = 'cities-th-city';
-    headRow.appendChild(thCity);
-    for (const a of activities) {
-      const th = document.createElement('th');
-      th.textContent = lang === 'fr' ? a.label_fr : a.label_en;
-      headRow.appendChild(th);
-    }
-    thead.appendChild(headRow);
-    table.appendChild(thead);
-
-    const tbody = document.createElement('tbody');
-    table.appendChild(tbody);
-
-    for (const city of cities) {
-      const row = document.createElement('tr');
-      const name = lang === 'fr' ? city.name_fr : city.name_en;
-      row.dataset.search = (name + ' ' + city.code + ' ' + city.country + ' ' + city.region + ' ' + city.tz).toLowerCase();
-
-      const tdCity = document.createElement('td');
-      tdCity.className = 'cities-td-city';
-      const codeBadge = document.createElement('span');
-      codeBadge.className = 'cities-code';
-      codeBadge.textContent = city.code;
-      const nameSpan = document.createElement('span');
-      nameSpan.className = 'cities-name';
-      nameSpan.textContent = name;
-      const tzSpan = document.createElement('span');
-      tzSpan.className = 'cities-tz muted';
-      tzSpan.textContent = city.tz;
-      tdCity.appendChild(codeBadge);
-      tdCity.appendChild(nameSpan);
-      tdCity.appendChild(tzSpan);
-      row.appendChild(tdCity);
-
-      for (const a of activities) {
-        const hhmm = city.times && city.times[a.key];
-        if (!hhmm) {
-          const td = document.createElement('td');
-          td.className = 'cities-cell cities-cell-empty';
-          td.textContent = '—';
-          row.appendChild(td);
-        } else {
-          const ats = localHHMMToAtsBCM(city.tz, hhmm, today);
-          row.appendChild(makeCell(hhmm, ats));
-        }
-      }
-      tbody.appendChild(row);
-    }
-
-    filter.addEventListener('input', function () {
-      const q = filter.value.trim().toLowerCase();
-      let visible = 0;
-      Array.from(tbody.children).forEach(function (r) {
-        const match = !q || r.dataset.search.indexOf(q) !== -1;
-        r.style.display = match ? '' : 'none';
-        if (match) visible++;
-      });
-      let emptyRow = tbody.querySelector('.cities-empty');
-      if (visible === 0) {
-        if (!emptyRow) {
-          emptyRow = document.createElement('tr');
-          emptyRow.className = 'cities-empty';
-          const td = document.createElement('td');
-          td.colSpan = 1 + activities.length;
-          td.className = 'muted';
-          td.textContent = T.empty;
-          emptyRow.appendChild(td);
-          tbody.appendChild(emptyRow);
-        }
-        emptyRow.style.display = '';
-      } else if (emptyRow) {
-        emptyRow.style.display = 'none';
-      }
+    const legend = document.createElement('div');
+    legend.className = 'cities-legend';
+    states.forEach(function (s) {
+      const item = document.createElement('span');
+      item.className = 'cities-legend-item';
+      item.innerHTML = '<span class="cities-legend-icon">' + s.icon + '</span> ' +
+                       (lang === 'fr' ? s.label_fr : s.label_en);
+      legend.appendChild(item);
     });
+    root.appendChild(legend);
+
+    // ---- SVG map ----
+    const mapWrap = document.createElement('div');
+    mapWrap.className = 'cities-map';
+    root.appendChild(mapWrap);
+
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 720 360');
+    svg.setAttribute('class', 'cities-map-svg');
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', T.legend);
+    mapWrap.appendChild(svg);
+
+    // Ocean rectangle so the contrast against land is theme-controlled.
+    const ocean = document.createElementNS(NS, 'rect');
+    ocean.setAttribute('class', 'cities-ocean');
+    ocean.setAttribute('x', '0'); ocean.setAttribute('y', '0');
+    ocean.setAttribute('width', '720'); ocean.setAttribute('height', '360');
+    svg.appendChild(ocean);
+
+    // Continents — one <path> per feature.
+    const landGroup = document.createElementNS(NS, 'g');
+    landGroup.setAttribute('class', 'cities-land');
+    svg.appendChild(landGroup);
+
+    function ringToPath(ring) {
+      let d = '';
+      for (let i = 0; i < ring.length; i++) {
+        const p = projectLatLon(ring[i][1], ring[i][0]);
+        d += (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ' ' + p.y.toFixed(1);
+      }
+      return d + 'Z';
+    }
+
+    world.features.forEach(function (feature) {
+      const geom = feature.geometry;
+      const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+      polys.forEach(function (poly) {
+        let d = '';
+        poly.forEach(function (ring) { d += ringToPath(ring); });
+        const path = document.createElementNS(NS, 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('fill-rule', 'evenodd');
+        landGroup.appendChild(path);
+      });
+    });
+
+    // City dots — one <g> per city, holding a circle and a text node
+    // with the activity emoji centred on it. The whole group is focusable
+    // and gets click/hover/focus listeners for the tooltip.
+    const citiesGroup = document.createElementNS(NS, 'g');
+    citiesGroup.setAttribute('class', 'cities-pins');
+    svg.appendChild(citiesGroup);
+
+    const dots = cities.map(function (city) {
+      const p = projectLatLon(city.lat, city.lon);
+      const g = document.createElementNS(NS, 'g');
+      g.setAttribute('class', 'cities-pin');
+      g.setAttribute('transform', 'translate(' + p.x.toFixed(1) + ' ' + p.y.toFixed(1) + ')');
+      g.setAttribute('tabindex', '0');
+      g.setAttribute('role', 'button');
+      const aria = (lang === 'fr' ? city.name_fr : city.name_en);
+      g.setAttribute('aria-label', aria);
+      const dot = document.createElementNS(NS, 'circle');
+      dot.setAttribute('r', '9');
+      dot.setAttribute('class', 'cities-pin-dot');
+      g.appendChild(dot);
+      const icon = document.createElementNS(NS, 'text');
+      icon.setAttribute('class', 'cities-pin-icon');
+      icon.setAttribute('text-anchor', 'middle');
+      icon.setAttribute('dominant-baseline', 'central');
+      icon.setAttribute('y', '0.5');
+      g.appendChild(icon);
+      citiesGroup.appendChild(g);
+
+      const ref = { city: city, group: g, icon: icon };
+      g.addEventListener('mouseenter', function (e) { showTooltip(ref, e); });
+      g.addEventListener('mousemove',  function (e) { positionTooltip(e); });
+      g.addEventListener('mouseleave', hideTooltip);
+      g.addEventListener('focus',      function () { showTooltip(ref, null); });
+      g.addEventListener('blur',       hideTooltip);
+      g.addEventListener('click',      function (e) { showTooltip(ref, e); });
+      return ref;
+    });
+
+    // ---- Controls (slider + Now button + caption) ----
+    const ctrls = document.createElement('div');
+    ctrls.className = 'cities-controls';
+    root.appendChild(ctrls);
+
+    const liveBtn = document.createElement('button');
+    liveBtn.type = 'button';
+    liveBtn.className = 'cities-now-btn';
+    liveBtn.textContent = T.now;
+    ctrls.appendChild(liveBtn);
+
+    const slider = document.createElement('input');
+    slider.type = 'range';
+    slider.min = '0';
+    slider.max = '1439';                   // minutes in a day
+    slider.step = '1';
+    slider.className = 'cities-slider';
+    slider.setAttribute('aria-label', T.scrub);
+    ctrls.appendChild(slider);
+
+    const caption = document.createElement('span');
+    caption.className = 'cities-caption';
+    ctrls.appendChild(caption);
+
+    // ---- Tooltip (HTML overlay) ----
+    const tip = document.createElement('div');
+    tip.className = 'cities-tooltip';
+    tip.hidden = true;
+    document.body.appendChild(tip);
+
+    let activeRef = null;
+    function showTooltip(ref, evt) {
+      activeRef = ref;
+      renderTooltip();
+      tip.hidden = false;
+      if (evt) positionTooltip(evt);
+      else {
+        // Focus came via keyboard — anchor near the pin in viewport coords.
+        const rect = ref.group.getBoundingClientRect();
+        positionTooltipAt(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      }
+    }
+    function hideTooltip() {
+      activeRef = null;
+      tip.hidden = true;
+    }
+    function positionTooltip(evt) { positionTooltipAt(evt.clientX, evt.clientY); }
+    function positionTooltipAt(cx, cy) {
+      // Place to the right by default, mirror to the left if off-screen.
+      const pad = 14;
+      const w = tip.offsetWidth, h = tip.offsetHeight;
+      let x = cx + pad, y = cy + pad;
+      if (x + w > window.innerWidth - 8) x = cx - pad - w;
+      if (y + h > window.innerHeight - 8) y = cy - pad - h;
+      tip.style.left = Math.max(8, x) + 'px';
+      tip.style.top  = Math.max(8, y) + 'px';
+    }
+
+    // ---- Reference instant + render loop ----
+    // referenceUtcMin: null → live (read clock each tick), else fixed minute-of-day.
+    // referenceDate is used for tz-offset lookups (DST around "today" is fine).
+    let referenceUtcMin = null;
+    const referenceDate = new Date();
+    let tickHandle = null;
+
+    function currentUtcMin() {
+      if (referenceUtcMin != null) return referenceUtcMin;
+      const d = new Date();
+      return d.getUTCHours() * 60 + d.getUTCMinutes();
+    }
+
+    function renderAll() {
+      const utcMin = currentUtcMin();
+      for (let i = 0; i < dots.length; i++) {
+        const ref = dots[i];
+        const off = getTzOffsetMin(ref.city.tz, referenceDate);
+        const localMin = ((utcMin + off) % 1440 + 1440) % 1440;
+        const stateKey = stateAt(ref.city.times, localMin);
+        const s = stateMap[stateKey] || stateMap.sleep;
+        if (ref.icon.textContent !== s.icon) ref.icon.textContent = s.icon;
+        ref.group.dataset.state = stateKey;
+        // Cache last-computed local context for the tooltip
+        ref.localMin = localMin;
+        ref.stateKey = stateKey;
+      }
+      // Caption: ATS BC.M + UTC HH:MM + live/frozen badge
+      const bcm = utcMinToBCM(utcMin);
+      const tag = referenceUtcMin == null ? T.live : T.frozen;
+      caption.innerHTML = '<span class="cities-caption-ats mono">Δ-..-' + fmtAtsBCM(bcm) +
+                          '</span> · <span class="mono">' + fmtUTCHHMM(utcMin) +
+                          '</span> · <span class="cities-caption-tag">' + tag + '</span>';
+      // Sync slider thumb when live so the user can grab it at the current spot
+      if (referenceUtcMin == null) slider.value = String(utcMin);
+      // Refresh the tooltip in place if one is open
+      if (activeRef) renderTooltip();
+    }
+
+    function renderTooltip() {
+      if (!activeRef) return;
+      const r = activeRef;
+      const off = getTzOffsetMin(r.city.tz, referenceDate);
+      const utcMin = currentUtcMin();
+      const localMin = ((utcMin + off) % 1440 + 1440) % 1440;
+      const bcm = utcMinToBCM(utcMin);
+      const sk = r.stateKey || stateAt(r.city.times, localMin);
+      const s  = stateMap[sk] || stateMap.sleep;
+      const name = lang === 'fr' ? r.city.name_fr : r.city.name_en;
+      const stateLabel = lang === 'fr' ? s.label_fr : s.label_en;
+      tip.innerHTML =
+        '<div class="cities-tooltip-head">' +
+          '<span class="cities-tooltip-icon">' + s.icon + '</span>' +
+          '<span class="cities-tooltip-name">' + name + '</span>' +
+          '<span class="cities-tooltip-code">' + r.city.code + '</span>' +
+        '</div>' +
+        '<div class="cities-tooltip-row"><span class="lbl">' + (lang === 'fr' ? 'Heure locale' : 'Local') + '</span>' +
+          '<span class="mono">' + fmtLocalHHMM(localMin) + '</span></div>' +
+        '<div class="cities-tooltip-row"><span class="lbl">ATS</span>' +
+          '<span class="mono">Δ-..-' + fmtAtsBCM(bcm) + '</span></div>' +
+        '<div class="cities-tooltip-row"><span class="lbl">' + (lang === 'fr' ? 'Activité' : 'Activity') + '</span>' +
+          '<span>' + stateLabel + '</span></div>';
+    }
+
+    function startLive() {
+      referenceUtcMin = null;
+      if (tickHandle) clearInterval(tickHandle);
+      renderAll();
+      tickHandle = setInterval(renderAll, 1000);
+    }
+
+    liveBtn.addEventListener('click', startLive);
+    slider.addEventListener('input', function () {
+      if (tickHandle) { clearInterval(tickHandle); tickHandle = null; }
+      referenceUtcMin = parseInt(slider.value, 10);
+      renderAll();
+    });
+
+    startLive();
   }
 
   if (document.readyState === 'loading') {

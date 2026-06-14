@@ -7,24 +7,24 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
-  <meta name="description" content="Daily-activity hours (wake, meals, work, school, prime-time) for 40+ world capitals, mapped to ATS micro units (Bloc · Centi · Milli)." />
+  <meta name="description" content="Live world map of 40+ capitals: each city's emoji morphs with what's happening locally (sleep / wake / work / lunch / dinner / prime-time) at the current ATS instant. Slider to scrub through 24 h UTC." />
   <link rel="canonical" href="https://s-geffroy.github.io/ATS/en/cities.html" />
   <link rel="alternate" hreflang="en" href="https://s-geffroy.github.io/ATS/en/cities.html" />
   <link rel="alternate" hreflang="fr" href="https://s-geffroy.github.io/ATS/fr/cities.html" />
   <link rel="alternate" hreflang="x-default" href="https://s-geffroy.github.io/ATS/en/cities.html" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="en_US" />
-  <meta property="og:title" content="Δ ATS — Capitals × daily activities" />
-  <meta property="og:description" content="When the world wakes, eats, works — in ATS micro units." />
+  <meta property="og:title" content="Δ ATS — World map of daily activities" />
+  <meta property="og:description" content="A live world map: each capital's emoji shows what's happening there right now (sleep / work / lunch / dinner / prime-time)." />
   <meta property="og:url" content="https://s-geffroy.github.io/ATS/en/cities.html" />
   <meta property="og:image" content="https://s-geffroy.github.io/ATS/assets/og-card.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Δ ATS — Capitals × daily activities" />
-  <meta name="twitter:description" content="When the world wakes, eats, works — in ATS micro units." />
+  <meta name="twitter:title" content="Δ ATS — World map of daily activities" />
+  <meta name="twitter:description" content="A live world map: each capital's emoji shows what's happening there right now (sleep / work / lunch / dinner / prime-time)." />
   <meta name="twitter:image" content="https://s-geffroy.github.io/ATS/assets/og-card.png" />
-  <title>Δ ATS — Capitals × daily activities</title>
+  <title>Δ ATS — World map of daily activities</title>
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
 <body data-lang="en">
@@ -50,8 +50,8 @@
   </header>
 
   <main class="container">
-    <h1>Capitals × daily activities</h1>
-    <p class="muted">When the world wakes, eats, works, and unwinds — for 40+ representative capitals, with each local hour translated into its ATS micro slice (<code>Bloc · Centi · Milli</code>, the <code>BC.M</code> tail of the new short form <code>ΔK.H.D.Kin-BC.M</code>). ATS values are computed live from each city's IANA timezone, so daylight-saving transitions are tracked automatically.</p>
+    <h1>The world at this ATS instant</h1>
+    <p class="muted">A live map of 40+ capitals: each pin's emoji morphs with what's happening locally (<span aria-hidden="true">🌙</span> asleep, <span aria-hidden="true">🌅</span> waking, <span aria-hidden="true">💼</span> working, <span aria-hidden="true">🍽️</span> at lunch, <span aria-hidden="true">🍷</span> at dinner, <span aria-hidden="true">📺</span> prime-time…) at the current ATS slice. Hover or tap a city for its local HH:MM, ATS <code>BC.M</code>, and current activity. Drag the slider to fly through 24 h UTC and watch the planet cycle.</p>
     <section id="cities-root"></section>
   </main>
 

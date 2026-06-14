@@ -468,90 +468,155 @@ a:hover { text-decoration: underline; }
 .city-hit   { cursor: pointer; }
 .city-hit:focus-visible { outline: 2px solid currentColor; outline-offset: 1px; }
 
-/* Cities × activities page — wide matrix table. Sticky header row + first
-   column keep the city name and activity label visible while the user
-   scrolls horizontally on narrow screens. Each cell stacks the local
-   HH:MM on top and the ATS BC.M tail below (smaller, monospace). */
+/* Cities page — world map view. Each ~40 capital is a pin on an
+   equirectangular projection; the pin's emoji morphs with what's
+   happening LOCALLY at the current reference UTC instant. The user can
+   either watch live (1 Hz tick) or scrub a slider through the 24 h day. */
 .cities-note { max-width: 70ch; }
-.cities-controls { margin: 0 0 0.75rem 0; display: flex; gap: 0.5rem; }
-.cities-filter {
-  flex: 1; max-width: 320px;
-  padding: 0.4rem 0.6rem;
+.cities-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  margin: 0.5rem 0 1rem 0;
+  font-size: 0.85rem;
+  color: color-mix(in oklab, CanvasText 75%, transparent);
+}
+.cities-legend-item { display: inline-flex; align-items: center; gap: 0.25rem; }
+.cities-legend-icon { font-size: 1.05rem; line-height: 1; }
+
+.cities-map {
+  border: 1px solid color-mix(in oklab, CanvasText 12%, transparent);
+  border-radius: 8px;
+  overflow: hidden;
+  background: color-mix(in oklab, CanvasText 4%, transparent);
+}
+.cities-map-svg { display: block; width: 100%; height: auto; }
+.cities-ocean { fill: color-mix(in oklab, CanvasText 6%, Canvas); }
+.cities-land path {
+  fill: color-mix(in oklab, CanvasText 18%, Canvas);
+  stroke: color-mix(in oklab, CanvasText 30%, transparent);
+  stroke-width: 0.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.cities-pin { cursor: pointer; }
+.cities-pin-dot {
+  fill: color-mix(in oklab, CanvasText 70%, Canvas);
+  stroke: Canvas;
+  stroke-width: 1.2;
+  transition: r 120ms ease, fill 120ms ease;
+}
+.cities-pin-icon {
+  font-size: 11px;
+  pointer-events: none;
+  user-select: none;
+}
+.cities-pin:hover .cities-pin-dot,
+.cities-pin:focus .cities-pin-dot {
+  r: 11;
+  fill: color-mix(in oklab, CanvasText 95%, Canvas);
+}
+.cities-pin:focus { outline: none; }
+.cities-pin:focus .cities-pin-dot {
+  stroke: color-mix(in oklab, CanvasText 60%, transparent);
+  stroke-width: 2;
+}
+/* State-tinted halo around dot, very subtle */
+.cities-pin[data-state="sleep"]    .cities-pin-dot { fill: #2c3e6b; }
+.cities-pin[data-state="wake"]     .cities-pin-dot { fill: #f5a04a; }
+.cities-pin[data-state="breakfast"].cities-pin-dot { fill: #d97759; }
+.cities-pin[data-state="commute"]  .cities-pin-dot { fill: #6b7280; }
+.cities-pin[data-state="school"]   .cities-pin-dot { fill: #8b5cf6; }
+.cities-pin[data-state="work"]     .cities-pin-dot { fill: #4a6cff; }
+.cities-pin[data-state="lunch"]    .cities-pin-dot { fill: #eab308; }
+.cities-pin[data-state="evening"]  .cities-pin-dot { fill: #ec4899; }
+.cities-pin[data-state="dinner"]   .cities-pin-dot { fill: #c2410c; }
+.cities-pin[data-state="leisure"]  .cities-pin-dot { fill: #14b8a6; }
+
+.cities-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.9rem 0 0 0;
+  flex-wrap: wrap;
+}
+.cities-now-btn {
+  padding: 0.35rem 0.85rem;
   font: inherit;
-  border: 1px solid color-mix(in oklab, CanvasText 30%, transparent);
+  font-weight: 600;
+  border: 1px solid color-mix(in oklab, CanvasText 35%, transparent);
   border-radius: 6px;
   background: Canvas; color: CanvasText;
+  cursor: pointer;
 }
-.cities-tablewrap { overflow-x: auto; border: 1px solid color-mix(in oklab, CanvasText 12%, transparent); border-radius: 8px; }
-.cities-table {
-  border-collapse: collapse;
-  width: 100%;
+.cities-now-btn:hover { background: color-mix(in oklab, CanvasText 8%, Canvas); }
+.cities-slider {
+  flex: 1;
+  min-width: 180px;
+  max-width: 480px;
+  accent-color: color-mix(in oklab, CanvasText 60%, transparent);
+}
+.cities-caption {
   font-size: 0.9rem;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
 }
-.cities-table thead th {
-  position: sticky; top: 0;
-  background: Canvas;
-  z-index: 2;
-  padding: 0.4rem 0.55rem;
-  text-align: center;
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  border-bottom: 1px solid color-mix(in oklab, CanvasText 20%, transparent);
-  white-space: nowrap;
-}
-.cities-table th.cities-th-city { text-align: left; }
-.cities-table tbody tr:nth-child(even) { background: color-mix(in oklab, CanvasText 3%, transparent); }
-.cities-table tbody tr:hover { background: color-mix(in oklab, CanvasText 8%, transparent); }
-.cities-td-city {
-  position: sticky; left: 0;
-  background: Canvas;
-  padding: 0.45rem 0.6rem;
-  border-right: 1px solid color-mix(in oklab, CanvasText 12%, transparent);
-  white-space: nowrap;
-}
-.cities-table tbody tr:nth-child(even) .cities-td-city {
-  background: color-mix(in oklab, CanvasText 3%, Canvas);
-}
-.cities-table tbody tr:hover .cities-td-city {
-  background: color-mix(in oklab, CanvasText 8%, Canvas);
-}
-.cities-code {
-  display: inline-block;
-  font-family: ui-monospace, Menlo, Consolas, monospace;
-  font-weight: 700;
+.cities-caption-ats { font-weight: 600; }
+.cities-caption-tag {
   font-size: 0.72rem;
-  padding: 0.08rem 0.35rem;
-  margin-right: 0.45rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, CanvasText 12%, transparent);
+  color: color-mix(in oklab, CanvasText 75%, transparent);
+}
+
+.cities-tooltip {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  min-width: 14rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  background: Canvas;
+  color: CanvasText;
+  border: 1px solid color-mix(in oklab, CanvasText 25%, transparent);
+  box-shadow: 0 6px 24px color-mix(in oklab, CanvasText 25%, transparent);
+  font-size: 0.88rem;
+}
+.cities-tooltip[hidden] { display: none; }
+.cities-tooltip-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.35rem;
+}
+.cities-tooltip-icon { font-size: 1.4rem; line-height: 1; }
+.cities-tooltip-name { font-weight: 700; }
+.cities-tooltip-code {
+  margin-left: auto;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  padding: 0.05rem 0.35rem;
   border-radius: 4px;
-  background: color-mix(in oklab, CanvasText 15%, transparent);
-  vertical-align: middle;
+  background: color-mix(in oklab, CanvasText 14%, transparent);
 }
-.cities-name { font-weight: 600; }
-.cities-tz {
-  display: block;
-  font-family: ui-monospace, Menlo, Consolas, monospace;
-  font-size: 0.7rem;
-  margin-top: 0.1rem;
+.cities-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.1rem 0;
 }
-.cities-cell {
-  text-align: center;
-  padding: 0.35rem 0.4rem;
-  min-width: 4.6rem;
-}
-.cities-cell-local { font-weight: 600; font-variant-numeric: tabular-nums; }
-.cities-cell-ats {
-  font-family: ui-monospace, Menlo, Consolas, monospace;
+.cities-tooltip-row .lbl {
+  color: color-mix(in oklab, CanvasText 60%, transparent);
   font-size: 0.78rem;
-  opacity: 0.7;
-  margin-top: 0.1rem;
 }
-.cities-cell-empty { opacity: 0.4; }
-.cities-empty td { padding: 1rem; text-align: center; }
+
 @media (max-width: 600px) {
-  .cities-table { font-size: 0.82rem; }
-  .cities-cell { min-width: 4.1rem; padding: 0.3rem; }
+  .cities-pin-icon { font-size: 10px; }
+  .cities-tooltip { font-size: 0.82rem; min-width: 12rem; }
 }
 
 /* Options block at the end of the details panel */
