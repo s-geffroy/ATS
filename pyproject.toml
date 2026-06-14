@@ -26,6 +26,12 @@ bridges = [
   "convertdate>=2.4",   # Hebrew, Islamic, Mayan, Indian civil
   "lunardate>=0.2",     # Chinese lunisolar (HKO tables 1900–2100)
 ]
+# Property-based + perf harness (test_property.py, test_perf.py).
+# Optional so contributors without hypothesis still pass the core suite;
+# CI installs this extra so the hardened tests actually run.
+tests = [
+  "hypothesis>=6.0",
+]
 
 [project.urls]
 Homepage = "https://s-geffroy.github.io/ATS/"
