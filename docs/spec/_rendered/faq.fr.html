@@ -1,34 +1,260 @@
 <h1>FAQ — Δ ATS</h1>
-<h2>Pourquoi pas la convention déjà mondiale (calendrier grégorien) ?</h2>
-<p>Le grégorien optimise le calage saisonnier d'une société agricole du XVIᵉ siècle. Pour calculer une durée, comparer deux périodes ou raisonner sur des cycles humains (focus, repos, projet, génération), il introduit du bruit : mois irréguliers, semaines bibliques, fuseaux mouvants, heure d'été. L'ATS ne supprime pas le grégorien — il offre une <strong>mesure</strong> plus propre, qui coexiste avec lui.</p>
-<h2>Pourquoi 1969-07-20 et pas une date "neutre" ?</h2>
-<p>L'alunissage est l'événement le plus consensuellement positif et techniquement vérifiable du XXᵉ siècle. C'est aussi le premier instant où un humain a posé son enveloppe sur un autre corps céleste, ce qui colle au projet "civilisation multi-planétaire" du manifeste.</p>
-<h2>Pourquoi le <strong>début</strong> du jour (00:00 UTC) et non l'instant exact de l'alunissage (20:17:40 UTC) ?</h2>
-<p>Pour aligner le compteur de jour avec UTC : avec l'époque calée sur minuit, <strong>Bloc 5 = 12:00 UTC</strong> exactement (5 × 2 h 24 min), Bloc 0 = minuit, etc. Les versions antérieures (« RC v1.1 ») ancraient sur l'instant exact de l'alunissage ; Bloc 5 tombait alors à 08:17:40 UTC, ce qui déroutait (« pourquoi Bloc 5 n'est pas midi ? »). v0.5 corrige cela. L'instant de l'alunissage reste honoré comme un point remarquable à l'intérieur de Δ 0, à <code>T+ Δ 0.0.0.0.84560</code> (Bloc 8, Centi 4, Deka 5, Kin 6).</p>
-<h2>Pourquoi pas le premier pas (21/07 02:56:15Z) comme ancrage ?</h2>
-<p>Le premier pas a une charge symbolique plus forte que l'alunissage — mais il arrive 6 h 35 après que Eagle s'est posé, et le <em>lendemain</em> UTC (Δ 1). Le monde retient l'alunissage comme « 20 juillet 1969 » ; ancrer sur le début de ce jour préserve la mémoire culturelle tout en alignant sur UTC.</p>
-<h2>Pourquoi pas l'année tropique (365.2422 j) comme unité macro ?</h2>
-<p>Parce qu'elle n'est pas un multiple entier d'un jour. La forcer dans un format positionnel oblige à des bissextiles ou des fractions, qui sont exactement ce qu'on essaie d'éliminer.</p>
-<h2>Pourquoi pas la base 12 ou la base 20 ?</h2>
-<p>La base 12 a des avantages divisibilité (2, 3, 4, 6), la base 20 colle au Compte Long maya. Mais l'écosystème (numéraires, SI, informatique, finance) est entièrement en base 10. Le choix décimal réduit la friction d'adoption à ~0.</p>
-<h2>Comment lire <code>T+ Δ 20.7.8.0.61137</code> à voix haute ?</h2>
-<p>La spec ne fixe pas de standard oral. Trois usages observés : point-par-point ("Deux Zéro point Sept point Huit point Zéro point Six Un Un Trois Sept"), groupé par paire ("Vingt point Sept point Huit point Zéro point Six mille cent trente-sept"), ou court ("Vingt sept huit zéro tiret soixante-et-un point un").</p>
-<h2>"Δ20.7.8-65.1", c'est ambigu sur quel jour ?</h2>
-<p>Oui — c'est précisément pourquoi v0.1.2 a <strong>rétabli <code>Kin</code></strong> dans la forme courte : <code>Δ20.7.8.5-65.1</code>. La forme courte garde la précision au jour près. Depuis v0.7, le chiffre <code>Milli</code> après le <code>.</code> ramène la perte résiduelle de ±14 min 24 s (Centi seul) à ±1 min 26 s.</p>
-<h2>Pourquoi pas de fuseau horaire ?</h2>
-<p>Parce que c'est la source #1 de bugs en logiciel. ATS = UTC strict. Pour calibrer ses activités au soleil local, on utilise la couche <strong>LST (Local Solar Time)</strong> comme surcouche informative (§7), jamais comme champ stocké.</p>
-<h2>Et les changements d'heure été/hiver ?</h2>
-<p>Disparus côté ATS. Ils existent encore dans la culture, mais aucune valeur ATS ne bouge le jour du changement. Une société qui veut profiter du soleil l'été décale ses <strong>horaires d'activité</strong> (en ATS), pas son horloge.</p>
-<h2>Que se passe-t-il pour une seconde intercalaire (leap second) ?</h2>
-<p>L'ATS s'aligne sur POSIX : un jour vaut <strong>exactement 86 400 secondes</strong>. La seconde intercalaire est absorbée silencieusement, comme dans Unix time. Pour les usages aérospatiaux où ça compte (TAI ≠ UTC), une variante TAI pourrait être définie ultérieurement.</p>
-<h2>Pourquoi le <code>Kin</code> est-il en position 1 et non Bloc/Centi ?</h2>
-<p>Parce que la partie entière (Kilo.Hecto.Deka.Kin) répond à la question "quel jour ?" et la partie fractionnaire (Bloc.Centi.Milli.Beat.Blink) à la question "à quel moment du jour ?". Les deux ont une utilité distincte ; les séparer par <code>.</code> (canonique) ou <code>/</code> (court) clarifie la lecture.</p>
-<h2>La troncature ne va-t-elle pas afficher du retard ?</h2>
-<p>Oui — et c'est voulu. ATS est un compteur d'<strong>unités complétées</strong>. Tant que la prochaine fraction n'est pas pleinement écoulée, on ne l'affiche pas. Conséquence : l'horloge est toujours ≤ instant réel (drift ≤ 864 ms à précision 5 chiffres).</p>
-<h2>Pourquoi pas l'arrondi banker's (half-even) ?</h2>
-<p>Tenté en v0.1.0, rejeté en v0.1.1. Le half-even peut faire passer brièvement l'affichage <strong>au-dessus</strong> de l'instant réel — incompatible avec un compteur monotone. Cf. §6 du manifeste.</p>
-<h2>Et au-delà de 9 Kilos ?</h2>
-<p>Le Kilo n'a pas de borne supérieure. <code>Δ 124.3.5.7.00000</code> est valide (124 000 + 357 jours = ~344 ans). En interne, on utilise un entier non borné.</p>
-<h2>Comment je sais qu'une lib tierce respecte la spec ?</h2>
-<p><code>docs/spec/test-vectors.json</code> contient 12 instants de référence avec leurs encodages canonique + court. Toute implémentation doit produire des sorties identiques bit pour bit. La CI du projet exécute ce contrat sur Python et JavaScript à chaque push.</p>
+<p><strong>Statut :</strong> Pré-release v0.7
+<strong>Type de document :</strong> FAQ non normative. Complément conversationnel à la spec normative.
+<strong>Référence normative :</strong> <code>manifesto.fr.md</code>
+<strong>Langue source :</strong> Anglais (<code>faq.en.md</code>). Cette traduction française est fournie pour l'accessibilité.</p>
+<blockquote>
+<p>Chaque réponse ci-dessous cite la section source dans le manifeste ou une annexe pour que les affirmations soient vérifiables. Les questions se regroupent autour des <strong>fondations</strong> (§1), du <strong>format et de la notation</strong> (§2), des <strong>maths et de la précision</strong> (§3), du <strong>multi-planétaire</strong> (§4), des <strong>calendriers culturels et de l'adoption</strong> (§5), de l'<strong>implémentation et de la conformance</strong> (§6), du <strong>site et de l'UI</strong> (§7), et du <strong>versionnement et processus</strong> (§8). Utilisez la navigation pour sauter.</p>
+</blockquote>
+<hr>
+<h2>1. Fondations</h2>
+<h3>Pourquoi pas le calendrier grégorien ?</h3>
+<p>Le grégorien optimise le calage saisonnier d'une société agricole du XVIᵉ siècle. Pour calculer une durée, comparer deux périodes ou raisonner sur des cycles humains (focus, repos, projet, génération), il ajoute du bruit : mois irréguliers (28-31 jours), semaines religieuses (sans justification biologique), fuseaux mouvants, heure d'été. ATS ne remplace pas le grégorien — il offre une <strong>couche de mesure</strong> plus propre qui coexiste avec lui. Cf. <code>comparison.fr.md §9.1</code> pour l'argument comparatif complet ; <code>philosophy.fr.md §1</code> pour la justification.</p>
+<h3>Pourquoi 1969-07-20, et pas une date « neutre » ?</h3>
+<p>L'alunissage d'Apollo 11 est l'événement le plus universellement positif et techniquement vérifiable du XXᵉ siècle. Il marque la première fois qu'un membre de notre espèce a occupé, en personne, la surface d'un corps autre que la Terre — la discontinuité qu'ATS utilise comme ancrage. Les quatre propriétés qui rendent Apollo 11 uniquement adapté comme époque ATS (vérifiabilité, témoignage à l'échelle de l'espèce, sans victime humaine, discontinuité de présence-ailleurs) sont documentées dans <code>manifesto.fr.md §2.3</code>. Six alternatives rejetées (Spoutnik, Hiroshima, Wright, lancement Apollo 11, premier pas, etc.) sont documentées à <code>manifesto.fr.md §2.2</code>.</p>
+<h3>Pourquoi le début du jour (00:00 UTC), et pas l'instant de l'alunissage (20:17:40 UTC) ?</h3>
+<p>Pour garder le compteur de jour aligné sur UTC : avec l'époque sur la frontière de minuit, <strong>Bloc 5 = 12:00 UTC</strong> exactement (5 × 2 h 24 min), Bloc 0 = minuit, et ainsi de suite. Les versions précédentes (« RC v1.1 ») ancraient sur l'instant exact d'alunissage ; cela faisait tomber Bloc 5 à 08:17:40 UTC, ce qui surprenait les nouveaux venus (« pourquoi Bloc 5 n'est pas midi ? »). v0.5 a corrigé cela. L'alunissage lui-même est préservé comme un instant remarquable à l'intérieur de Δ 0, à <code>T+ Δ 0.0.0.0.84560</code> (Bloc 8, Centi 4, Deka 5, Kin 6). Cf. <code>manifesto.fr.md §2.1</code>.</p>
+<h3>Pourquoi pas le premier pas (1969-07-21T02:56:15Z) comme ancrage ?</h3>
+<p>Le premier pas est symboliquement plus lourd que l'alunissage — mais il a lieu 6 h 35 après qu'Eagle a déjà touché terre, et le jour UTC <em>suivant</em> (Δ 1). Le monde se souvient de l'alunissage comme « 20 juillet 1969 » ; choisir le début de ce jour préserve la mémoire culturelle tout en s'alignant sur UTC. Le rejet apparaît dans le tableau des candidats <code>manifesto.fr.md §2.2</code>.</p>
+<h3>Pourquoi pas l'année tropique (365,2422 jours) comme unité macro ?</h3>
+<p>Parce qu'elle n'est pas un multiple entier d'un jour. La forcer dans un format positionnel exige des jours bissextiles ou des fractions — exactement ce qu'ATS est conçu pour éliminer. La même logique rejette le mois synodique (29,53 jours) comme unité positionnelle sur Terre, et s'applique en sens inverse sur la Lune (où le jour lunaire synodique <em>est</em> l'unité naturelle ; cf. <code>multi-planetary.fr.md §3.3</code>).</p>
+<h3>Pourquoi pas la base 12 ou la base 20 ?</h3>
+<p>La base 12 a des bénéfices de divisibilité (2, 3, 4, 6) ; la base 20 correspond au Long Count maya. Mais l'écosystème global — unités SI, monnaies, notation scientifique, informatique, finance — est massivement base 10. Le choix décimal réduit la friction d'adoption à près de zéro. Le choix est <strong>ingénierie, pas numérologie</strong> — <code>manifesto.fr.md §1.1</code> est explicite à ce sujet.</p>
+<h3>Pourquoi pas l'Ère Holocène (Année 12026 = ancrage début-agriculture) ?</h3>
+<p>L'Ère Holocène garde la structure grégorienne et ne décale que le compte d'année de +10 000. C'est une amélioration cosmétique ; elle ne traite pas les problèmes computationnels sous-jacents (mois irréguliers, fuseaux, règles bissextiles). ATS garde un compteur décimal propre sous le même axe UTC. Cf. <code>comparison.fr.md §5.1</code> — Holocène gagne sur l'intuition archéologique ; ATS gagne sur la simplicité computationnelle. Les deux pourraient coexister (année Holocène + compte de jour ATS).</p>
+<h3>ATS est-il une religion ou une vision du monde ?</h3>
+<p>Non. ATS est un système de coordonnées sur l'axe temporel UTC. Ce n'est pas une théorie sur la nature du temps, pas un remplacement des calendriers culturels ou religieux, pas un protocole de synchronisation d'horloges, et pas une affirmation métaphysique sur la base 10. Les quatre frontières explicites sont énoncées dans <code>manifesto.fr.md §1.1</code>. Les rituels culturels proposés dans <code>conventions.fr.md</code> (Kilo-versaire, Hecto-fête, transitions de Génération) sont des échafaudages cognitifs opt-in sans contenu métaphysique ; <code>philosophy.fr.md §8.1</code> traite explicitement l'accusation de « religion séculière ».</p>
+<hr>
+<h2>2. Format &amp; notation</h2>
+<h3>Comment lire <code>T+ Δ 20.7.8.0.61137</code> à voix haute ?</h3>
+<p>La spec ne standardise pas la forme orale (<code>manifesto.fr.md §5</code> ne décrit que les formes écrites). Trois usages observés :</p>
+<ul>
+<li><strong>Chiffre par chiffre</strong> : « té-plus delta deux-zéro point sept point huit point zéro point six-un-un-trois-sept ».</li>
+<li><strong>Groupé</strong> : « vingt virgule sept virgule huit virgule zéro virgule soixante-et-un mille cent trente-sept ».</li>
+<li><strong>Conversationnel court</strong> (<code>Δ20.7.8.0-61.1</code>) : « delta vingt point sept point huit point zéro tiret soixante-et-un point un ».</li>
+</ul>
+<p>Choisissez ce qui colle à votre contexte.</p>
+<h3>Quelle est la différence entre la forme canonique et la forme courte ?</h3>
+<ul>
+<li><strong>Canonique</strong> (<code>T+ Δ K.H.D.Kin.fffff</code>) : pleine précision, utilisée pour les logs, le stockage et l'échange. Porte toujours le marqueur de direction (<code>T+</code> ou <code>T-</code>). Cf. <code>manifesto.fr.md §4</code>.</li>
+<li><strong>Courte</strong> (<code>ΔK.H.D.Kin-BC.M</code>, v0.7+) : forme conversationnelle pour UI et montres. Pas d'espace après Δ, séparateur <code>-</code> entre Kin et BC, séparateur <code>.</code> avant Milli. Pas de marqueur de direction (T+ implicite). Cf. <code>manifesto.fr.md §5</code>.</li>
+</ul>
+<h3>D'où vient le chiffre Milli ? (mise à jour v0.7)</h3>
+<p>Avant v0.7, la forme courte était <code>Δ K.H.D.Kin/cc</code> (par exemple, <code>Δ 20.7.8.2/50</code>), encodant Bloc et Centi mais pas Milli — précision ±14 min 24 s. Depuis v0.7, le format est <code>ΔK.H.D.Kin-BC.M</code> (par exemple, <code>Δ20.7.8.2-50.0</code>), ajoutant le chiffre Milli et amenant la précision à ±1 min 26 s. Le chiffre Milli est <strong>toujours émis</strong>, y compris quand sa valeur est 0, pour que le plancher de précision soit prévisible. Cf. <code>manifesto.fr.md §5.1</code>.</p>
+<h3>Pourquoi <code>Δ20.7.8.2-50</code> — sans chiffre Milli — est-il rejeté ?</h3>
+<p>Le parseur court v0.7 est strict : le <code>.M</code> de fin fait partie du format. Le chiffre Milli doit toujours être présent (même quand 0). Refuser un Milli manquant prévient l'ambigüité à la frontière de précision — une valeur sans <code>.M</code> ressemble à du pré-v0.7. La grammaire ABNF <code>manifesto.fr.md §5.1</code> impose cela ; les parseurs Python et JS de référence rejettent la forme sans <code>.M</code> avec une erreur explicite.</p>
+<h3>« Δ20.7.8-65.1 » — quel jour exactement ?</h3>
+<p>C'est encore ambigu sur quel jour, parce que le chiffre Kin manque. v0.1.2 a <strong>ramené <code>Kin</code></strong> dans la forme courte précisément pour corriger cela : la forme courte v0.7 est <code>Δ20.7.8.5-65.1</code> (avec Kin = 5). La forme courte est maintenant précise au jour près, avec le chiffre Milli (depuis v0.7) amenant la précision intra-jour à ±1 min 26 s. Cf. <code>manifesto.fr.md §5.1</code>.</p>
+<h3>Pourquoi pas de fuseaux horaires ?</h3>
+<p>Parce que les fuseaux horaires sont la source N°1 de bugs de gestion de date dans le logiciel commercial [Hertel 2011 dans les références de <code>philosophy.fr.md</code>]. ATS = UTC strict par spec (<code>manifesto.fr.md §7</code>). Pour calibrer l'activité humaine au soleil local, utilisez la surcouche <strong>LST (Local Solar Time)</strong> comme commodité de couche-présentation uniquement — ne stockez jamais une valeur LST comme partie d'un instant ATS. Les interfaces logicielles transportant des valeurs ATS <strong>ne doivent pas</strong> porter de champ fuseau horaire (<code>manifesto.fr.md §7</code>).</p>
+<h3>Et l'heure d'été (DST) ?</h3>
+<p>Disparue, en ce qui concerne ATS. Le DST est une convention culturelle appliquée à la couche présentation ; aucune valeur ATS ne bouge quand le DST change. Une société qui veut plus de soleil d'été décale ses <strong>heures d'activité</strong> (en ATS), pas son horloge. Le dataset cities-page (<code>docs/assets/data/cities.json</code>) reflète les fenêtres d'activité ; certaines villes décalent visiblement leurs fenêtres d'activité été-vers-hiver. ATS lui-même est inchangé.</p>
+<h3>Que se passe-t-il pendant une seconde intercalaire ?</h3>
+<p>ATS s'aligne sur POSIX : un jour fait <strong>exactement 86 400 secondes SI</strong>. La seconde intercalaire est absorbée, comme dans Unix time. Les implémentations choisissent une de trois politiques de lissage documentées — POSIX-naïf, lissage linéaire, ou saut discret — et doivent documenter le choix (<code>manifesto.fr.md §8.2</code>). Une future variante ATS-TAI est réservée (<code>manifesto.fr.md §8.3</code>) pour l'aérospatial et la science haute-précision où le comportement leap-second compte à l'échelle sous-seconde.</p>
+<h3>Pourquoi <code>Kin</code> est-il dans la partie entière, pas dans la fraction ?</h3>
+<p>Parce que la partie entière (<code>Kilo.Hecto.Deka.Kin</code>) répond à « <strong>quel jour ?</strong> » et la partie fractionnaire (<code>Bloc.Centi.Milli.Beat.Blink</code>) répond à « <strong>à quel moment du jour ?</strong> ». Deux questions distinctes, deux moitiés distinctes. En forme canonique ils sont séparés par <code>.</code> ; en forme courte par <code>-</code> (depuis v0.7). Le Kin est la plus petite unité macro (1 jour) — il appartient à la date, pas à l'horloge.</p>
+<h3>Et au-delà de Kilo &gt; 9 ?</h3>
+<p>Kilo n'a pas de borne supérieure. <code>T+ Δ 124.3.5.7.00000</code> est valide (124 × 1000 + 357 jours = ~344 ans après époque). En interne c'est un entier non borné ; l'implémentation Python de référence utilise <code>int</code> Python (précision arbitraire) ; l'implémentation JS de référence utilise le <code>number</code> JavaScript jusqu'à 2^53. Cf. <code>manifesto.fr.md §4.2</code>.</p>
+<h3>Puis-je omettre le marqueur de direction <code>T+</code> en forme canonique ?</h3>
+<p>Non. <code>manifesto.fr.md §3</code> et §4.1 sont stricts : la forme canonique requiert soit <code>T+</code> soit <code>T-</code>, jamais omis. Le raccourci d'omission existe seulement dans la forme courte conversationnelle (<code>manifesto.fr.md §5</code>), où <code>T+</code> est implicite.</p>
+<hr>
+<h2>3. Maths &amp; précision</h2>
+<h3>La troncature ne va-t-elle pas faire prendre du retard à l'horloge ?</h3>
+<p>Oui — par conception. ATS est un compteur d'unités <strong>complétées</strong>. Tant que la prochaine fraction n'est pas pleinement écoulée, elle n'est pas montrée. Conséquence : le temps affiché est toujours ≤ l'instant réel ; dérive ≤ 864 ms à précision 5 chiffres. Cf. <code>manifesto.fr.md §6</code> pour les invariants formels. L'implémentation Python de référence passe un test property-based (Hypothesis) sur 1000 instants aléatoires vérifiant la borne de dérive (<code>tests/test_property.py</code>).</p>
+<h3>Pourquoi pas l'arrondi banker (half-even) ?</h3>
+<p>Essayé en v0.1.0, annulé en v0.1.1. Le half-even peut brièvement pousser l'affichage <strong>devant</strong> la réalité — incompatible avec un compteur monotone. ATS privilégie la monotonicité véridique sur la symétrie de moyennage. Cf. <code>manifesto.fr.md §6.4</code> pour la justification.</p>
+<h3>Quelle est la précision de la forme courte ?</h3>
+<p>La forme courte <code>ΔK.H.D.Kin-BC.M</code> porte BC (2 chiffres de Bloc+Centi) plus M (1 chiffre de Milli) — trois chiffres de précision intra-jour, donnant ±1 min 26 s. Les chiffres Beat et Blink ne sont pas présents dans la forme courte. La forme canonique complète a 5 chiffres et ±864 ms de précision ; les implémentations à précision étendue (9 chiffres) atteignent ±0,0086 ms. Cf. <code>manifesto.fr.md §4.4</code>.</p>
+<h3>La forme courte peut-elle round-tripper en UTC ?</h3>
+<p>Oui, avec la précision documentée. Décoder <code>Δ20.7.8.2-50.0</code> produit un instant ATS dont l'interprétation UTC est un intervalle semi-ouvert <code>[utc_decoded, utc_decoded + 86,4 s)</code> — exactement un Milli d'incertitude. Les décodeurs doivent labéliser le résultat comme approximatif (<code>manifesto.fr.md §10</code>). La forme canonique 5 chiffres round-trippe avec une dérive ≤ 864 ms.</p>
+<hr>
+<h2>4. Multi-planétaire</h2>
+<h3>Pourquoi Mars Pathfinder comme époque Mars ?</h3>
+<p>Le touchdown de la Sagan Memorial Station de Mars Pathfinder (1997-07-04T16:56:55Z) a été le premier atterrissage Mars moderne réussi de l'ère contemporaine, avec des records publics précis à la seconde. La date symbolique du 4 juillet correspond au cadrage culturel d'Apollo 11. Six alternatives rejetées — Viking 1, Mars 3, Curiosity, Perseverance, Schiaparelli, futur atterrissage humain — sont documentées dans <code>multi-planetary.fr.md §8.1</code>. Le premier atterrissage humain sur Mars <strong>peut</strong> devenir l'ancrage dans une révision future via le processus RFC.</p>
+<h3>Pourquoi la Lune partage-t-elle l'époque Terre ?</h3>
+<p>Choix doctrinal : la Lune est le satellite de la Terre ; le système Terre-Lune est gravitationnellement et astronomiquement un système. Utiliser une époque reflète cela. Les colons lunaires expérimentent le jour synodique (≈ 29,53 jours terrestres) comme cycle intra-jour naturel, mais l'époque est partagée avec celle de la Terre pour que la coordination inter-corps soit plus simple. Cf. <code>multi-planetary.fr.md §8.2</code>.</p>
+<h3>Pourquoi le jour lunaire synodique, pas le jour sidéral ?</h3>
+<p>Trois raisons (<code>multi-planetary.fr.md §3.3.2</code>) :</p>
+<ol>
+<li>Les colons lunaires expérimentent le cycle synodique (lever-coucher-lever de soleil), pas le sidéral.</li>
+<li>Le cycle synodique correspond au cycle de phases observé depuis la Terre — la référence culturelle.</li>
+<li>Le framework NASA Coordinated Lunar Time (2024) utilise le cycle synodique.</li>
+</ol>
+<p>Le jour sidéral <strong>peut</strong> être exposé comme unité additionnelle non normative par les implémentations qui en ont besoin.</p>
+<h3>Puis-je définir un ATS Vénus ou un ATS Europe ?</h3>
+<p>Oui. Le framework générique dans <code>multi-planetary.fr.md §6</code> permet à toute implémentation d'enregistrer <code>Δ_X</code> pour n'importe quel corps en fournissant quatre paramètres : <code>epoch_X</code>, <code>day_seconds_X</code>, <code>suffix_X</code>, et (optionnel) <code>symbol_X</code>. L'implémentation Python de référence (<code>code/ats_multi_planetary.py</code>) fournit une classe <code>Body</code> avec cette interface. Les exigences de vecteurs sont dans <code>multi-planetary.fr.md §6.3</code>.</p>
+<h3>Les effets relativistes comptent-ils pour ATS ?</h3>
+<p>Pour la précision 5 chiffres (résolution 864 ms), non. L'horloge à la surface lunaire dérive ≈ 58,7 µs/jour plus vite qu'UTC [NIST 2024] — environ 14 700× plus petit qu'un Blink. Même sur 50 ans, la dérive cumulée est ≈ 1,07 s. Pour la précision ATS par défaut, c'est négligeable. Pour l'usage à précision sous-milliseconde (planification autonome de rover lunaire, communication espace lointain), les implémentations doivent maintenir leurs propres tables de correction TAI ↔ surface-locale (<code>multi-planetary.fr.md §9.3</code>). Une future variante ATS-TAI est réservée.</p>
+<hr>
+<h2>5. Calendriers culturels &amp; adoption</h2>
+<h3>ATS remplace-t-il mon calendrier religieux ?</h3>
+<p>Non. ATS est un standard temporel computationnel ; les calendriers culturels et religieux (hébraïque, islamique, hindou, chinois, bahá'í, Long Count maya, perse, éthiopien, etc.) remplissent des fonctions culturelles et religieuses qu'ATS ne traite pas. La relation est <strong>interopération, pas déplacement</strong> (<code>manifesto.fr.md §13.1</code>). L'implémentation de référence inclut 5 bridges (<code>code/bridges/*.py</code>) démontrant qu'un instant ATS se cartographie sur un instant dans n'importe quel calendrier culturel. Cf. <code>comparison.fr.md §7</code> pour la discussion complète.</p>
+<h3>ATS légifère-t-il une semaine de 10 jours ?</h3>
+<p>Non. Le Deka (10 jours) est une unité de mesure, pas un mandat social (<code>manifesto.fr.md §13.3</code>). Le rythme 7+3 travail-repos proposé dans <code>conventions.fr.md §2</code> est une parmi plusieurs alternatives (6+1+2+1, 8+2, 5+5, 6+4) ; adopter l'une, ou aucune, est compatible avec ATS. Les communautés engagées dans la semaine liturgique de 7 jours (Sabbat, dimanche, prière du vendredi) la retiennent ; <code>conventions.fr.md §2.4</code> documente trois réponses raisonnables pour ces communautés.</p>
+<h3>Et les calendriers hébraïque/islamique/hindou/chinois ?</h3>
+<p>Ils coexistent avec ATS via les bridges d'interop. Les bridges sont dans <code>code/bridges/{hebrew,islamic,hindu,chinese,maya}.py</code>. Chacun mappe un instant ATS à sa représentation dans le calendrier culturel (et inversement). Les vecteurs de conformance pour les bridges sont dans <code>docs/spec/test-vectors-bridges-*.json</code>. Cf. <code>comparison.fr.md §7</code> pour la discussion sur pourquoi les calendriers culturels sont interopérés, pas comparés.</p>
+<h3>Le temps décimal n'a-t-il pas échoué comme le Calendrier Républicain français (1793) ?</h3>
+<p>Le Calendrier Républicain français a échoué pour trois raisons documentées (<code>philosophy.fr.md §4.1</code>, <code>comparison.fr.md §4.1</code>) :</p>
+<ol>
+<li><strong>Rupture religieuse-culturelle trop forte</strong> — la semaine de 10 jours impliquait 1 jour de repos sur 10 au lieu d'1 sur 7.</li>
+<li><strong>Les horloges décimales étaient coûteuses à fabriquer</strong> et la population a résisté au réapprentissage.</li>
+<li><strong>Symbolisme politique</strong> — le calendrier était associé à la Terreur.</li>
+</ol>
+<p>ATS tire trois leçons explicites :</p>
+<ol>
+<li>ATS ne légifère <strong>pas</strong> sur les rythmes de repos.</li>
+<li>ATS n'abolit <strong>pas</strong> l'horloge civile 24 heures — ATS analogique et horloges murales grégoriennes coexistent.</li>
+<li>ATS est ancré sur un événement vérifiable, non politique (<code>manifesto.fr.md §2.3</code>).</li>
+</ol>
+<p>Aucun des modes d'échec de 1793 ne s'applique à ATS. L'échec de 1793 est une <em>contrainte</em> sur l'espace de conception (qu'ATS respecte), pas une <em>preuve</em> contre le temps décimal.</p>
+<h3>ATS fonctionne-t-il sur mobile / dans le navigateur / hors ligne ?</h3>
+<p>Oui. Le site de référence (<code>/{fr,en}/index.html</code>) est une Progressive Web App ; la référence JavaScript (<code>docs/assets/js/ats.js</code>) fait ~10 KB et s'exécute partout où un <code>&lt;script&gt;</code> s'exécute. Le site est installable sur Chrome Android et Safari iOS ; le cadran analogique fonctionne hors ligne une fois caché.</p>
+<hr>
+<h2>6. Implémentation &amp; conformance</h2>
+<h3>Comment vérifier qu'une bibliothèque tierce est conforme à la spec ?</h3>
+<p><code>docs/spec/test-vectors.json</code> liste 12 instants de référence avec encodages canonique et court ; <code>test-vectors-arithmetic.json</code> liste 12 cas d'algèbre ; <code>test-vectors-multi-planetary-{mars,moon}.json</code> listent 10 cas par corps. Toute implémentation doit produire des sorties <strong>bit-à-bit identiques</strong> (<code>manifesto.fr.md §16.5</code>). Le CI du projet exécute ce contrat contre Python et JavaScript à chaque push ; le fichier workflow est <code>.github/workflows/ci.yml</code>.</p>
+<h3>Que signifie « conformance » exactement ?</h3>
+<p>La conformance à ATS v0.7 signifie :</p>
+<ol>
+<li>Passer <code>test-vectors.json</code> (Terre) bit-à-bit.</li>
+<li>Passer <code>test-vectors-arithmetic.json</code> (algèbre) bit-à-bit.</li>
+<li>Implémenter les parseurs canonique et court strict.</li>
+<li>Documenter la politique de lissage des leap seconds choisie (<code>manifesto.fr.md §8.2</code>).</li>
+<li>Documenter la classe de précision (5 chiffres par défaut ou étendue).</li>
+</ol>
+<p>Le support multi-planétaire ajoute passer les vecteurs Mars et Lune. La conformance est <strong>binaire, non graduée</strong> : une implémentation est conformante ou ne l'est pas. La conformance partielle aux sections optionnelles doit être documentée (<code>manifesto.fr.md §16.5</code>).</p>
+<h3>Quelle politique de lissage de leap second devrais-je utiliser ?</h3>
+<p>Trois politiques sont des options normatives (<code>manifesto.fr.md §8.2</code>) :</p>
+<ul>
+<li><strong>Lissage POSIX-naïf</strong> : correspond à la sémantique <code>time_t</code> ; RECOMMANDÉ pour l'usage général.</li>
+<li><strong>Lissage linéaire (style Google)</strong> : distribue le leap sur une fenêtre de 20 heures ; RECOMMANDÉ pour les systèmes distribués où la tolérance aux sauts d'horloge est faible.</li>
+<li><strong>Saut discret (aligné TAI)</strong> : suit TAI en interne ; PERMIS pour l'aérospatial et l'usage scientifique.</li>
+</ul>
+<p>L'implémentation Python de référence utilise POSIX-naïf (hérité du <code>datetime</code> Python). Documentez votre choix dans vos notes de release.</p>
+<h3>Y a-t-il un JSON schema pour <code>spec_version</code> ?</h3>
+<p>Pas en v0.7 — le champ utilise la syntaxe <code>MAJEUR.MINEUR</code> (pas de PATCH) définie informellement dans <code>versioning.fr.md §2.1</code>. Les implémentations sont libres de valider le champ avec JSON Schema ou tout autre mécanisme. Un JSON Schema de référence <strong>peut</strong> être ajouté en une future MINEURE si les implémentations en demandent (la demande est elle-même une RFC ; cf. <code>versioning.fr.md §6</code>).</p>
+<h3>Y a-t-il une implémentation Rust ou Go ?</h3>
+<p>Pas encore. Une implémentation tierce de référence en Rust ou Go est une <strong>exigence de ship v1.0</strong> (<code>versioning.fr.md §7.2 (3)</code>). Elle est sur la feuille de route (<code>ROADMAP.md</code> V1.0-B). Les contributeurs sont bienvenus.</p>
+<hr>
+<h2>7. Site &amp; UI</h2>
+<h3>À quoi sert l'horloge analogique ?</h3>
+<p>À rendre ATS lisible d'un seul geste visuel, comme une montre-bracelet grégorienne est lisible. Cinq aiguilles (Bloc, Centi, Milli, Beat, Blink) sont à cinq paliers fixes de longueur-et-couleur, avec l'aiguille la plus lente la plus courte et la plus rapide la plus longue (convention horlogère). Le cadran porte aussi un anneau extérieur d'arcs de villes montrant les fenêtres de journée active 08–22 locales de 8 capitales. Cf. <code>analog-clock.fr.md</code> pour le design de référence complet et <code>philosophy.fr.md §2</code> pour la justification derrière l'unité Bloc.</p>
+<h3>Comment fonctionnent les arcs de villes ?</h3>
+<p>Chaque ville dessine un arc coloré couvrant sa journée active locale 08:00 → 22:00. Les arcs utilisent quatre styles de stroke différents par slot (matin/midi/après-midi/soir) pour rendre le moment-du-jour visuellement scannable. Cliquer un trigramme de ville entre dans le <strong>mode focus</strong> : une superposition « camembert » apparaît au centre du cadran, les arcs des autres villes s'atténuent, et le trigramme de la ville focalisée s'agrandit. Cf. <code>analog-clock.fr.md §9</code> et §10.</p>
+<h3>Qu'est-ce que la page Cités carte ?</h3>
+<p>Une page de référence séparée à <code>/{fr,en}/cities.html</code> montrant une carte du monde de ~40 capitales avec un emoji par ville évoluant avec l'activité en cours localement (dormir, travailler, déjeuner, etc.) à l'instant ATS courant. Un slider laisse explorer 24 h UTC. Cf. <code>analog-clock.fr.md §12</code> et <code>conventions.fr.md §3.4</code>.</p>
+<h3>Puis-je ajouter ma propre ville ?</h3>
+<p>Oui. Ouvrez le panneau <code>&lt;details&gt;</code> sous l'horloge, entrez un code (2-4 lettres), un nom, un fuseau IANA (autocomplete depuis <code>Intl.supportedValuesOf('timeZone')</code>) et choisissez une couleur. Jusqu'à 6 villes personnalisées sont persistées dans <code>localStorage["ats-custom-cities"]</code>. Rien ne quitte le navigateur. Cf. <code>analog-clock.fr.md §11</code>.</p>
+<h3>Pourquoi l'horloge utilise-t-elle un rafraîchissement à 10 Hz au lieu de 60 Hz ?</h3>
+<p>Trois raisons (<code>analog-clock.fr.md §8.1</code>) :</p>
+<ol>
+<li>La position Blink se rafraîchit toutes les ≈ 864 ms, en dessous de la visibilité à 10 Hz ; des ticks plus rapides ne montreraient pas de nouvelle information.</li>
+<li>10 Hz est peu coûteux en CPU et batterie.</li>
+<li>Les navigateurs mobiles throttlent les timers en arrière-plan à 1 Hz ; 10 Hz actif donne une marge sans gigue visible quand l'onglet revient au focus.</li>
+</ol>
+<p>Une implémentation 60 Hz pilotée par <code>requestAnimationFrame</code> est permise.</p>
+<hr>
+<h2>8. Versionnement &amp; processus</h2>
+<h3>Qu'est-ce qui change entre les versions v0.x ?</h3>
+<p>Les changements rupture sont permis aux frontières mineures pré-v1.0 ; chacun est consigné dans <code>CHANGELOG.md</code> avec un chemin de migration. L'exemple le plus récent : v0.6 → v0.7 a changé la syntaxe de forme courte de <code>Δ K.H.D.Kin/cc</code> à <code>ΔK.H.D.Kin-BC.M</code>. Post-v1.0, les changements rupture sont interdits aux frontières mineures ; ils requièrent un nouveau projet (ATS 2) selon <code>versioning.fr.md §3.8</code>.</p>
+<h3>v1.0 est-il sorti ?</h3>
+<p>Non. v1.0 ship quand <strong>toutes</strong> les sept exigences dans <code>versioning.fr.md §7.2</code> sont satisfaites. À partir de v0.7 :</p>
+<ul>
+<li>(1) Champ <code>spec_version</code> sur tous les vecteurs — <strong>FAIT</strong> (v0.6).</li>
+<li>(2) Annexe multi-planétaire normative — <strong>FAIT</strong> (v0.7).</li>
+<li>(3) Implémentation tierce (Rust ou Go) — TODO.</li>
+<li>(4) Artefacts publiés (<code>npm publish</code>, <code>twine upload</code>, GitHub Release signée) — TODO.</li>
+<li>(5) Archive RFC (<code>docs/spec/rfcs/</code>) — TODO.</li>
+<li>(6) <code>GOVERNANCE.md</code> nommant les éditeurs d'enregistrement — TODO.</li>
+<li>(7) Workflow Lighthouse CI — <strong>FAIT</strong> (v0.7).</li>
+</ul>
+<p>3 des 7 exigences satisfaites ; 4 restantes.</p>
+<h3>Comment proposer un changement à la spec ?</h3>
+<p>Ouvrir une Issue ou PR GitHub publique titrée <code>RFC: &lt;sujet&gt;</code> contenant les sections requises (résumé, motivation, spécification, migration, analyse compat descendante, impact vecteurs). Période de commentaire publique : minimum 14 jours calendaires. La décision est enregistrée par les éditeurs d'enregistrement avec justification écrite. Les RFC acceptées sont mergées et la version bumpée. Cf. <code>versioning.fr.md §6</code> pour la procédure complète.</p>
+<h3>Pourquoi ATS n'est-il pas encore une RFC IETF ?</h3>
+<p>Les éditeurs ont l'intention de soumettre ATS comme RFC informationnelle à l'IETF <strong>après</strong> que v1.0 ship (<code>manifesto.fr.md §16.3</code>). Pré-v1.0, la spec itère trop rapidement pour le processus IETF (périodes de last-call de plusieurs mois). La procédure RFC légère documentée dans <code>versioning.fr.md §6</code> est suffisante pour la cohorte actuelle de contributeurs. Un registre IANA pour les labels canonique/court et les identifiants de corps multi-planétaires est planifié pour la soumission IETF.</p>
+<h3>Y a-t-il un document de gouvernance ?</h3>
+<p>Pas encore. <code>GOVERNANCE.md</code> (nommant les éditeurs d'enregistrement et la procédure de décision) est une exigence de ship v1.0 (<code>versioning.fr.md §7.2 (6)</code>). Pré-v1.0, les décisions appartiennent à l'éditeur d'enregistrement du document. Post-v1.0, un modèle multi-éditeurs avec consensus approximatif et veto compat descendante s'applique (<code>versioning.fr.md §6.3</code>).</p>
+<h3>Y a-t-il une feuille de route publique ?</h3>
+<p>Oui, dans <code>ROADMAP.md</code> à la racine du projet. Elle suit le travail livré (v0.6 + v0.7) et les bloquants v1.0 restants (V1.0-B Rust/Go, V1.0-C convertisseur JS, V1.0-E i18n, V1.0-F tests, V1.0-G background sync, V1.0-H branding, V1.0-I signal d'adoption). À partir de v0.7, 3 des 9 bloquants v1.0 sont fermés.</p>
+<hr>
+<h2>Ce que cette FAQ n'est <em>pas</em></h2>
+<p>Pour pré-empter les erreurs de catégorie (reflétant la posture des autres annexes) :</p>
+<ol>
+<li><strong>Ce n'est pas normatif.</strong> La conformance (<code>manifesto.fr.md §16.5</code>) ne dépend d'aucune réponse ici. La FAQ existe pour rendre le contenu normatif plus accessible, pas pour définir du nouveau contenu normatif.</li>
+<li><strong>Ce n'est pas exhaustif.</strong> Les questions sont ajoutées à mesure qu'elles émergent de l'interaction utilisateur. Soumettre une question via une issue GitHub est bienvenu (<code>manifesto.fr.md §16.1</code>).</li>
+<li><strong>Ce n'est pas un conseil légal ou financier.</strong> ATS est une représentation du temps ; comment vous l'utilisez dans un contexte régulé (reporting financier, contrats légaux) est votre responsabilité. Le calendrier Hanke-Henry peut être plus adapté pour le reporting fiscal (<code>comparison.fr.md §3.3</code>).</li>
+</ol>
+<hr>
+<h2>Références croisées en un coup d'œil</h2>
+<table>
+<thead>
+<tr>
+<th>Sujet</th>
+<th>Section normative</th>
+<th>Annexe non normative</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Époque et test à 4 propriétés</td>
+<td><code>manifesto.fr.md §2</code>, §2.3</td>
+<td><code>philosophy.fr.md §5</code>, <code>comparison.fr.md §5</code></td>
+</tr>
+<tr>
+<td>Formats canonique &amp; court</td>
+<td><code>manifesto.fr.md §4</code>, §5</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Politique de troncature</td>
+<td><code>manifesto.fr.md §6</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Fuseaux horaires (UTC strict)</td>
+<td><code>manifesto.fr.md §7</code></td>
+<td><code>conventions.fr.md §3</code> (bandes 08–22)</td>
+</tr>
+<tr>
+<td>Secondes intercalaires</td>
+<td><code>manifesto.fr.md §8</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Algèbre Δd</td>
+<td><code>manifesto.fr.md §11.4</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Encodage binaire</td>
+<td><code>manifesto.fr.md §12</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Multi-planétaire</td>
+<td><code>multi-planetary.fr.md</code></td>
+<td><code>philosophy.fr.md</code>, <code>comparison.fr.md §6</code></td>
+</tr>
+<tr>
+<td>Stabilité / processus RFC</td>
+<td><code>versioning.fr.md</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Rituels (Kilo-versaire, etc.)</td>
+<td>—</td>
+<td><code>conventions.fr.md §1</code>, <code>philosophy.fr.md §6</code></td>
+</tr>
+<tr>
+<td>Design horloge analogique</td>
+<td>—</td>
+<td><code>analog-clock.fr.md</code></td>
+</tr>
+<tr>
+<td>Comparaison aux alternatives</td>
+<td>—</td>
+<td><code>comparison.fr.md</code></td>
+</tr>
+</tbody></table>
+<p>Chaque revendication dans cette FAQ soit référence une section de spec soit s'étiquette comme opinion de l'éditeur. Si vous repérez une réponse qui ne peut être tracée à une source normative, ouvrez une issue.</p>
 
