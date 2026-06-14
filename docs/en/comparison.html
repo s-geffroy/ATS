@@ -52,118 +52,484 @@
   <main class="container">
     <article id="content" class="markdown">
 <!-- ATS:INLINE comparison.en.md -->
-<h1>ATS — Comparison with Alternative Calendars</h1>
-<p>Six reform proposals are reviewed below, organized in three families: solar optimization, decimal rupture, and exotic / multi-planetary.</p>
+<h1>ATS — Comparison with Alternative Time Standards</h1>
+<blockquote>
+<p><em>No standard is adopted on design merit alone. Adoption is engineering plus path-dependence. This annex argues the engineering case honestly — including where ATS loses.</em></p>
+</blockquote>
+<p><strong>Status:</strong> Pre-release v0.7
+<strong>Document type:</strong> <strong>NON-NORMATIVE ANNEX</strong> to the ATS specification.
+<strong>Normative reference:</strong> <code>manifesto.en.md</code> (the spec proper).
+<strong>Authoritative language:</strong> English. French translation in <code>comparison.fr.md</code>.
+<strong>Core posture:</strong> This annex compares ATS to 17 alternative time standards across six families. Each alternative is presented in the strongest version its advocates would recognise. Explicit comparison criteria are stated up front so cherry-picking is visible. A dedicated section (§8) concedes where alternatives win. The intent is auditability, not triumphalism.</p>
 <hr>
-<h2>Family 1 — Solar Optimization (improve the Gregorian)</h2>
+<h2>0. Scope and posture</h2>
+<p>This annex is <strong>non-normative</strong>. Implementations of ATS are not required to accept its comparative claims; conformance (per <code>manifesto.en.md §16.5</code>) is judged on the standard's normative content.</p>
+<p>What this annex offers:</p>
+<ul>
+<li>A fixed set of <strong>comparison criteria</strong> (§1) applied uniformly across alternatives, so cherry-picking is visible.</li>
+<li>A presentation of each alternative in the <strong>strongest version</strong> its advocates would endorse, sourced where possible.</li>
+<li>An explicit <strong>"where alternatives win"</strong> section (§8) that concedes the criteria on which ATS does not win.</li>
+<li>An explicit <strong>anticipated-objections</strong> section (§9) that pre-empts the most common attacks on the comparison.</li>
+</ul>
+<p>What this annex does <em>not</em> offer:</p>
+<ul>
+<li>A claim of total superiority. ATS wins on a specific set of criteria (multi-planetary, computational simplicity, biological alignment); other systems win on others (cultural alignment, deployment inertia, astronomical heritage).</li>
+<li>A comparison with living cultural and religious calendars (Hebrew, Islamic, Hindu, Chinese, Bahá'í, Mayan Long Count). These serve functions that ATS does not address; the relationship is <strong>interoperation, not displacement</strong>. See §7 and the conformance bridges in <code>code/bridges/*.py</code>.</li>
+<li>A prediction of adoption. Standards adoption is path-dependent and only partially predictable from design. The comparison argues the engineering case; the marketplace of standards judges the rest.</li>
+</ul>
+<hr>
+<h2>1. Comparison criteria</h2>
+<p>The following eight criteria are applied to every alternative in §§2–6. Each criterion is observable and definable; the comparison verdicts in §10 use these criteria explicitly.</p>
 <table>
 <thead>
 <tr>
-<th>System</th>
-<th>Concept</th>
-<th>vs ATS</th>
-<th>Verdict</th>
+<th>#</th>
+<th>Criterion</th>
+<th>Question it answers</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><strong>International Fixed Calendar (IFC)</strong></td>
-<td>13 months of 28 days + 1 blank day. Same date → same weekday.</td>
-<td>Fixes weekday alignment but keeps months and years (regulatory noise). ATS removes both.</td>
-<td>IFC is a better past; ATS is the next system.</td>
+<td><strong>C1</strong></td>
+<td>Computational simplicity</td>
+<td>How complex is arithmetic on durations and instants? Is <code>t₂ − t₁</code> a single subtraction or does it require calendar-aware logic?</td>
 </tr>
 <tr>
-<td><strong>Hanke-Henry Permanent</strong></td>
-<td>364-day year with leap-week every 5–6 years. Abolishes time zones.</td>
-<td>Shares zone abolition but reintroduces irregularity via leap weeks.</td>
-<td>Too gymnastic for the public.</td>
+<td><strong>C2</strong></td>
+<td>Time-zone elimination</td>
+<td>Does the standard define a single global instant per moment, or does it carry a time-zone field?</td>
 </tr>
 <tr>
-<td><strong>Holocene Calendar (HE)</strong></td>
-<td>Add 10 000 years to Gregorian (2026 → 12026). Origin: agriculture.</td>
-<td>Cosmetic: better for archaeology, no daily improvement.</td>
-<td>HE is paint; ATS is structure.</td>
+<td><strong>C3</strong></td>
+<td>Unit regularity</td>
+<td>Are the macro and micro units fixed-length, or do they vary (months 28–31, leap weeks, blank days)?</td>
+</tr>
+<tr>
+<td><strong>C4</strong></td>
+<td>Adoption inertia</td>
+<td>What is the estimated deployed base and the years of operation?</td>
+</tr>
+<tr>
+<td><strong>C5</strong></td>
+<td>Multi-planetary generality</td>
+<td>Does the standard generalise to celestial bodies other than Earth?</td>
+</tr>
+<tr>
+<td><strong>C6</strong></td>
+<td>Biological / cognitive alignment</td>
+<td>Do the unit boundaries match measured human cycles (circadian, ultradian, attention, recovery)? See <code>philosophy.en.md §2–5</code>.</td>
+</tr>
+<tr>
+<td><strong>C7</strong></td>
+<td>Cultural neutrality of anchor</td>
+<td>Is the anchor or unit naming derived from a specific religion, nation, or empire?</td>
+</tr>
+<tr>
+<td><strong>C8</strong></td>
+<td>Precision contract</td>
+<td>Does the standard prescribe deterministic sub-second behaviour (rounding, leap-second policy, smearing)?</td>
 </tr>
 </tbody></table>
+<p>These criteria do not weight equally for every use case. For software interchange C1+C2+C8 dominate; for cultural use C6+C7 dominate; for space coordination C5 dominates. The comparison is <strong>multi-dimensional</strong>, not scalar.</p>
 <hr>
-<h2>Family 2 — Decimal Rupture (base 10 like ATS)</h2>
-<table>
-<thead>
-<tr>
-<th>System</th>
-<th>Concept</th>
-<th>vs ATS</th>
-<th>Verdict</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>French Republican (1793)</strong></td>
-<td>12 months × 30 days, 10-day weeks. Failed: too political, 1 rest day out of 10.</td>
-<td>ATS learns from the failure: the Deka does not legislate a rhythm, leaving 7+3 or other splits open.</td>
-<td>Republican burned out the workers; ATS leaves rest as a social choice.</td>
-</tr>
-<tr>
-<td><strong>Swatch Internet Time (1998)</strong></td>
-<td>Day in 1000 <code>.beats</code>. No time zones.</td>
-<td>Only handled the clock, not dates — a marketing layer on top of Gregorian. ATS unifies date and clock in one number.</td>
-<td>Gadget; ATS is a full system.</td>
-</tr>
-</tbody></table>
+<h2>2. Family A — Computational time scales (ATS's actual cousins)</h2>
+<p>These are the <strong>honest comparison targets</strong>: linear counters anchored on a singular point, no months or weeks, used by software and astronomy. ATS shares the most DNA with this family; its differentiation against them is the most load-bearing.</p>
+<h3>2.1 Unix Epoch (POSIX time)</h3>
+<ul>
+<li><strong>Anchor.</strong> 1970-01-01T00:00:00Z (UTC).</li>
+<li><strong>Unit.</strong> SI seconds (linear count).</li>
+<li><strong>Range.</strong> Signed 32-bit (overflows in 2038, the "Y2038 problem"); 64-bit on modern systems.</li>
+<li><strong>Advocates.</strong> Originated in Unix Version 6 (1975); now the <em>de facto</em> standard for software timestamps. Estimated deployed base: every Unix-family system, every JVM, every database, billions of devices [Lewine 1991 on POSIX semantics].</li>
+<li><strong>Where it wins.</strong> <strong>C1, C4, C8.</strong> Single subtraction for <code>t₂ − t₁</code>. Unmatched adoption inertia (~50 years, ~10¹⁰ deployed instances). POSIX leap-second semantics are deterministic (the leap is absorbed).</li>
+<li><strong>Where ATS differs.</strong> <strong>C3, C5, C6, C7.</strong> Unix Epoch has no positional readout — it is a raw counter, opaque to humans. ATS is Unix Epoch <em>with a decimal positional grammar</em>: <code>K.H.D.Kin.fffff</code> displays the same information as <code>seconds_since(epoch_unix)</code>, but addresses to a human. Both are linear; only one is conversational. ATS also offers multi-planetary anchors (C5) and biologically-meaningful units (C6, see philosophy annex); Unix Epoch has neither.</li>
+</ul>
+<h3>2.2 Julian Day Number (JDN) and Modified Julian Day (MJD)</h3>
+<ul>
+<li><strong>Anchor.</strong> JDN: −4712-01-01T12:00:00 (proleptic Julian noon), i.e., 4713 BCE in proleptic Gregorian. MJD: 1858-11-17T00:00:00 UTC (defined as JDN − 2_400_000.5).</li>
+<li><strong>Unit.</strong> Days (linear, can be fractional).</li>
+<li><strong>Range.</strong> Practically unbounded; the JDN epoch covers all of recorded astronomy.</li>
+<li><strong>Advocates.</strong> Joseph Scaliger (1583) for JDN; introduced by IAU in 1957 for MJD. Universal in astronomy, astrodynamics, and historical chronology [Doggett 1992 in the <em>Explanatory Supplement to the Astronomical Almanac</em>].</li>
+<li><strong>Where it wins.</strong> <strong>C1, C7 (partial), C5 (heritage).</strong> Single subtraction for durations. The 4713 BCE anchor is so old that no cultural or political group claims it; functionally neutral. Astronomers have used JDN for Mars-related computation; the heritage of multi-body time-keeping in JDN is real.</li>
+<li><strong>Where ATS differs.</strong> <strong>C3, C5 (explicit), C6, C8.</strong> JDN expresses days as <code>2_460_476.5</code>, a continuous decimal — useful for astronomy, opaque to a human reader. ATS makes the same information positional (<code>Δ K.H.D.Kin.fffff</code>) which is <em>legible</em> (a human can say "Kilo 20, Hecto 7, Deka 8…"). JDN does not address multi-planetary explicitly; it's de-facto Earth-centric (Julian <em>date</em>, on Earth). ATS makes the multi-body extension explicit (<code>multi-planetary.md</code>). JDN has no leap-second policy of its own; it inherits from UTC or TAI depending on the variant.</li>
+</ul>
+<h3>2.3 GPS Time</h3>
+<ul>
+<li><strong>Anchor.</strong> 1980-01-06T00:00:00 UTC.</li>
+<li><strong>Unit.</strong> SI seconds (since GPS week zero); week + second-of-week as wire format.</li>
+<li><strong>Range.</strong> 10-bit week counter (overflows every ~20 years, see "GPS week rollover" 1999 and 2019); modern receivers use 13-bit or longer.</li>
+<li><strong>Advocates.</strong> Defined by the GPS operational signal (ICD-GPS-200); used by all GNSS-dependent infrastructure [Misra &amp; Enge 2010].</li>
+<li><strong>Where it wins.</strong> <strong>C8.</strong> GPS Time is <strong>leap-second-free</strong>: it tracks TAI minus 19 seconds with no smearing. Sub-microsecond precision is the design point.</li>
+<li><strong>Where ATS differs.</strong> <strong>C5, C6, C7.</strong> GPS Time is Earth-fixed (Earth-orbiting satellites). It has no positional grammar (it's a count of seconds since week zero plus a week index). It is functionally neutral on culture (anchor is an engineering convenience date), but the format is engineer-only. ATS provides positional readout, leap-second smearing options (<code>manifesto.en.md §8.2</code>), and multi-planetary extension.</li>
+</ul>
+<h3>2.4 TAI (International Atomic Time)</h3>
+<ul>
+<li><strong>Anchor.</strong> 1958-01-01T00:00:00 UT (TAI = UTC at that instant, by definition).</li>
+<li><strong>Unit.</strong> SI seconds, with no leap seconds — TAI runs uniformly.</li>
+<li><strong>Range.</strong> Practically unbounded.</li>
+<li><strong>Advocates.</strong> Defined by BIPM; the master reference for SI time [BIPM CCTF 1971; Allan, Ashby &amp; Hodge 1997].</li>
+<li><strong>Where it wins.</strong> <strong>C8.</strong> TAI is the deepest deterministic time scale available. No leap seconds, no smearing, no policy choices.</li>
+<li><strong>Where ATS differs.</strong> <strong>C5, C6, C7 (partial).</strong> ATS-UTC is the v0.7 default; an ATS-TAI variant is reserved (<code>manifesto.en.md §8.3</code>) for future use, particularly for aerospace and high-precision science. For most software use, ATS-UTC suffices because the difference is bounded (currently 37 seconds and accumulating).</li>
+</ul>
+<h3>Family A summary</h3>
+<p>The Unix Epoch, JDN/MJD, GPS Time, and TAI are the actual functional competitors to ATS. <strong>ATS does not claim to replace them.</strong> It claims to offer a <em>positional grammar</em> over the same time axis — a human-readable layer that addresses the cognitive gap between "1750_000_000" (Unix seconds) and a conversational form. The relationship is <strong>complementary</strong>: a system can store Unix seconds and emit ATS for display.</p>
 <hr>
-<h2>Family 3 — Exotic / Multi-Planetary</h2>
-<table>
-<thead>
-<tr>
-<th>System</th>
-<th>Concept</th>
-<th>vs ATS</th>
-<th>Verdict</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>Darian Calendar (Mars)</strong></td>
-<td>24 Martian months, 7-day weeks (sols), tuned to Martian seasons.</td>
-<td>Darian is <em>local</em> (only useful on Mars). ATS is <em>universal</em> — same instant on Earth, Moon, Mars.</td>
-<td>Use Darian for Martian agriculture; ATS for Earth-Mars communication.</td>
-</tr>
-</tbody></table>
+<h2>3. Family B — Calendar reforms (solar optimisation)</h2>
+<p>Twentieth-century proposals that kept the civil structure (months, weeks) but rationalised its irregularities. None achieved wide adoption.</p>
+<h3>3.1 International Fixed Calendar (IFC)</h3>
+<ul>
+<li><strong>Anchor.</strong> Co-aligned with Gregorian; reform of structure only.</li>
+<li><strong>Structure.</strong> 13 months × 28 days + 1 "Year Day" (intercalary, blank), + 1 leap day in leap years. Every month identical, every date a fixed weekday. The 13th month named "Sol" was proposed.</li>
+<li><strong>Advocates.</strong> Auguste Comte (1849, "Positivist calendar"), Moses B. Cotsworth (1902), George Eastman (Eastman Kodak adopted IFC internally 1928–1989) [Eastman 1923 <em>Yearbook</em>; Cotsworth 1905 <em>The Rational Almanac</em>].</li>
+<li><strong>Where it wins.</strong> <strong>C3.</strong> Months are regular (28 days, no exceptions). Weekday alignment is permanent — a given date always falls on a given weekday. Statistical comparability across months is preserved.</li>
+<li><strong>Where ATS differs.</strong> <strong>C1, C5, C6.</strong> IFC keeps months and weeks (calendrical structure → calendar-aware arithmetic still required). It does not address time zones (C2 unaddressed). It does not generalise to other planets. The 28-day month does not match measured biological cycles better than the 30-day month; the unit ladder is unrelated to attention or work-rest research. IFC is a "better Gregorian" — ATS is a different family.</li>
+<li><strong>Verdict.</strong> IFC remains a better Gregorian for cultures committed to the month/week structure. ATS proposes a structurally different system; the comparison is not "ATS replaces IFC" but "ATS is in a different category".</li>
+</ul>
+<h3>3.2 World Calendar</h3>
+<ul>
+<li><strong>Anchor.</strong> Co-aligned with Gregorian.</li>
+<li><strong>Structure.</strong> 12 months of 30 or 31 days organised in four equal quarters of 91 days + 1 "Worldsday" (intercalary, blank) + 1 leap day. Every quarter identical; every year identical [Achelis 1937].</li>
+<li><strong>Advocates.</strong> Elisabeth Achelis (1930), World Calendar Association. The UN Economic and Social Council considered the proposal in 1955 but did not adopt it (the US opposed, citing religious objection to the blank day breaking the 7-day Sabbath cycle).</li>
+<li><strong>Where it wins.</strong> <strong>C3.</strong> Quarters are regular (91 days, fixed). Date arithmetic simplifies for finance and planning.</li>
+<li><strong>Where ATS differs.</strong> Same as IFC: months and weeks preserved, no time-zone treatment, no multi-planetary extension, no biological alignment claim.</li>
+<li><strong>Verdict.</strong> A more conservative IFC. Failed for the same religious-cultural reason that blocks all "blank day" reforms.</li>
+</ul>
+<h3>3.3 Hanke-Henry Permanent Calendar</h3>
+<ul>
+<li><strong>Anchor.</strong> Co-aligned with Gregorian.</li>
+<li><strong>Structure.</strong> 364 days/year = 52 weeks exactly. Months: 30, 30, 31, 30, 30, 31, 30, 30, 31, 30, 30, 31. Every 5–6 years, a leap week ("Xtra") is appended in December.</li>
+<li><strong>Advocates.</strong> Richard Henry &amp; Steve Hanke (Johns Hopkins, 2012) [Henry &amp; Hanke 2012].</li>
+<li><strong>Where it wins.</strong> <strong>C3 (per-year), C8 (intra-year arithmetic).</strong> Within a year, dates and weekdays are stable; financial calculations simplify (52 weeks × 5 days = 260 trading days per year, exactly).</li>
+<li><strong>Where ATS differs.</strong> <strong>C2, C5, C6.</strong> The leap week reintroduces multi-year irregularity. Time zones unaddressed. Multi-planetary unaddressed. Biological alignment unaddressed.</li>
+<li><strong>Verdict.</strong> Hanke-Henry optimises for finance. ATS optimises for distributed computation and multi-planetary use. Both could coexist (Hanke-Henry for human-facing finance, ATS for software-facing computation), but they target different problems.</li>
+</ul>
+<h3>3.4 Pax Calendar</h3>
+<ul>
+<li><strong>Anchor.</strong> Co-aligned with Gregorian.</li>
+<li><strong>Structure.</strong> 13 months of 28 days + 1 leap week ("Pax") inserted before December in years divisible by 100 unless divisible by 400 (similar to Gregorian leap-year logic).</li>
+<li><strong>Advocates.</strong> James Colligan (1930). Less widely promoted than IFC; technically similar.</li>
+<li><strong>Where it wins.</strong> Same as IFC for regular months; cleaner leap-rule than IFC's "blank day" approach.</li>
+<li><strong>Where ATS differs.</strong> Same as IFC.</li>
+<li><strong>Verdict.</strong> IFC's lesser-known sibling. Same category, same fate.</li>
+</ul>
 <hr>
-<h2>Strategic positioning</h2>
-<p>ATS has no direct competitor because it combines three philosophies:</p>
-<ol>
-<li><strong>Mayan arithmetic</strong> — time as linear accumulation (Long Count), not cyclic return.</li>
-<li><strong>NASA engineering</strong> — Point Zero (1969) and T+/T- notation rooted in spaceflight culture.</li>
-<li><strong>Cognitive ergonomics</strong> — Bloc/Deka/Hecto sized to human focus, rest and planning windows.</li>
+<h2>4. Family C — Decimal time experiments</h2>
+<p>Two prior attempts at decimal time. Their failures are instructive; ATS borrows their wins and avoids their losses.</p>
+<h3>4.1 French Republican Calendar (1793–1805)</h3>
+<ul>
+<li><strong>Anchor.</strong> 1792-09-22 ("Vendémiaire 1, Year I" — the autumnal equinox, the day after the proclamation of the First French Republic).</li>
+<li><strong>Structure.</strong> 12 months × 30 days + 5 or 6 "sansculottides" at year-end. Each month: 3 décades (10-day weeks). Each day: 10 hours × 100 minutes × 100 seconds (a "decimal day").</li>
+<li><strong>Advocates.</strong> French National Convention 1793; designed by Charles-Gilbert Romme, Joseph Lagrange, Pierre-Simon Laplace, Gaspard Monge, and others. Used officially 1793–1805; restored briefly under the Paris Commune (1871, 18 days) [Shaw 2011 <em>Time and the French Revolution</em>].</li>
+<li><strong>Why it failed.</strong> Three documented reasons:<ol>
+<li><strong>Religious-cultural rupture too sharp.</strong> The 10-day week meant 1 rest day per 10 vs the 7-day week's 1 rest per 7. Workers had less rest, and the Sunday Sabbath was eliminated.</li>
+<li><strong>Decimal time on the clock failed faster than the calendar.</strong> Decimal-time clocks were expensive to manufacture; the population resisted relearning. Napoleon abolished decimal time in 1795, six years before retiring the calendar in 1806.</li>
+<li><strong>Political symbolism.</strong> The calendar was associated with the Terror; its rejection was partly a rejection of revolutionary excess, not of decimal logic.</li>
 </ol>
+</li>
+<li><strong>Where ATS borrows.</strong> Decimal time-of-day grammar; positional clarity; commitment to base 10 (<code>manifesto.en.md §1.1</code> on engineering rationale).</li>
+<li><strong>Where ATS diverges.</strong> Three explicit lessons:<ol>
+<li><strong>ATS does not legislate rest rhythms</strong> (<code>manifesto.en.md §13.3</code>). The Deka is a unit of measurement; the work-rest split is left open (<code>philosophy.en.md §3.2</code>).</li>
+<li><strong>ATS does not abolish the 24-hour clock for civil time.</strong> ATS Bloc/Centi/Milli are positional readouts of UTC; existing 24-hour clocks continue to work. Adoption is additive, not subtractive.</li>
+<li><strong>ATS is anchored on a verifiable, non-political event</strong> (Apollo 11 landing day, <code>manifesto.en.md §2</code>). The Republican anchor was tied to a regime; ATS's is tied to a species-level act with broad recognition.</li>
+</ol>
+</li>
+<li><strong>Verdict.</strong> The Republican Calendar was the first serious decimal time experiment and remains instructive. ATS is its descendant on the technical side and its student on the political side.</li>
+</ul>
+<h3>4.2 Swatch Internet Time (1998)</h3>
+<ul>
+<li><strong>Anchor.</strong> No epoch; the day is divided into 1000 <code>.beats</code>. <code>@000</code> is midnight at Biel Mean Time (UTC+1). No date system — Gregorian dates retained.</li>
+<li><strong>Structure.</strong> 1 day = 1000 .beats. 1 .beat = 86.4 seconds (= 1 ATS Centi).</li>
+<li><strong>Advocates.</strong> Swatch (Swiss watchmaker), with Nicholas Negroponte (MIT) and Yoshiyuki Naito. Promoted as a "universal Internet time" 1998–2000s [Negroponte 1998 <em>Wired</em> column].</li>
+<li><strong>Why it failed.</strong> Three documented reasons:<ol>
+<li><strong>Marketing-driven rather than infrastructure-driven.</strong> Pushed by a watchmaker selling decorative pieces, not adopted by Internet standards bodies. No reference implementation in any major OS or programming language.</li>
+<li><strong>Biel Mean Time is Swiss-centric.</strong> A "universal" standard anchored in one country undermines its own universalism. (The same critique applied to UTC vs Greenwich; UTC adopted explicitly to avoid the issue.)</li>
+<li><strong>No date grammar.</strong> Swatch handled only the intra-day fraction. Cross-day arithmetic required reverting to Gregorian. The standard was incomplete.</li>
+</ol>
+</li>
+<li><strong>Where ATS borrows.</strong> The intuition that decimal intra-day units are useful; the abolition of time zones (Swatch Internet Time was correct that the Internet needed UTC-only readouts).</li>
+<li><strong>Where ATS diverges.</strong><ol>
+<li><strong>Universal anchor.</strong> ATS's epoch is UTC, not BMT.</li>
+<li><strong>Complete date grammar.</strong> ATS positional readout covers Kilo to Blink; no Gregorian fallback needed.</li>
+<li><strong>Infrastructure path.</strong> ATS's reference implementations target software interchange (Python, JavaScript), not consumer watches. Software adoption is path-dependent; consumer goods adoption is brand-dependent. The former is the harder but more durable path.</li>
+</ol>
+</li>
+<li><strong>Verdict.</strong> Swatch Internet Time was structurally a sketch of ATS's intra-day system, marketed in a way that prevented adoption. ATS is the engineered version: complete, anchored on UTC, with conformance vectors.</li>
+</ul>
+<hr>
+<h2>5. Family D — Era and epoch reforms</h2>
+<p>Three proposals that keep Gregorian structure but shift the epoch / count.</p>
+<h3>5.1 Holocene Era (HE / Human Era)</h3>
+<ul>
+<li><strong>Anchor.</strong> −10_000 BCE (approximate start of the Holocene, the current geological epoch and the start of agriculture).</li>
+<li><strong>Structure.</strong> Gregorian calendar unchanged; year count shifted by exactly +10 000. 2026 CE = 12026 HE.</li>
+<li><strong>Advocates.</strong> Cesare Emiliani (1993, <em>Calendar Reform</em>) [Emiliani 1993; promoted recently in popular video by Kurzgesagt].</li>
+<li><strong>Where it wins.</strong> <strong>C6 (archaeological intuition), C7 (no religious anchor).</strong> "Year 12026" places the listener in the long arc of agriculture rather than in a sectarian count. The Holocene anchor is non-political (geological).</li>
+<li><strong>Where ATS differs.</strong> <strong>C1, C3, C5, C8.</strong> Holocene is a <em>cosmetic shift</em> of Gregorian: the same months, weeks, leap rules, and time zones are preserved. None of the underlying computational problems are addressed. Holocene is paint; ATS is structure.</li>
+<li><strong>Verdict.</strong> Holocene wins on archaeological framing. ATS does not compete with Holocene on that axis; they could coexist (a Holocene year + ATS day count). For most software use, Holocene offers no computational benefit and ATS provides no archaeological benefit.</li>
+</ul>
+<h3>5.2 Cosmic Calendar (Sagan)</h3>
+<ul>
+<li><strong>Anchor.</strong> Big Bang (≈ 13.8 billion years ago), mapped to "January 1 00:00:00".</li>
+<li><strong>Structure.</strong> All of cosmological history scaled to one calendar year.</li>
+<li><strong>Advocates.</strong> Carl Sagan, <em>Cosmos</em> (1980).</li>
+<li><strong>Where it wins.</strong> <strong>C7 (cosmological neutrality).</strong> Pure pedagogy; no political or cultural anchor.</li>
+<li><strong>Where ATS differs.</strong> Cosmic Calendar is a <strong>pedagogical scale</strong>, not a computational time standard. It does not address dates, instants, time zones, or arithmetic. Comparing it to ATS is a category error; included here only because it appears in popular discourse.</li>
+</ul>
+<h3>5.3 Anno Mundi / Anno Hijri (era-counter forms of living cultural calendars)</h3>
+<p>Hebrew calendar uses Anno Mundi (year from creation: 5786 in 2026). Islamic Hijri calendar uses years from the Hijra (1448 AH in 2026). These are <em>era counts</em>, not reform proposals; ATS coexists with them via interop bridges (<code>code/bridges/hebrew.py</code>, <code>islamic.py</code>).</p>
+<p>Where they win: cultural and religious alignment for their communities. Where ATS differs: ATS is <strong>computational</strong>, not cultural; the two serve disjoint purposes. See §7.</p>
+<hr>
+<h2>6. Family E — Planetary-specific</h2>
+<h3>6.1 Darian Calendar (Mars)</h3>
+<ul>
+<li><strong>Anchor.</strong> Spring equinox of Mars Year 209 (1953-12-19 Earth date in some implementations; varies by Darian variant).</li>
+<li><strong>Structure.</strong> 24 Martian months (each ~28 sols) + various intercalations to track Mars's 668.59-sol year. Seven-sol weeks. Designed to feel familiar to Earth-acclimatised humans on Mars.</li>
+<li><strong>Advocates.</strong> Thomas Gangale (1985; refined 1986, 2006) [Gangale 1986 <em>Journal of the British Interplanetary Society</em>].</li>
+<li><strong>Where it wins.</strong> <strong>C6 (for Mars settlers).</strong> Darian's month and week boundaries are tuned to Mars's local seasons. For agriculture, festivals, and biological rhythms on Mars, Darian is more meaningful than any Earth-anchored standard.</li>
+<li><strong>Where ATS differs.</strong> <strong>C5 (explicit), C2.</strong> Darian is <em>local</em> — useful only on Mars. ATS-Mars (<code>multi-planetary.md</code>) provides a parallel coordinate system that aligns Mars time with the universal ATS counter, enabling Earth-Mars synchronisation. The two could coexist on Mars: Darian for civil and biological purposes, ATS-Mars for inter-planetary coordination.</li>
+<li><strong>Verdict.</strong> Use Darian for Martian agriculture and festivals; ATS for Earth-Mars communication. The relationship is <strong>complementary</strong>.</li>
+</ul>
+<h3>6.2 Sol counters (mission-specific)</h3>
+<p>NASA missions (Viking, Mars Pathfinder, MER, Curiosity, Perseverance) use linear sol counters from landing: "Sol 1, Sol 2, …". These are mission-private timekeeping; they do not propose a general standard.</p>
+<ul>
+<li><strong>Where they win.</strong> Pure simplicity; one counter per mission.</li>
+<li><strong>Where ATS differs.</strong> ATS-Mars uses a <em>shared</em> epoch (Mars Pathfinder landing, 1997-07-04, per <code>multi-planetary.md</code>) so cross-mission and Earth-Mars arithmetic is universal. Mission sol counters are per-mission silos.</li>
+</ul>
+<hr>
+<h2>7. Family F — Living cultural and religious calendars (interoperated, not compared)</h2>
+<p>The Hebrew (lunisolar), Islamic (lunar Hijri), Hindu (multiple regional lunisolar systems), Chinese (lunisolar), Bahá'í (solar 19×19), Mayan Long Count (linear count of days from 3114 BCE), Persian (solar), Ethiopian (solar), and many others are <strong>living systems serving cultural and religious functions</strong>. They are not in the same comparison space as ATS.</p>
+<ul>
+<li>ATS is computational and culturally neutral by design (<code>philosophy.en.md §5.4</code>).</li>
+<li>Living cultural calendars carry religious, agricultural, and identity functions that ATS explicitly does not address (<code>manifesto.en.md §13</code>).</li>
+<li>The relationship is <strong>interoperation</strong>: every ATS instant maps to an instant in any cultural calendar via bridges. The reference implementation includes five bridges (Hebrew, Islamic, Chinese, Hindu, Mayan) in <code>code/bridges/*.py</code>.</li>
+</ul>
+<p>Including these calendars in a "comparison" matrix would be a category error. They are not competing for the same role ATS fills; they coexist with it.</p>
+<hr>
+<h2>8. Where alternatives win — honest concessions</h2>
+<p>ATS does not claim total superiority. The following are criteria on which other systems beat ATS today, with no quibble:</p>
+<ul>
+<li><strong>Adoption inertia (C4):</strong> Unix Epoch wins decisively. Half a century of deployed devices, billions of timestamps in production. ATS is pre-v1.0; its deployed base is the reference implementations + this site. Any honest assessment ranks ATS as "early adopter only" on C4 today.</li>
+<li><strong>Astronomical heritage (C4 in a specific niche):</strong> Julian Day Number wins. Astronomers have used JDN since 1583; every star catalogue, ephemeris, and orbit propagator emits JDN. ATS does not compete in this niche; it complements (an astronomer can store JDN and emit ATS for inter-domain communication).</li>
+<li><strong>Cultural alignment within communities (C7 for that community):</strong> Hebrew, Islamic, Hindu, Chinese, and other cultural calendars win within their adopting communities. ATS is culturally neutral <em>globally</em> but is not culturally aligned with any specific community. This is by design (<code>manifesto.en.md §2.3 Attack A</code>); it is also a real cost for adoption within those communities.</li>
+<li><strong>Weekday stability (C3 for liturgical use):</strong> International Fixed Calendar and World Calendar win. The 7-day liturgical week, mapped to fixed dates, simplifies recurring religious observance. ATS deliberately abandons the 7-day week as a normative unit; communities that need it use the Gregorian calendar in parallel.</li>
+<li><strong>Financial calendar alignment (C3 for finance):</strong> Hanke-Henry wins for financial-quarter reporting. ATS's Hecto is close (100 days ≈ 1 financial quarter) but not identical; financial systems already calibrated to Hanke-Henry-like patterns gain little from switching to ATS Hecto.</li>
+<li><strong>Local Martian agriculture and ecology (C6 for Mars):</strong> Darian Calendar wins. Mars settlers planting crops will care about Martian seasons, not Earth-centric units. ATS-Mars provides the <em>coordinate system</em> for inter-planetary work; Darian provides the <em>civil calendar</em> for local life.</li>
+<li><strong>Pedagogical reach (C7 for cosmic discourse):</strong> Cosmic Calendar (Sagan) wins. ATS does not offer a 13.8-billion-year scaled pedagogy; it operates on the human time scale.</li>
+</ul>
+<p>ATS wins on a different and specified set: <strong>C1 (computational simplicity), C2 (time-zone elimination), C5 (multi-planetary generality), C6 (biological alignment), C8 (precision contract)</strong>. It is the system that <strong>maximally combines</strong> these five criteria. For use cases where any subset of these dominates, ATS is the best engineered option in v0.7. For use cases dominated by C4 (inertia) or community-specific C7, ATS does not yet win, and may never win.</p>
+<hr>
+<h2>9. Anticipated objections</h2>
+<h3>9.1 "Your comparison omits the actual incumbent — the Gregorian calendar."</h3>
+<p>Gregorian is the baseline against which all the §3 reforms are defined (IFC, World, Hanke-Henry, Pax all start "co-aligned with Gregorian"). The standard is implicit in §3. Explicitly: Gregorian wins on <strong>C4 (decisive)</strong> and <strong>C7 (within Christian-derived societies)</strong>. ATS wins on <strong>C1, C2, C5, C6, C8</strong>. The Gregorian calendar continues to work for agricultural, ecclesiastical, and civic purposes; ATS provides parallel coordinates for computational and multi-planetary purposes. See <code>philosophy.en.md §1</code> for the full argument.</p>
+<h3>9.2 "You omit Unix Epoch and Julian Day Number — the real cousins of ATS."</h3>
+<p>§2.1 and §2.2 cover both extensively. ATS is <em>positioned</em> against them in the same family, with explicit concessions on adoption (Unix) and astronomical heritage (JDN). ATS does not claim to replace either; it claims to offer a <em>positional grammar</em> over the same time axis.</p>
+<h3>9.3 "The verdict column is cherry-picked."</h3>
+<p>The verdicts in §3–6 use the C1–C8 criteria stated in §1. Each comparison cites the criterion on which ATS differs. Where alternatives win on a criterion, §8 concedes it explicitly. If a reader disagrees with a specific verdict, the C-criterion that grounds it is identifiable and the objection becomes specific rather than rhetorical.</p>
+<h3>9.4 "Decimal time was tried in 1793 and failed. ATS will fail too."</h3>
+<p>§4.1 documents the three reasons for the Republican failure (religious-cultural rupture, decimal-clock manufacturing cost, political symbolism) and the three lessons ATS draws from them:</p>
+<ol>
+<li>ATS does not legislate rest rhythms.</li>
+<li>ATS does not abolish 24-hour civil clocks.</li>
+<li>ATS's anchor is non-political (<code>manifesto.en.md §2.3</code>).
+None of the 1793 failure modes apply to ATS. The 1793 failure is a <em>constraint</em> on the design space (which ATS respects), not a <em>proof</em> against decimal time.</li>
+</ol>
+<h3>9.5 "Swatch Internet Time failed in 1998. ATS will fail too."</h3>
+<p>§4.2 documents the three reasons for Swatch's failure (marketing-only push, Swiss-centric anchor, no date grammar) and the three differentiations of ATS (universal anchor, complete grammar, infrastructure path). Swatch was a sketch; ATS is the engineered version with conformance vectors and reference implementations.</p>
+<h3>9.6 "Hanke-Henry has actual financial backing (Johns Hopkins); ATS doesn't."</h3>
+<p>Backing has not produced adoption: Hanke-Henry was proposed in 2012 and has no deployed users 14 years later. The adoption mechanism for ATS is open-source-software-style, not academic-endorsement-style: reference implementations, conformance suites, public RFC process (<code>manifesto.en.md §16</code>). The two strategies are different; both are unproven for time standards in the 21st century.</p>
+<h3>9.7 "Holocene Era is intuitive (you are in year 12026 of agriculture). ATS isn't."</h3>
+<p>Holocene wins on archaeological intuition (§5.1). ATS does not compete on that axis. A community that prefers a 12026 HE year count and an ATS day count can have both: Holocene is purely a year-count shift, and ATS coexists.</p>
+<h3>9.8 "Why are the Hebrew, Islamic, Chinese, Hindu, Bahá'í, Mayan, Persian, Ethiopian, etc., calendars not in your comparison?"</h3>
+<p>§7 addresses this directly. These are <strong>living systems</strong> serving cultural and religious functions ATS does not address. The relationship is <strong>interoperation, not comparison</strong>. The reference implementation provides five bridges (<code>code/bridges/*.py</code>); the standard does not propose to displace any of them. Treating a religious calendar as a "competitor" to a computational standard is a category error.</p>
+<h3>9.9 "ATS is presented as universal but is actually Western-engineered."</h3>
+<p>The Apollo 11 anchor is American in origin (<code>manifesto.en.md §2.3 Attack A</code>). The unit naming (Kilo, Hecto, Deka, Centi, Milli) is from the SI prefix family, also Western-origin. The standard is open to RFC process from any community (<code>manifesto.en.md §16.2</code>). The cultural neutrality claim (C7) is <strong>functional</strong>: ATS does not embed religious or national content in its semantics. The origin of the <em>editors</em> is acknowledged; the <em>standard</em> is portable.</p>
+<hr>
+<h2>10. Summary</h2>
+<p>The table below scores each alternative on the C1–C8 criteria. <strong>+</strong> = clearly wins, <strong>−</strong> = clearly loses, <strong>=</strong> = roughly equivalent, <strong>N/A</strong> = criterion does not apply.</p>
 <table>
 <thead>
 <tr>
-<th>Family</th>
-<th>Goal</th>
-<th>ATS goal</th>
+<th>Standard</th>
+<th>C1 Comp</th>
+<th>C2 TZ</th>
+<th>C3 Reg</th>
+<th>C4 Inertia</th>
+<th>C5 Multi-pl</th>
+<th>C6 Bio</th>
+<th>C7 Neutral</th>
+<th>C8 Precision</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>Solar optimization</td>
-<td>Better track the Sun</td>
-<td>—</td>
+<td><strong>Gregorian</strong></td>
+<td>−</td>
+<td>−</td>
+<td>−</td>
+<td><strong>+</strong></td>
+<td>−</td>
+<td>−</td>
+<td>=*</td>
+<td>−</td>
 </tr>
 <tr>
-<td>Decimal rupture</td>
-<td>Cleaner math</td>
-<td>Yes, but also:</td>
+<td>Unix Epoch</td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+<td>−</td>
+<td>−</td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
 </tr>
 <tr>
-<td>Exotic / planetary</td>
-<td>Adapt to a planet</td>
-<td>Universal, planet-independent</td>
+<td>Julian Day</td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+<td>=*</td>
+<td>=*</td>
+<td>−</td>
+<td><strong>+</strong></td>
+<td>=</td>
 </tr>
 <tr>
-<td><strong>ATS</strong></td>
-<td><strong>Serve human intelligence</strong></td>
-<td></td>
+<td>GPS Time</td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+<td>−</td>
+<td>−</td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+</tr>
+<tr>
+<td>TAI</td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+<td>=*</td>
+<td>−</td>
+<td>−</td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+</tr>
+<tr>
+<td>IFC / World / Pax</td>
+<td>−</td>
+<td>−</td>
+<td><strong>+</strong></td>
+<td>−</td>
+<td>−</td>
+<td>−</td>
+<td>−</td>
+<td>−</td>
+</tr>
+<tr>
+<td>Hanke-Henry</td>
+<td>−</td>
+<td>−</td>
+<td>=*</td>
+<td>−</td>
+<td>−</td>
+<td>−</td>
+<td>=*</td>
+<td>−</td>
+</tr>
+<tr>
+<td>Republican (1793)</td>
+<td>=*</td>
+<td>−</td>
+<td><strong>+</strong></td>
+<td>N/A</td>
+<td>−</td>
+<td>−</td>
+<td>−</td>
+<td>−</td>
+</tr>
+<tr>
+<td>Swatch (.beat)</td>
+<td>=*</td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+<td>−</td>
+<td>−</td>
+<td>=*</td>
+<td>−</td>
+<td>−</td>
+</tr>
+<tr>
+<td>Holocene Era</td>
+<td>−</td>
+<td>−</td>
+<td>−</td>
+<td>=*</td>
+<td>−</td>
+<td>−</td>
+<td><strong>+</strong></td>
+<td>−</td>
+</tr>
+<tr>
+<td>Cosmic (Sagan)</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>N/A</td>
+<td><strong>+</strong></td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>Darian (Mars)</td>
+<td>−</td>
+<td>−</td>
+<td>=*</td>
+<td>−</td>
+<td>=*</td>
+<td>=*-on-Mars</td>
+<td>=*</td>
+<td>−</td>
+</tr>
+<tr>
+<td><strong>ATS v0.7</strong></td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+<td>−</td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
+<td><strong>+</strong></td>
 </tr>
 </tbody></table>
-<p>Other calendars chase the Sun. ATS serves the Mind.</p>
+<p><em>Notes:</em></p>
+<ul>
+<li>C7 for Gregorian is "=" rather than "−" because, while the Gregorian <em>origin</em> is sectarian (calendar of the Catholic Church, anchored on Christ), the <em>current global usage</em> has detached the count from the origin for most users (the year 2026 is just a number; few users invoke Christ when saying it).</li>
+<li>C6 (biological alignment) for Unix Epoch and JDN is "−" because they have <em>no</em> positional readout; the question doesn't apply meaningfully. ATS's positional readout is the differentiator.</li>
+</ul>
+<p><strong>ATS is the unique system in this comparison that scores positively across {C1, C2, C5, C6, C8} simultaneously.</strong> Its weakness is C4 (adoption), which is path-dependent and addressable only over time and by the cumulative engineering of reference implementations, bridges, and conformance vectors.</p>
+<p>This annex is offered as the comparative argument for ATS, presented honestly. The marketplace of standards will judge; the engineering case is on the record.</p>
+<hr>
+<h2>References</h2>
+<ul>
+<li>Achelis, E. (1937). <em>The Calendar for the Modern Age</em>. Putnam.</li>
+<li>Allan, D. W., Ashby, N., &amp; Hodge, C. C. (1997). <em>The Science of Timekeeping</em> (Hewlett-Packard Application Note 1289).</li>
+<li>BIPM (1971). <em>CCTF Recommendation: Time scale TAI</em>. Bureau International des Poids et Mesures.</li>
+<li>Cotsworth, M. B. (1905). <em>The Rational Almanac</em>. Cotsworth Educational Publishing.</li>
+<li>Doggett, L. E. (1992). <em>Calendars</em>. In Seidelmann (Ed.), <em>Explanatory Supplement to the Astronomical Almanac</em>. University Science Books.</li>
+<li>Eastman, G. (1923). <em>Eastman Kodak Yearbook</em> (description of internal IFC adoption).</li>
+<li>Emiliani, C. (1993). <em>Calendar Reform</em>. Nature, 366, 716.</li>
+<li>Gangale, T. (1986). <em>Martian standard time</em>. Journal of the British Interplanetary Society, 39, 282–288.</li>
+<li>Gangale, T. (2006). <em>The Darian calendar for Mars</em>. ASCE Engineering, Construction, and Operations in Challenging Environments.</li>
+<li>Henry, R. C., &amp; Hanke, S. H. (2012). <em>The Permanent Earth Calendar (Hanke-Henry)</em>. Johns Hopkins.</li>
+<li>Lewine, D. (1991). <em>POSIX Programmer's Guide</em>. O'Reilly. (Description of POSIX time semantics.)</li>
+<li>Misra, P., &amp; Enge, P. (2010). <em>Global Positioning System: Signals, Measurements, and Performance</em> (2nd ed.). Ganga-Jamuna Press.</li>
+<li>Negroponte, N. (1998). <em>Beyond digital</em> (column on Swatch Internet Time). <em>Wired</em>, 6.12.</li>
+<li>Sagan, C. (1980). <em>Cosmos</em>. Random House. (Chapter on the Cosmic Calendar.)</li>
+<li>Scaliger, J. J. (1583). <em>De emendatione temporum</em>. (Origin of Julian Day Number.)</li>
+<li>Shaw, M. (2011). <em>Time and the French Revolution: The Republican Calendar, 1789–Year XIV</em>. Boydell Press.</li>
+</ul>
+<p>This annex makes no original empirical claim. All claims about competing systems are sourced or labelled as the editors' assessment. Readers identifying weak comparisons, missing alternatives, or contested verdicts are invited to open an issue at the canonical location (<code>manifesto.en.md §16.1</code>).</p>
 
 </article>
     <p class="muted">Source: <a href="../spec/comparison.en.md">comparison.en.md</a></p>
