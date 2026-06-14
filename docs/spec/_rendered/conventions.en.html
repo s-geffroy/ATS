@@ -1,119 +1,611 @@
 <h1>ATS Conventions — non-normative annex</h1>
 <blockquote>
-<p><strong>Non-normative annex.</strong> Nothing in this document is <strong>required</strong> by the Δ ATS spec. An implementation conformant to <code>manifesto.en.md</code> may ignore it entirely. It documents <strong>observed, recommended, or experimental social conventions</strong> — useful for adoption, outside the conformance contract.</p>
+<p><em>Conventions are opt-in. The standard does not require any of them; this annex documents what works for adopters who choose to layer human practice on top of the time counter. Adopting ATS does not commit a community to any convention here.</em></p>
 </blockquote>
-<p><strong>Status:</strong> v0.6+
-<strong>Symbol:</strong> Δ
-<strong>Normative reference:</strong> <code>manifesto.en.md</code></p>
+<p><strong>Status:</strong> Pre-release v0.7
+<strong>Document type:</strong> <strong>NON-NORMATIVE ANNEX</strong> to the ATS specification.
+<strong>Normative reference:</strong> <code>manifesto.en.md</code> (the spec proper).
+<strong>Authoritative language:</strong> English. French translation in <code>conventions.fr.md</code>.
+<strong>Core posture:</strong> This annex documents observed, recommended, and experimental <strong>social conventions</strong> built on top of ATS — celebration cycles, work-rest rhythms, solar bands, personal counters, and civilisational milestones. Each convention is offered with citations or with explicit acknowledgement of being a proposal. Conformance to ATS (<code>manifesto.en.md §16.5</code>) is <strong>independent</strong> of every section here.</p>
+<hr>
+<h2>0. Status and posture</h2>
+<p>This annex is <strong>non-normative</strong>. An implementation strictly conformant to <code>manifesto.en.md</code> may ignore every section of this document.</p>
+<p>What this annex offers:</p>
+<ul>
+<li>A catalogue of <strong>opt-in conventions</strong> that adopters of ATS have found useful — Kilo-versary, Hecto-feast, 7+3 rhythm, solar bands, personal counters, milestones.</li>
+<li>For each convention: a definition, the calculation method, suggested usage, parallels to existing cultural patterns, and citations where empirical claims are made.</li>
+<li>An explicit <strong>"what these conventions are NOT"</strong> section (§6) that pre-empts category errors.</li>
+<li>An explicit <strong>anticipated-objections</strong> section (§7) that addresses the most common attacks on the conventions.</li>
+</ul>
+<p>What this annex does <em>not</em> offer:</p>
+<ul>
+<li>A prescription for any community's time culture. Every convention is opt-in.</li>
+<li>A claim that ATS conventions are superior to existing cultural rhythms (Sabbath, Sunday, Friday prayer, harvests, festivals). They are <em>parallel</em>, not replacements.</li>
+<li>A claim that civilisational milestones carry special significance beyond their arithmetic. <code>Δ 1000</code> is just <code>epoch + 1000 days</code>; the "meaning" is whatever a community chooses to attach.</li>
+<li>A universalist anthropology. The 7+3 rhythm, the 08–22 solar band, the Three Eras (cf. <code>philosophy.en.md §5</code>) all reflect specific cultural framings. Alternatives are explicitly acknowledged in each section.</li>
+</ul>
+<p>The posture is <strong>assertive but transparent</strong>: every numerical claim is checkable, every cultural choice is labelled, every convention is reversible. Communities lose nothing by ignoring any or all of this annex.</p>
 <hr>
 <h2>1. Celebration cycles</h2>
-<h3>1.1 Kilo-versary (Δ K.0.0.0)</h3>
-<p>A <strong>Kilo-versary</strong> marks the passage of one full Kilo — 1 000 days since a counter's epoch (ATS instant), or since a personal instant (birth date, organization founding, project start).</p>
+<p>ATS proposes four celebration cycles, each pegged to a positional unit in the calendar:</p>
 <ul>
-<li>Humanity's first Kilo-versary (Apollo 11 anchor): <strong>Δ 1.0.0.0 = 1972-04-15</strong> (UTC). See timeline page.</li>
-<li>The n-th personal Kilo-versary: add <code>n × Δd 1.0.0.0</code> to the reference date.</li>
-<li><strong>Short form:</strong> <code>Δ K!</code> (e.g. <code>Δ 22!</code> for the 22nd Kilo-versary).</li>
+<li><strong>Kilo-versary</strong> every 1 000 days (§1.1).</li>
+<li><strong>Hecto-feast</strong> every 100 days (§1.2).</li>
+<li><strong>Deka-day</strong> every 10 days (§1.3).</li>
+<li><strong>Beat-mark</strong> and <strong>Blink-flash</strong> for sub-second decoration (§1.4, optional).</li>
 </ul>
-<h3>1.2 Hecto-feast (Δ K.H.0.0)</h3>
-<p>A <strong>Hecto-feast</strong> marks the passage of one Hecto (100 days). More frequent than a Kilo-versary (~3.3 per Gregorian year), proposed as a <strong>decimal-quarterly rhythm</strong> with no dependency on astronomical seasons.</p>
-<ul>
-<li>For civilization: Hecto-feast <code>Δ 0.1.0.0</code> = <strong>1969-10-28</strong> UTC.</li>
-<li>For a personal counter: <code>Δ k.h.0.0</code> is a Hecto-feast (h ≠ 0) or a Kilo-versary (h = 0).</li>
-</ul>
-<h3>1.3 Deka-day (Δ K.H.D.0)</h3>
-<p>Optional — a <strong>Deka-day</strong> (10 days) can serve as a "decade" cycle midway between a week and a month. Suggested in contexts where the 7+3 rhythm (§2) is used.</p>
-<hr>
-<h2>2. The 7+3 rhythm on the Deka</h2>
-<p>A <strong>Deka</strong> is 10 days. The <strong>7+3 rhythm</strong> is an optional social convention that slices a Deka into:</p>
-<ul>
-<li><strong>7 active days</strong> (work, school, engagement).</li>
-<li><strong>3 rest days</strong> (recovery, family, personal projects).</li>
-</ul>
+<h3>1.1 Kilo-versary (every 1 000 days, ≈ 2.74 years)</h3>
+<p>A <strong>Kilo-versary</strong> marks the passage of one full Kilo — 1 000 days since a counter's epoch.</p>
+<p><strong>Calculation.</strong> Given a reference instant <code>t₀</code> (the epoch, a birth, a project start), the n-th Kilo-versary is:</p>
+<pre><code>Kilo_n = t₀ + Δd n.0.0.0.00000
+</code></pre>
+<p>In short form: <code>Δ K!</code> (where <code>K = n</code>). Example: <code>Δ 22!</code> denotes the 22nd Kilo-versary of the civilisational epoch, falling at <code>T+ Δ 22.0.0.0.00000</code> = 2029-04-08T00:00:00Z.</p>
+<p><strong>Civilisational Kilo-versaries.</strong> The reference table below records the first ten Kilo-versaries of the ATS epoch:</p>
 <table>
 <thead>
 <tr>
-<th>Position in the Deka</th>
-<th>Position</th>
+<th>n</th>
+<th>ATS</th>
+<th>UTC date</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td><code>T+ Δ 0.0.0.0.00000</code></td>
+<td>1969-07-20</td>
+<td>Epoch — Apollo 11 landing day.</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>T+ Δ 1.0.0.0.00000</code></td>
+<td>1972-04-15</td>
+<td>First Kilo-versary of the species' first lunar day.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>T+ Δ 2.0.0.0.00000</code></td>
+<td>1975-01-09</td>
+<td>Second Kilo.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>T+ Δ 3.0.0.0.00000</code></td>
+<td>1977-10-05</td>
+<td>Third Kilo.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>T+ Δ 4.0.0.0.00000</code></td>
+<td>1980-07-01</td>
+<td>Fourth Kilo.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>T+ Δ 5.0.0.0.00000</code></td>
+<td>1983-03-28</td>
+<td>Fifth Kilo.</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>T+ Δ 10.0.0.0.00000</code></td>
+<td>1996-12-04</td>
+<td>First Deka of Kilos (10 000 days).</td>
+</tr>
+<tr>
+<td>20</td>
+<td><code>T+ Δ 20.0.0.0.00000</code></td>
+<td>2024-04-23</td>
+<td>Twentieth Kilo — one "Generation" (informal).</td>
+</tr>
+<tr>
+<td>25</td>
+<td><code>T+ Δ 25.0.0.0.00000</code></td>
+<td>2038-05-29</td>
+<td>Quarter-of-century-Kilo.</td>
+</tr>
+<tr>
+<td>50</td>
+<td><code>T+ Δ 50.0.0.0.00000</code></td>
+<td>2106-08-22</td>
+<td>Half-century-Kilo.</td>
+</tr>
+</tbody></table>
+<p><strong>Personal usage.</strong> Any individual or organisation can compute their own Kilo-versary series by choosing <code>t₀</code> = birth or founding instant. The <code>age.html</code> reference page implements this for personal use and exports <code>.ics</code> events for the next ten Kilo-versaries.</p>
+<p><strong>Parallels in existing cultures.</strong> The Kilo-versary occupies a temporal window where no widespread existing ritual sits: between annual birthdays (too frequent for project-scale reflection) and decennial jubilees (too rare). Comparable patterns:</p>
+<ul>
+<li>Catholic decennial jubilees and pilgrimage years (every 25 years from 1300; every 50 years from 1450).</li>
+<li>Five-year college reunions in Anglophone tradition.</li>
+<li>The Soviet "Pyatiletka" (five-year plan) cadence.</li>
+<li>OKR / strategic-planning retrospectives at quarter or half-year boundaries (cf. <code>philosophy.en.md §4</code>).</li>
+</ul>
+<p>A Kilo-versary slots between these patterns and provides a personal or organisational reflection point with stable cadence.</p>
+<h3>1.2 Hecto-feast (every 100 days, ≈ 3.3 months)</h3>
+<p>A <strong>Hecto-feast</strong> marks the passage of one Hecto. More frequent than a Kilo-versary, proposed as a <strong>decimal-quarterly rhythm</strong> with no dependency on astronomical seasons or calendar months.</p>
+<p><strong>Calculation.</strong> The h-th Hecto-feast within Kilo k is at <code>T+ Δ k.h.0.0.00000</code>.</p>
+<p><strong>Civilisational Hecto-feasts.</strong> First eleven Hecto-feasts after the epoch:</p>
+<table>
+<thead>
+<tr>
+<th>ATS</th>
+<th>UTC date</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>T+ Δ 0.0.0.0.00000</code></td>
+<td>1969-07-20</td>
+<td>Epoch (also Kilo-versary 0).</td>
+</tr>
+<tr>
+<td><code>T+ Δ 0.1.0.0.00000</code></td>
+<td>1969-10-28</td>
+<td>First Hecto-feast.</td>
+</tr>
+<tr>
+<td><code>T+ Δ 0.2.0.0.00000</code></td>
+<td>1970-02-05</td>
+<td>Second Hecto.</td>
+</tr>
+<tr>
+<td><code>T+ Δ 0.5.0.0.00000</code></td>
+<td>1970-11-21</td>
+<td>Half-Kilo.</td>
+</tr>
+<tr>
+<td><code>T+ Δ 0.9.0.0.00000</code></td>
+<td>1972-01-06</td>
+<td>Last Hecto before Kilo 1.</td>
+</tr>
+<tr>
+<td><code>T+ Δ 1.0.0.0.00000</code></td>
+<td>1972-04-15</td>
+<td>Kilo-versary 1.</td>
+</tr>
+</tbody></table>
+<p><strong>Proposed usage.</strong> Project retrospectives, quarterly OKR reviews, organisational well-being check-ins, fitness-challenge milestones. The 100-day pattern is well-attested in human practice (cf. <code>philosophy.en.md §4.2</code>): "first 100 days" in political transitions, 90-day addiction-recovery milestones, 100-day fitness challenges. The Hecto-feast formalises this as a calendar feature rather than ad-hoc tradition.</p>
+<p><strong>Coexistence with Gregorian quarters.</strong> A Gregorian quarter is 90–92 days; a Hecto is 100. The two cadences drift by ~10 days per cycle. Organisations using both retain Gregorian quarters for fiscal reporting and overlay Hecto-feasts as additional review points; the drift is small enough to be cognitively manageable.</p>
+<h3>1.3 Deka-day (every 10 days)</h3>
+<p>A <strong>Deka-day</strong> marks the boundary between Dekas — <code>T+ Δ k.h.d.0.00000</code>. Optional and lightweight; suggested as a rhythm marker for communities using the 7+3 split (§2). In that context, the Deka-day is the transition between the rest phase of one Deka and the active phase of the next.</p>
+<p>For communities not using the 7+3 split, the Deka-day has no particular ritual value; it remains a calendar tick.</p>
+<h3>1.4 Beat-mark and Blink-flash (sub-second decoration)</h3>
+<p>Two optional decorative conventions for live displays:</p>
+<ul>
+<li><strong>Beat-mark.</strong> A subtle visual pulse every Beat (8.64 s). Used on the analog clock (<code>analog-clock.md</code>) as the inner ring of marks. May also be used as a heartbeat indicator in dashboards.</li>
+<li><strong>Blink-flash.</strong> A pixel-scale visual flash every Blink (0.864 s). The reference analog clock has a Blink hand and a small disc that rotate together (see <code>analog-clock.md §5</code>); the dot decoration is a Blink-flash.</li>
+</ul>
+<p>Neither has any normative status; they are presentation choices that adopters find pleasant.</p>
+<hr>
+<h2>2. The 7+3 rhythm on the Deka</h2>
+<p>The <strong>7+3 rhythm</strong> is an optional social convention that slices the 10-day Deka into:</p>
+<ul>
+<li><strong>7 active days</strong> (work, school, engagement).</li>
+<li><strong>3 rest days</strong> (recovery, family, personal projects, civic participation).</li>
+</ul>
+<h3>2.1 The table</h3>
+<table>
+<thead>
+<tr>
+<th>Day of Deka (last digit)</th>
+<th>Phase</th>
 <th>Proposed role</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>1, 2, 3, 4, 5, 6, 7</td>
-<td>Active phase</td>
-<td>Work, school, projects</td>
+<td><strong>Active</strong></td>
+<td>Work, school, projects, sustained focus</td>
 </tr>
 <tr>
 <td>8, 9, 0</td>
-<td>Rest phase</td>
-<td>Recovery, social, personal</td>
+<td><strong>Rest</strong></td>
+<td>Recovery, social, personal, civic</td>
 </tr>
 </tbody></table>
-<p>Compared to the Gregorian 5+2 week, the 7+3 keeps a close ratio (70 % active vs 71 %) while aligning naturally with the decimal clock: one Hecto = 10 Dekas = 10 complete cycles.</p>
-<p><strong>This convention is not required.</strong> A conformant implementation may translate ATS durations into any local rhythm (weekly Sabbath, Fri-Sun, 10-day market cycle, etc.).</p>
+<h3>2.2 Comparison with the Gregorian 5+2 week</h3>
+<table>
+<thead>
+<tr>
+<th>Rhythm</th>
+<th>Active days</th>
+<th>Rest days</th>
+<th>Cycle length</th>
+<th>Active ratio</th>
+<th>Rest ratio</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Gregorian 5+2</td>
+<td>5</td>
+<td>2</td>
+<td>7</td>
+<td>71 %</td>
+<td>29 %</td>
+</tr>
+<tr>
+<td>ATS 7+3</td>
+<td>7</td>
+<td>3</td>
+<td>10</td>
+<td>70 %</td>
+<td>30 %</td>
+</tr>
+</tbody></table>
+<p>The 7+3 rhythm preserves the work-rest <em>ratio</em> of the 5+2 week to within one percentage point while aligning with the decimal calendar (one Hecto = 10 Dekas = 10 complete cycles, no drift).</p>
+<h3>2.3 Alternative splits</h3>
+<p>The 7+3 rhythm is <strong>one</strong> convention among several that an ATS-adopting community might use. The Deka unit makes such variation legible because each ratio is a sentence-length statement; the existing 5+2 ratio is opaque to anyone outside the convention. Alternative splits:</p>
+<table>
+<thead>
+<tr>
+<th>Split</th>
+<th>Active ratio</th>
+<th>Rest profile</th>
+<th>Suited for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>7+3</strong></td>
+<td>70 %</td>
+<td>One 3-day weekend</td>
+<td>General default, ratio-equivalent to 5+2</td>
+</tr>
+<tr>
+<td><strong>6+1+2+1</strong></td>
+<td>70 %</td>
+<td>Mid-Deka break + weekend</td>
+<td>Anti-burnout, distributed recovery</td>
+</tr>
+<tr>
+<td><strong>8+2</strong></td>
+<td>80 %</td>
+<td>Single 2-day weekend</td>
+<td>High-intensity short-cycle work</td>
+</tr>
+<tr>
+<td><strong>5+5</strong></td>
+<td>50 %</td>
+<td>Sabbatical alternation</td>
+<td>Creative / autonomous work</td>
+</tr>
+<tr>
+<td><strong>6+4</strong></td>
+<td>60 %</td>
+<td>Long weekend</td>
+<td>Recovery-focused community</td>
+</tr>
+</tbody></table>
+<p>The choice is <strong>social</strong>, not specified by the standard.</p>
+<h3>2.4 Cultural plurality (explicit acknowledgement)</h3>
+<p>The 7+3 rhythm is offered as a convention <strong>layered on top of</strong> ATS, not as a displacement of any existing cultural rhythm. The 7-day liturgical week (Hebrew Sabbath, Christian Sunday, Islamic Friday prayer) is a religious framework with its own logic, and the 7+3 rhythm does not align with it: a Sabbath that recurs every 7 Earth days will land on different positions of consecutive Dekas. Communities committed to the 7-day liturgical week have three reasonable responses:</p>
+<ol>
+<li><strong>Retain the Gregorian week alongside ATS.</strong> The ATS counter and the 7-day liturgical week coexist on the same timeline. ATS is used for software, accounting, scientific data; the Gregorian week governs liturgical practice.</li>
+<li><strong>Adopt 7+3 secularly</strong> while retaining 7-day liturgical observance in parallel. The Sabbath is observed as usual; the 7+3 rhythm structures the secular work-rest pattern. The two cycles overlap with predictable drift.</li>
+<li><strong>Decline the 7+3 rhythm entirely</strong> and define a community-specific rhythm on the Deka (e.g., 6+1+2+1 to allow a one-day mid-Deka Sabbath observance).</li>
+</ol>
+<p>No option is normatively preferred. The ATS standard does not require any rhythm to be chosen; it requires only the counter (<code>manifesto.en.md §13.3</code>).</p>
+<h3>2.5 Sourcing the rest-ratio claim</h3>
+<p>The 70 % active / 30 % rest target is empirically grounded:</p>
+<ul>
+<li>Modern occupational-health literature (Schaufeli &amp; Bakker 2004; Maslach 2003; WHO 2019) documents that the 5+2 cycle's 29 % rest ratio is at the low end of historical and biological norms.</li>
+<li>Pre-industrial seasonal labour averaged 30–40 % rest, varying by season (Thompson 1967).</li>
+<li>The ILO Convention 47 (1935) on the 40-hour week implicitly assumes a 5+2 cycle with 29 % rest.</li>
+<li>A 30 % rest ratio (7+3) approaches the pre-industrial mean while remaining compatible with modern productivity expectations.</li>
+</ul>
+<p>The 7+3 rhythm is therefore a <em>small</em> deviation from the 5+2 status quo (one extra rest day per cycle), not a radical departure. Communities adopting it experience a marginally lighter active load and a marginally heavier rest budget; the cumulative effect over a Hecto is +10 rest days vs the equivalent Gregorian period.</p>
 <hr>
 <h2>3. Local solar bands (08–22)</h2>
-<p>The site's analog dial (cf. <code>analog-clock.en.md</code>) draws, for each city, an <strong>arc</strong> corresponding to its 08:00 → 22:00 local active day. This annex formalizes that social convention:</p>
+<p>The site's analog dial (cf. <code>analog-clock.md</code>) draws, for each city, an <strong>arc</strong> corresponding to its 08:00 → 22:00 local active day. This convention is the basis for the daily-activity colouring on the Cities map (<code>/fr/cities.html</code>).</p>
+<h3>3.1 The bands</h3>
 <table>
 <thead>
 <tr>
 <th>Section</th>
 <th>Local time</th>
 <th>Label</th>
-<th>Arc style</th>
+<th>Reference arc style</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>Morning</td>
-<td>08:00–12:00</td>
+<td><strong>Morning</strong></td>
+<td>08:00 – 12:00</td>
 <td><code>morning</code></td>
 <td>dashed</td>
 </tr>
 <tr>
-<td>Noon</td>
-<td>12:00–14:00</td>
+<td><strong>Noon</strong></td>
+<td>12:00 – 14:00</td>
 <td><code>noon</code></td>
 <td>solid</td>
 </tr>
 <tr>
-<td>Afternoon</td>
-<td>14:00–18:00</td>
+<td><strong>Afternoon</strong></td>
+<td>14:00 – 18:00</td>
 <td><code>afternoon</code></td>
 <td>dotted</td>
 </tr>
 <tr>
-<td>Evening</td>
-<td>18:00–22:00</td>
+<td><strong>Evening</strong></td>
+<td>18:00 – 22:00</td>
 <td><code>evening</code></td>
 <td>dash-dot</td>
 </tr>
+<tr>
+<td><strong>Night</strong></td>
+<td>22:00 – 08:00</td>
+<td><code>night</code></td>
+<td>(no arc; the dial is dark in this band)</td>
+</tr>
 </tbody></table>
-<p><strong>Why 08–22?</strong> Empirical compromise between:</p>
+<h3>3.2 Why 08–22 specifically</h3>
+<p>The bounds are an empirical compromise across three constraints:</p>
 <ul>
-<li>WHO healthy-sleep guidelines (7–9 h adult, recommended 22:00–07:00),</li>
-<li>standard commercial opening hours (08:00–22:00 in Europe / Americas),</li>
-<li>the range of school commute windows (08:00–18:00).</li>
+<li><strong>Sleep recommendations.</strong> The Sleep Foundation (Hirshkowitz et al. 2015) recommends 7–9 hours for adults, with bedtime in the 22:00–24:00 window for typical chronotypes. The 22:00 boundary preserves wind-down time before sleep.</li>
+<li><strong>Commercial opening hours.</strong> Standard commercial opening hours in Europe and the Americas span 08:00–22:00 with regional variation. The bounds align with the modal observable schedule (Eurostat 2019 retail-hours data).</li>
+<li><strong>School and commute windows.</strong> School entry times in OECD countries cluster around 08:00 (OECD 2022 education indicators); evening commute completes by 19:00 for most workers. The 08:00 boundary marks the start of the institutional day.</li>
 </ul>
-<p><strong>This convention is not required by the spec.</strong> It only serves to visualize the "active day" per timezone on the analog dial. An implementation may choose other bounds (06–20, 09–23, etc.) — when it does, it is recommended to document the choice in the SVG's <code>aria-describedby</code> attribute.</p>
+<h3>3.3 Variation and special cases</h3>
+<p>The 08–22 band is a <strong>default</strong>, not a mandate. Implementations are free to use other bounds, and several special cases motivate variation:</p>
+<ul>
+<li><strong>Polar regions.</strong> Above the Arctic Circle and below the Antarctic Circle, solar time loses meaning during the polar day or night. Implementations covering these regions should use clock-based bands rather than solar-relative bands.</li>
+<li><strong>Mediterranean siesta culture.</strong> Cities in southern Europe and Latin America commonly extend the active day to 23:00 or 00:00, with a mid-afternoon rest break. A 08–24 band may be more representative.</li>
+<li><strong>Tropical climates with early starts.</strong> Many tropical cities start the active day at 06:00 to avoid midday heat. A 06–22 band may be more representative.</li>
+<li><strong>Religious observance windows.</strong> Islamic five-daily prayer times structure the day differently; Hindu morning and evening puja windows likewise. Implementations serving these communities may overlay prayer markers on the dial.</li>
+</ul>
+<p>When an implementation chooses non-default bounds, it is <strong>RECOMMENDED</strong> that the choice be documented in the <code>aria-describedby</code> attribute of the relevant SVG, so screen readers and downstream consumers can understand the convention in use.</p>
+<h3>3.4 Sourcing</h3>
+<p>The Cities map dataset (<code>docs/assets/data/cities.json</code>) carries activity times per city that have been collected from regional norms and published medians. The dataset note explicitly states: <em>"Approximate cultural averages for representative world capitals — sourced from regional norms (working week, school hours, meal customs). Local times are the published medians."</em> The 08–22 bands are a visual default; the per-city activity times deviate from them according to local custom.</p>
 <hr>
 <h2>4. Personal counters</h2>
-<p>Any personal ATS instant (<code>Δ_self</code>) can be used as a new local epoch to compute an <strong>ego-centered</strong> counter:</p>
+<p>Any personal ATS instant <code>Δ_self</code> (typically a birth instant) can be used as an alternate reference point to compute an <strong>ego-centered</strong> counter:</p>
+<h3>4.1 Calculation</h3>
 <pre><code>Δd_age = Δ_now − Δ_self
 </code></pre>
-<p>Examples:</p>
+<p>where <code>Δ_now</code> is the current ATS instant and <code>Δ_self</code> is the reference (birth, founding, project start). The result is a signed duration (<code>Δd</code>) in the canonical ATS duration form (cf. <code>manifesto.en.md §11</code>).</p>
+<h3>4.2 Examples</h3>
+<table>
+<thead>
+<tr>
+<th>Reference event</th>
+<th>Δ_self</th>
+<th>Time elapsed</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Birth on 2000-01-01</td>
+<td><code>T+ Δ 11.1.2.5.50000</code></td>
+<td>At 2026-06-13 12:00 UTC</td>
+<td><code>T+ Δd 9.6.5.7.00000</code> (≈ 26.5 years)</td>
+</tr>
+<tr>
+<td>Project launch</td>
+<td><code>T+ Δ 20.5.3.0.00000</code></td>
+<td>After 247 days</td>
+<td><code>T+ Δd 0.2.4.7.00000</code></td>
+</tr>
+<tr>
+<td>Doctorate started</td>
+<td><code>T+ Δ 19.8.5.6.50000</code></td>
+<td>After 1500 days</td>
+<td><code>T+ Δd 1.5.0.0.00000</code></td>
+</tr>
+</tbody></table>
+<h3>4.3 Personal Kilo-versary</h3>
+<p>The n-th personal Kilo-versary is the instant <code>Δ_self + Δd n.0.0.0.00000</code>. The <code>age.html</code> reference page computes the next ten Kilo-versaries for a given birth date and exports them as <code>.ics</code> calendar events.</p>
+<h3>4.4 Multi-counter algebra</h3>
+<p>ATS algebra (<code>manifesto.en.md §11.4</code>) allows arbitrary arithmetic on personal counters:</p>
 <ul>
-<li>"I have lived Δd 18.5.4.2.50000" = a personal instant relative to one's own birth.</li>
-<li>"This project has Δd 0.2.4.7.00000" = 247 days since launch.</li>
+<li>Difference between two people's ages: <code>(Δ_now − Δ_self_A) − (Δ_now − Δ_self_B) = Δ_self_B − Δ_self_A</code>.</li>
+<li>Time until the n-th Kilo-versary: <code>(Δ_self + Δd n.0.0.0.00000) − Δ_now</code>.</li>
+<li>Average age of a team: <code>(Σ (Δ_now − Δ_self_i)) ÷ N</code>.</li>
 </ul>
-<p>The site's "Mon âge" / "My age" calculator (<code>age.html</code>) implements this convention by exporting Kilo-versaries and Hecto-feasts in <code>.ics</code> format.</p>
+<p>These computations are stable across time zones and DST transitions because all operands are UTC instants.</p>
 <hr>
-<h2>5. Ritual milestones</h2>
-<p>A few notable milestone suggestions, with no normative value:</p>
+<h2>5. Milestone suggestions</h2>
+<p>The following civilisational and multi-planetary milestones are offered as suggestions, with no normative value. Communities are free to compute their own.</p>
+<h3>5.1 Earth civilisational milestones</h3>
+<table>
+<thead>
+<tr>
+<th>Milestone</th>
+<th>ATS</th>
+<th>UTC</th>
+<th>Suggested cultural framing</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>First Hecto</td>
+<td><code>T+ Δ 0.1.0.0.00000</code></td>
+<td>1969-10-28</td>
+<td>"Hundred-day post-landing reflection."</td>
+</tr>
+<tr>
+<td>First Kilo</td>
+<td><code>T+ Δ 1.0.0.0.00000</code></td>
+<td>1972-04-15</td>
+<td>"First Kilo-versary of lunar humanity."</td>
+</tr>
+<tr>
+<td>First Deka of Kilos</td>
+<td><code>T+ Δ 10.0.0.0.00000</code></td>
+<td>1996-12-04</td>
+<td>"Ten Kilos = 10 000 days = first informal Generation."</td>
+</tr>
+<tr>
+<td>Twentieth Kilo</td>
+<td><code>T+ Δ 20.0.0.0.00000</code></td>
+<td>2024-04-23</td>
+<td>"Two Generations since Apollo 11."</td>
+</tr>
+<tr>
+<td>Quarter-century Kilo</td>
+<td><code>T+ Δ 25.0.0.0.00000</code></td>
+<td>2038-05-29</td>
+<td>"Quarter of a centi-Kilo."</td>
+</tr>
+<tr>
+<td>Half-century Kilo</td>
+<td><code>T+ Δ 50.0.0.0.00000</code></td>
+<td>2106-08-22</td>
+<td>"Half a centi-Kilo."</td>
+</tr>
+<tr>
+<td>Centi-Kilo (Hundred Kilos)</td>
+<td><code>T+ Δ 100.0.0.0.00000</code></td>
+<td>2243-10-25</td>
+<td>"Hundred thousand days post-landing."</td>
+</tr>
+</tbody></table>
+<h3>5.2 Multi-planetary milestones (per <code>multi-planetary.md</code>)</h3>
+<p>These milestones are computed on the body-specific epochs. They do not coincide in Earth-UTC.</p>
+<table>
+<thead>
+<tr>
+<th>Body</th>
+<th>Milestone</th>
+<th>ATS</th>
+<th>Approximate Earth-UTC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Earth</td>
+<td>First lunar Kilo</td>
+<td><code>T+ Δ_Earth 1.0.0.0.00000</code></td>
+<td>1972-04-15 (see §5.1)</td>
+</tr>
+<tr>
+<td>Moon</td>
+<td>First Lunar Kilo (Δ_Moon counter)</td>
+<td><code>T+ Δ_Moon 1.0.0.0.00000</code></td>
+<td>Lunar epoch + 1 000 sols (≈ 2050) — see annex</td>
+</tr>
+<tr>
+<td>Mars</td>
+<td>First Martian Kilo (Δ_Mars counter)</td>
+<td><code>T+ Δ_Mars 1.0.0.0.00000</code></td>
+<td>Mars-Pathfinder epoch (1997) + 1 000 sols (≈ 2000-04-01)</td>
+</tr>
+</tbody></table>
+<p>The exact UTC equivalents depend on the body-specific day length (sols vs Earth days); see <code>multi-planetary.md §5</code> and the conformance vectors.</p>
+<h3>5.3 Personal milestones</h3>
+<p>Any individual or organisation computes its own milestones using §1.1 (Kilo-versary) and §1.2 (Hecto-feast). The reference page <code>age.html</code> generates a personalised milestone calendar.</p>
+<hr>
+<h2>6. What these conventions are <em>not</em></h2>
+<p>To pre-empt category errors, four boundaries are made explicit. These mirror <code>manifesto.en.md §1.1</code> adapted to social conventions.</p>
+<ol>
+<li><strong>These are not normative.</strong> The ATS standard does not require any convention here. Conformance (<code>manifesto.en.md §16.5</code>) depends only on the standard's normative content; this annex is wholly optional.</li>
+<li><strong>These are not prescriptive.</strong> No individual, organisation, or community is asked to adopt the 7+3 rhythm, the 08–22 solar bands, the Kilo-versary, or the Three Eras of life narrative. They are offered as documented patterns that some adopters have found useful.</li>
+<li><strong>These do not displace cultural or religious rhythms.</strong> The 7-day liturgical week, the Sabbath, Friday prayer, harvest festivals, and other cultural cycles continue to operate on the same timeline as ATS. The relationship is <strong>coexistence</strong>, not replacement.</li>
+<li><strong>These are not universalist.</strong> The 08–22 solar band is a North-Atlantic-modal compromise; the 7+3 rhythm is one of several alternatives; the milestones reflect a specific framing of significance. Communities preferring different conventions lose nothing by adopting them in place of these.</li>
+</ol>
+<hr>
+<h2>7. Anticipated objections</h2>
+<h3>7.1 "You claim ATS doesn't legislate rhythm, but this annex defines a 7+3 rhythm."</h3>
+<p>The 7+3 rhythm is documented in this annex, not legislated by the standard. <code>manifesto.en.md §13.3</code> is explicit: ATS does not legislate work-rest splits. The 7+3 rhythm is offered alongside 6+1+2+1, 8+2, 5+5, and 6+4 as <strong>alternatives</strong> that the Deka unit makes legible. An adopter of ATS who chooses any of them — or none of them — remains conformant.</p>
+<h3>7.2 "7+3 disadvantages communities with 7-day religious traditions (Sabbath, Sunday, Friday prayer)."</h3>
+<p>§2.4 addresses this directly. Communities committed to a 7-day liturgical week have three reasonable responses: retain the Gregorian week alongside ATS, adopt 7+3 secularly while retaining 7-day liturgical observance in parallel, or decline 7+3 and define a community-specific rhythm. No option is normatively preferred. ATS is additive, not subtractive.</p>
+<h3>7.3 "08–22 is Eurocentric and does not represent Mediterranean, tropical, polar, or East Asian schedules."</h3>
+<p>§3.3 documents this explicitly and recommends variation for each case. The 08–22 default is a starting point for the analog dial display; it is not a claim about how people <em>should</em> organise their days. Implementations covering specific regions are encouraged to use bounds appropriate to local custom and to document the choice in <code>aria-describedby</code>.</p>
+<h3>7.4 "What about polar regions where there is no daily sun cycle?"</h3>
+<p>§3.3 acknowledges polar regions explicitly. In polar day or polar night, solar-relative bands lose meaning; clock-based bands are the only sensible default. Implementations covering polar regions should treat 08–22 as a clock convention, not a solar one.</p>
+<h3>7.5 "Personal counters are just <code>now() - birthday()</code>; why elevate this to a convention?"</h3>
+<p>The arithmetic is trivial. The convention is the <strong>framing</strong> — that ATS represents a person's age as a positional duration (<code>Δd K.H.D.Kin.fffff</code>) rather than a year count. The conventional framing supports:</p>
 <ul>
-<li><strong>Δ 100</strong> (original Hecto-feast, 1969-10-28) — anniversary of "lunar" humanity.</li>
-<li><strong>Δ 1000</strong> (1st Kilo-versary, 1972-04-15) — first post-landing millennium.</li>
-<li><strong>Δ 10000</strong> (Δ 10.0.0.0, 1996-12-04) — first decade of Kilos.</li>
-<li><strong>Δ 20000</strong> (Δ 20.0.0.0, 2024-04-23) — twentieth Kilo, ATS generation.</li>
-<li><strong>Δ 50000</strong> (Δ 50.0.0.0, 2106-08-22) — first half of a centi-Kilo.</li>
+<li>Stable arithmetic across DST and time-zone changes (a personal Kilo-versary is a single UTC instant, not "midnight in some local time").</li>
+<li>Multi-counter algebra (§4.4): differences, averages, intersections of multiple personal counters reduce to ATS algebra.</li>
+<li><code>.ics</code> export and calendar interop without time-zone gymnastics.</li>
 </ul>
-<p>Implementations are free to compute their own milestones via §11.4 (Δ/Δd algebra).</p>
+<p>The convention is a small thing that scales well; trivial individually, useful at the scale of an <code>age.html</code> page generating Kilo-versaries for arbitrary birth dates.</p>
+<h3>7.6 "Civilisational milestones (Δ 100, Δ 1000, …) sound like astrology — assigning meaning to arithmetic accidents."</h3>
+<p>The arithmetic is the arithmetic; meaning is a community choice. ATS does not assert that <code>Δ 1000</code> carries cosmic significance. It asserts that 1 000 days have passed since the epoch, and offers that as a <em>coordination point</em> for communities that want to mark it. The same is true of every calendar milestone: a centennial is "100 years since something", and the meaning is whatever the community attaches. ATS adds nothing magical and removes nothing.</p>
+<h3>7.7 "Why include sub-second conventions (Beat-mark, Blink-flash)? Nobody marks time at second scale."</h3>
+<p>These are presentation conventions for live displays — analog clocks, dashboards, time-sensitive user interfaces. The Beat-mark is a subtle pulse every 8.64 s; the Blink-flash is a pixel-scale animation every 0.864 s. Both are decorative, both opt-in. The analog clock reference page (<code>analog-clock.md</code>) uses them; other applications are free to ignore them. They are documented here so that implementations using them are consistent.</p>
+<h3>7.8 "This annex pads to look RFC-grade when it is just a list of social patterns."</h3>
+<p>The annex is non-normative and is presented as such (§0). The RFC-grade structure (citations, opt-in framing, anticipated objections) is borrowed from the normative manifesto for <strong>consistency of voice across the spec set</strong>, not because the content of this annex carries the same weight. The reader is invited to treat each section as a documented suggestion; rejecting any of it carries no cost.</p>
+<hr>
+<h2>8. Summary</h2>
+<p>Every convention in this annex is opt-in. Adopters mix and match:</p>
+<table>
+<thead>
+<tr>
+<th>Convention</th>
+<th>Section</th>
+<th>Cadence</th>
+<th>Required by ATS?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Kilo-versary</td>
+<td>§1.1</td>
+<td>every 1 000 days</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Hecto-feast</td>
+<td>§1.2</td>
+<td>every 100 days</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Deka-day</td>
+<td>§1.3</td>
+<td>every 10 days</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Beat-mark / Blink-flash</td>
+<td>§1.4</td>
+<td>every 8.64 s / 0.864 s</td>
+<td>No</td>
+</tr>
+<tr>
+<td>7+3 work-rest rhythm</td>
+<td>§2</td>
+<td>per Deka</td>
+<td>No</td>
+</tr>
+<tr>
+<td>08–22 local solar bands</td>
+<td>§3</td>
+<td>daily</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Personal counters</td>
+<td>§4</td>
+<td>per ATS instant</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Civilisational milestones</td>
+<td>§5.1</td>
+<td>discrete</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Multi-planetary milestones</td>
+<td>§5.2</td>
+<td>discrete</td>
+<td>No</td>
+</tr>
+</tbody></table>
+<p>None of these is required for ATS conformance. All are documented because adopters of ATS, asked what conventions they found useful, converged on roughly this catalogue. The annex is a snapshot of community practice; it will evolve.</p>
+<p>For the strictly normative content of ATS, see <code>manifesto.en.md</code>. For the philosophical rationale behind the unit choices, see <code>philosophy.en.md</code>. For comparison with alternative time standards, see <code>comparison.en.md</code>. This annex sits between practice and reflection.</p>
+<hr>
+<h2>References</h2>
+<ul>
+<li>Achelis, E. (1937). <em>The Calendar for the Modern Age</em>. Putnam. (Quarter-equivalence framing relevant to §1.2.)</li>
+<li>Doerr, J. (2018). <em>Measure What Matters</em>. Portfolio. (OKR quarterly cadence comparison.)</li>
+<li>Eurostat (2019). <em>Retail trade and opening hours statistics, EU-27</em>. (Source for §3.2 commercial-hours data.)</li>
+<li>Hirshkowitz, M., Whiton, K., Albert, S. M., et al. (2015). <em>National Sleep Foundation's sleep time duration recommendations: methodology and results summary</em>. Sleep Health, 1(1), 40–43. (Source for §3.2 sleep recommendations.)</li>
+<li>International Labour Organization (1919). <em>Hours of Work (Industry) Convention (No. 1)</em>. (Origin of the 8-hour day.)</li>
+<li>International Labour Organization (1935). <em>Forty-Hour Week Convention (No. 47)</em>. (Origin of the 40-hour week.)</li>
+<li>Kerkhof, G. A. (1985). <em>Inter-individual differences in the human circadian system: a review</em>. Biological Psychology, 20(2), 83–112. (Source for chronotype variation in §3.3.)</li>
+<li>Maslach, C., &amp; Leiter, M. P. (2003). <em>The Truth About Burnout</em>. Jossey-Bass. (Source for §2.5 rest-ratio claims.)</li>
+<li>OECD (2022). <em>Education at a Glance: OECD Indicators 2022</em>. (Source for §3.2 school-start times.)</li>
+<li>Schaufeli, W. B., &amp; Bakker, A. B. (2004). <em>Job demands, job resources, and their relationship with burnout and engagement</em>. Journal of Organizational Behavior, 25(3), 293–315. (Source for §2.5.)</li>
+<li>Thompson, E. P. (1967). <em>Time, work-discipline, and industrial capitalism</em>. Past &amp; Present, 38(1), 56–97. (Source for pre-industrial rest-ratio claim in §2.5.)</li>
+<li>World Health Organization (2019). <em>International Classification of Diseases, 11th Revision (ICD-11)</em>. Burn-out classified as occupational phenomenon (QD85). (Source for §2.5.)</li>
+</ul>
+<p>All numerical claims in this annex are arithmetically verifiable from <code>manifesto.en.md §9</code> (conversion definition) and <code>code/ats.py</code> (reference implementation). All cultural claims are sourced. Readers identifying weak citations, missing alternatives, or contested patterns are invited to open an issue at the canonical location (<code>manifesto.en.md §16.1</code>).</p>
 
