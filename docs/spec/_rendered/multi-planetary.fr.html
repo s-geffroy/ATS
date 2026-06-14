@@ -1,178 +1,586 @@
 <h1>ATS — Extension multi-planétaire</h1>
-<p><strong>Statut :</strong> annexe <strong>normative</strong> v0.7 (cible v1.0)
-<strong>Symbole générique :</strong> <code>Δ_&lt;Body&gt;</code> ou <code>Δ_&lt;symbole astronomique&gt;</code>
-<strong>Référence normative :</strong> <code>manifesto.fr.md</code> (la spec Terre)</p>
+<p><strong>Statut :</strong> Pré-release v0.7
+<strong>Type de document :</strong> <strong>ANNEXE NORMATIVE</strong> à la spécification ATS.
+<strong>Référence normative :</strong> <code>manifesto.fr.md</code> (la spec Terre).
+<strong>Langue source :</strong> Anglais (<code>multi-planetary.en.md</code>). Cette traduction française est fournie pour l'accessibilité ; en cas de divergence, l'anglais fait foi.
+<strong>Symbole générique :</strong> <code>Δ_&lt;Body&gt;</code> (ASCII) ou <code>Δ&lt;symbole astronomique&gt;</code> (Unicode).
+<strong>Thèse centrale :</strong> ATS se généralise de la Terre à n'importe quel corps céleste en paramétrant l'époque et la longueur du jour. La grammaire, l'algèbre, l'encodage binaire et le contrat de conformance de la spec Terre s'appliquent <strong>inchangés</strong>. Terre, Mars et Lune reçoivent des paramètres normatifs en v0.7 ; les corps tiers (Vénus, Europe, exoplanètes, …) utilisent le framework générique défini au §6.</p>
 <hr>
-<h2>0. Position</h2>
-<p>L'ATS v0.6 (cf. <code>manifesto.fr.md</code>) décrit un compteur <strong>ancré à la Terre</strong> : époque 1969-07-20T00:00:00Z, jour POSIX de 86 400 s. Cette annexe le <strong>généralise</strong> à d'autres corps célestes pour soutenir la rhétorique du §1 du manifeste (« conçue pour une civilisation multi-planétaire »).</p>
-<blockquote>
-<p><strong>Important.</strong> Cette extension n'introduit <strong>aucune modification</strong> du format canonique, du format court, du format binaire §12, ni de l'algèbre §11.4. La même grammaire <code>K.H.D.Kin.fffff</code> s'applique à chaque corps — seuls l'<strong>époque</strong> et la <strong>durée du jour</strong> changent.</p>
-</blockquote>
+<h2>0. Conventions</h2>
+<h3>0.1 Niveaux d'exigence</h3>
+<p>Les mots clés <strong>DOIT</strong>, <strong>NE DOIT PAS</strong>, <strong>REQUIS</strong>, <strong>DEVRA</strong>, <strong>NE DEVRA PAS</strong>, <strong>DEVRAIT</strong>, <strong>NE DEVRAIT PAS</strong>, <strong>RECOMMANDÉ</strong>, <strong>NON RECOMMANDÉ</strong>, <strong>PEUT</strong> et <strong>OPTIONNEL</strong> dans ce document doivent être interprétés comme décrits dans BCP 14 [RFC 2119, RFC 8174] quand, et seulement quand, ils apparaissent en majuscules.</p>
+<h3>0.2 Glossaire (spécifique à l'extension)</h3>
+<ul>
+<li><strong>Corps</strong> — Un corps céleste pour lequel un compteur ATS est défini : Terre, Mars, Lune, ou tout corps tiers enregistré selon §6.</li>
+<li><strong>Sol</strong> — Un jour solaire martien. Sol martien moyen = 88 775,244 147 secondes SI [Allison &amp; McEwen 2000].</li>
+<li><strong>Jour lunaire synodique</strong> — Le temps entre deux levers de soleil successifs au même endroit sur la Lune, ≈ 29,530 588 jours terrestres = 2 551 442,8128 secondes SI [IAU ; Espenak 2014].</li>
+<li><strong><code>Δ_X</code></strong> — Le compteur d'instants ATS pour le corps X.</li>
+<li><strong><code>Δd_X</code></strong> — Le compteur de durées ATS pour le corps X (quantité signée de jours-X).</li>
+<li><strong>Suffixe de corps</strong> — Identifiant ASCII (<code>_Earth</code>, <code>_Mars</code>, <code>_Moon</code>, …) ajouté à <code>Δ</code> pour désambigüer le corps. Le suffixe Terre PEUT être omis (selon §2.1.3).</li>
+</ul>
+<h3>0.3 Périmètre</h3>
+<p>Cette annexe spécifie :</p>
+<ul>
+<li>La paramétrisation générique d'un compteur ATS pour n'importe quel corps (§1).</li>
+<li>La notation pour les instants spécifiques à un corps (§2).</li>
+<li>Les paramètres normatifs pour Terre, Mars et Lune (§3).</li>
+<li>La conversion entre ATS local au corps et UTC (§4).</li>
+<li>Les règles d'algèbre inter-corps (§5).</li>
+<li>Le framework générique pour les corps tiers (§6).</li>
+<li>Les engagements de stabilité pour v1.0 (§7).</li>
+<li>La justification des ancrages choisis (§8).</li>
+<li>Les corrections relativistes (§9, non normative).</li>
+<li>Le contrat de vecteurs de conformance (§10).</li>
+<li>Les objections anticipées (§11).</li>
+<li>Les implémentations de référence (§12).</li>
+</ul>
+<p>Cette annexe <strong>NE</strong> modifie <strong>PAS</strong> de contenu normatif de <code>manifesto.fr.md</code>. La spécification ATS Terre (§§1–17 du manifeste) est inchangée.</p>
+<hr>
 <h2>1. Définition générique</h2>
-<p>Un compteur ATS pour un corps céleste <code>X</code> est entièrement déterminé par :</p>
+<h3>1.1 Paramètres de corps</h3>
+<p>Un compteur ATS pour un corps céleste <code>X</code> est <strong>complètement défini</strong> par quatre paramètres :</p>
 <table>
 <thead>
 <tr>
 <th>Paramètre</th>
 <th>Type</th>
-<th>Signification</th>
+<th>Contrainte</th>
+<th>Sens</th>
 </tr>
 </thead>
 <tbody><tr>
 <td><code>epoch_X</code></td>
-<td>instant UTC</td>
-<td>Origine du compteur (zéro absolu).</td>
+<td>Instant UTC</td>
+<td>exact à la seconde SI</td>
+<td>Origine du compteur (l'instant où <code>Δ_X</code> vaut <code>T+ Δ_X 0.0.0.0.00000</code>).</td>
 </tr>
 <tr>
 <td><code>day_seconds_X</code></td>
 <td>Decimal positif</td>
-<td>Durée d'un « jour » local du corps, en secondes SI.</td>
+<td>&gt; 0, exact à ≥ 6 décimales</td>
+<td>Durée du « jour » local, en secondes SI.</td>
 </tr>
 <tr>
 <td><code>suffix_X</code></td>
-<td>ASCII</td>
-<td>Suffixe canonique pour la notation (<code>_Earth</code>, <code>_Mars</code>…).</td>
+<td>Chaîne ASCII</td>
+<td>matche <code>[A-Za-z][A-Za-z0-9]*</code></td>
+<td>Suffixe canonique pour la notation ASCII (<code>_Earth</code>, <code>_Mars</code>…).</td>
 </tr>
 <tr>
 <td><code>symbol_X</code></td>
-<td>Unicode (facultatif)</td>
+<td>Codepoint Unicode (optionnel)</td>
+<td>U+263F–U+2647 pour les corps du système solaire</td>
 <td>Symbole astronomique pour la forme d'affichage.</td>
 </tr>
 </tbody></table>
-<p>Le compteur est alors :</p>
+<p>Une implémentation conformante v0.7 <strong>DOIT</strong> supporter Terre, Mars et Lune avec les paramètres du §3.</p>
+<h3>1.2 Le compteur</h3>
+<p>Le compteur du corps-X est la fonction :</p>
 <pre><code>Δ_X(t_UTC) = (t_UTC − epoch_X) / day_seconds_X
 </code></pre>
-<p>avec <code>t_UTC</code> en secondes depuis une référence UTC arbitraire (typiquement l'époque POSIX ou l'époque Terre).</p>
-<p>La structure positionnelle <code>K.H.D.Kin.fffff</code> est identique à l'ATS Terre (Kilo non borné, Hecto / Deka / Kin chiffres 0..9, fraction sur 5 chiffres par défaut). Le <code>Bloc</code> reste <code>1/10</code> de jour local — sa durée absolue varie selon le corps.</p>
+<p>où :</p>
+<ul>
+<li><code>t_UTC</code> est un instant UTC.</li>
+<li><code>t_UTC − epoch_X</code> est le temps écoulé comme durée en secondes SI (sémantique POSIX selon <code>manifesto.fr.md §8</code>).</li>
+<li>La division produit un compte de jours décimal signé.</li>
+</ul>
+<p>Le compte de jours signé est ensuite encodé en utilisant la même grammaire positionnelle <code>K.H.D.Kin.fffff</code> qu'ATS Terre (<code>manifesto.fr.md §4.1</code>) :</p>
+<ul>
+<li>Kilo non borné, signé via <code>T+</code> / <code>T-</code> (<code>manifesto.fr.md §3</code>).</li>
+<li>Chiffres Hecto, Deka, Kin 0..9.</li>
+<li>Fraction par défaut 5 chiffres, tronquée plancher (<code>manifesto.fr.md §6</code>).</li>
+</ul>
+<h3>1.3 Les longueurs d'unités varient par corps</h3>
+<p>Les unités positionnelles (Bloc, Centi, Milli, Beat, Blink) sont des <strong>fractions du jour du corps</strong>, pas des fractions d'un jour terrestre. Concrètement :</p>
+<ul>
+<li>1 Bloc_Earth = 0,1 × 86 400 s = 8 640 s = 2 h 24 min.</li>
+<li>1 Bloc_Mars = 0,1 × 88 775,244 147 s ≈ 8 877,52 s ≈ 2 h 27 min 57 s.</li>
+<li>1 Bloc_Moon = 0,1 × 2 551 442,8128 s ≈ 255 144,28 s ≈ 2 j 22 h 52 min.</li>
+</ul>
+<p>C'est intentionnel. La grammaire positionnelle est <strong>invariante</strong> à travers les corps ; les <em>durées absolues</em> des micro-unités sont mises à l'échelle de la longueur du jour du corps. Un utilisateur sur Mars travaillant « 3 Blocs » met approximativement la même fraction d'un jour martien qu'un utilisateur Terre travaillant « 3 Blocs » d'un jour terrestre.</p>
+<hr>
 <h2>2. Notation</h2>
-<h3>2.1 Forme canonique ASCII</h3>
-<pre><code>T± Δ_Earth K.H.D.Kin.fffff
-T± Δ_Mars  K.H.D.Kin.fffff
-T± Δ_Moon  K.H.D.Kin.fffff
+<h3>2.1 Forme canonique (ASCII)</h3>
+<pre><code class="language-abnf">canonical_multibody = direction SP symbol body_suffix SP days "." frac
+direction           = "T" ("+" / "-")
+symbol              = %xCE.94            ; Δ
+body_suffix         = "_" body_id
+body_id             = ALPHA *(ALPHA / DIGIT)
+days                = kilo "." digit "." digit "." digit
+kilo                = 1*DIGIT
+frac                = 5*DIGIT
+digit               = %x30-39
+SP                  = %x20
 </code></pre>
-<p>Le suffixe est obligatoire <strong>sauf</strong> pour la Terre : <code>Δ 20.7.8.2.50000</code> reste équivalent à <code>Δ_Earth 20.7.8.2.50000</code> (rétro-compatibilité v0.6).</p>
-<h3>2.2 Forme symbolique (UI / affichage)</h3>
+<h4>2.1.1 Exemples</h4>
+<pre><code>T+ Δ_Earth 20.7.8.2.50000
+T+ Δ_Mars  10.2.8.7.96477
+T+ Δ_Moon  0.7.0.3.76180
+</code></pre>
+<h4>2.1.2 Espaces</h4>
+<p>Les implémentations <strong>DOIVENT</strong> émettre exactement un espace ASCII entre <code>direction</code> et <code>Δ_&lt;body&gt;</code>, et exactement un espace ASCII entre <code>Δ_&lt;body&gt;</code> et <code>days</code>. Le nombre d'espaces dans le suffixe de corps est zéro (pas d'espace entre <code>_</code> et l'identifiant du corps).</p>
+<h4>2.1.3 Rétro-compatibilité Terre</h4>
+<p>Le <code>Δ</code> nu (sans suffixe de corps) <strong>DOIT</strong> être interprété comme <code>Δ_Earth</code> dans tout contexte où le corps est implicite. Les implémentations produisant une sortie ASCII <strong>DEVRAIENT</strong> émettre <code>Δ_Earth</code> explicitement quand le contexte est multi-corps ; elles <strong>PEUVENT</strong> omettre le suffixe pour les contextes Terre-uniquement (badges Terre-uniquement, embeds, sites mono-planète).</p>
+<h3>2.2 Forme symbolique (affichage Unicode)</h3>
+<p>Les implémentations ciblant l'affichage humain <strong>PEUVENT</strong> utiliser des symboles astronomiques Unicode au lieu des suffixes de corps ASCII :</p>
 <table>
 <thead>
 <tr>
 <th>Corps</th>
 <th>Symbole</th>
-<th>Lecture</th>
+<th>Codepoint</th>
+<th>Prononciation</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>Terre</td>
 <td><code>Δ⊕</code></td>
+<td>U+2295 (<code>Δ</code> + CIRCLED PLUS)</td>
 <td>« delta-terre »</td>
 </tr>
 <tr>
 <td>Mars</td>
 <td><code>Δ♂</code></td>
+<td>U+2642 (<code>Δ</code> + MALE SIGN, symbole astronomique Mars)</td>
 <td>« delta-mars »</td>
 </tr>
 <tr>
 <td>Lune</td>
 <td><code>Δ☾</code></td>
+<td>U+263E (<code>Δ</code> + LAST QUARTER MOON)</td>
 <td>« delta-lune »</td>
 </tr>
 </tbody></table>
-<p>Le symbole générique <code>Δ</code> reste l'ATS Terre dans tout contexte ambigu (compteurs, badges, embed).</p>
+<p>Le symbole nu <code>Δ</code> (sans marqueur de corps) <strong>DOIT</strong> être interprété comme Terre dans les contextes d'affichage symbolique, conforme au §2.1.3.</p>
 <h3>2.3 Forme courte</h3>
-<p>Identique à la forme courte v0.6 + suffixe :</p>
-<pre><code>Δ_Mars 1.2.3.4/56
-Δ☾ 0.7.0.3/45
+<p>La forme courte <code>ΔK.H.D.Kin-BC.M</code> (<code>manifesto.fr.md §5.1</code>) s'étend aux corps en insérant le suffixe de corps entre <code>Δ</code> et le premier chiffre :</p>
+<pre><code class="language-abnf">short_multibody = symbol body_suffix days "-" bc "." milli
+                / symbol days "-" bc "." milli              ; rétro-compat Terre
 </code></pre>
+<p>Exemples :</p>
+<pre><code>Δ_Mars 10.2.8.7-96.4
+Δ_Moon 0.7.0.3-76.1
+Δ20.7.8.2-50.0          ; Terre, suffixe omis (§2.1.3)
+</code></pre>
+<p>Les règles du parseur strict de <code>manifesto.fr.md §5.1</code> s'appliquent inchangées.</p>
+<hr>
 <h2>3. Paramètres pour les corps v1.0</h2>
-<h3>3.1 Terre (<code>Δ_Earth</code>, <code>Δ⊕</code>, ou <code>Δ</code> seul)</h3>
-<ul>
-<li><code>epoch_Earth</code> = <strong>1969-07-20T00:00:00Z</strong> (début du jour d'Apollo 11, cf. manifeste §2)</li>
-<li><code>day_seconds_Earth</code> = <strong>86 400</strong> (jour POSIX, cf. manifeste §8)</li>
-</ul>
-<h3>3.2 Mars (<code>Δ_Mars</code>, <code>Δ♂</code>)</h3>
-<ul>
-<li><code>epoch_Mars</code> = <strong>1997-07-04T16:56:55Z</strong> — atterrissage de <strong>Mars Pathfinder</strong> dans Ares Vallis. Premier atterrissage moderne réussi sur Mars depuis Viking ; date symbolique du <strong>4 juillet 1997</strong>. (Source : Wikipedia ; valeur identique à JPL Mission History.)</li>
-<li><code>day_seconds_Mars</code> = <strong>88 775,244 147</strong> s — <strong>sol martien</strong> (Allison &amp; McEwen, <em>Planetary and Space Science</em> 2000, <em>« A post-Pathfinder evaluation of areocentric solar coordinates »</em>).</li>
-</ul>
-<p>Conséquence numérique : Δ_Mars 0.0.0.0.00000 = <strong>1997-07-04T16:56:55Z</strong> UTC. Pour l'instant <code>2026-06-13T12:00:00Z</code>, le calcul donne <strong><code>T+ Δ_Mars 10.2.8.7.96477</code></strong> (à 5 chiffres).</p>
-<h3>3.3 Lune (<code>Δ_Moon</code>, <code>Δ☾</code>)</h3>
-<ul>
-<li><code>epoch_Moon</code> = <strong>1969-07-20T00:00:00Z</strong> — <strong>partagée avec la Terre</strong>. Choix doctrinal : la Lune est un satellite de la Terre, son compteur est naturellement aligné sur l'événement humain qui lie les deux corps.</li>
-<li><code>day_seconds_Moon</code> = <strong>2 551 442,8128</strong> s — <strong>jour synodique lunaire</strong> (29,530 588 jours terrestres ; IAU). Choix du synodique (sunrise-to-sunrise apparent depuis la surface) plutôt que sidéral (27,32 j) car il correspond au cycle d'éclairage local.</li>
-</ul>
-<p>Conséquence : 1 Δ_Moon = ≈ 29,53 Δ_Earth. À la date <code>2026-06-13T12:00:00Z</code>, <strong><code>T+ Δ_Moon 0.7.0.3.76180</code></strong>.</p>
-<h2>4. Conversion <code>Δ_X ↔ UTC</code></h2>
-<p>Formule canonique pour un corps <code>X</code> paramétré par <code>(epoch_X, day_seconds_X)</code> :</p>
-<pre><code>total_days = (utc − epoch_X).total_seconds() / day_seconds_X
-sign       = T+ si total_days ≥ 0 sinon T-
-abs_days   = |total_days|
-integer    = floor(abs_days)
-frac_5dig  = floor((abs_days − integer) × 100 000)
-K.H.D.Kin  = divmod-pipeline standard (cf. manifeste §9)
-</code></pre>
-<p>La règle de troncature §6 (<code>ROUND_FLOOR</code>) s'applique sans modification.</p>
-<h2>5. Comparaisons et algèbre inter-corps</h2>
-<p><strong>Δ_X et Δ_Y de corps différents ne sont pas directement comparables.</strong> Pour comparer deux instants exprimés sur deux corps différents, convertir <strong>les deux</strong> en UTC d'abord.</p>
-<p>Concrètement :</p>
-<ul>
-<li><code>Δ_Mars + Δd_Mars → Δ_Mars</code> ✓ (algèbre §11.4 préservée par corps)</li>
-<li><code>Δ_Mars + Δd_Earth → indéfini</code> ✗</li>
-<li><code>Δ_Mars &lt; Δ_Earth → indéfini</code> ✗</li>
-<li><code>Δ_Mars.to_utc() &lt; Δ_Earth.to_utc() → bool</code> ✓ (comparaison via le pont UTC)</li>
-</ul>
-<p>L'unité <code>Δd</code> (durée) est <strong>typée par corps</strong> : <code>Δd_Mars</code> = quantité de sols martiens ; <code>Δd_Earth</code> = quantité de jours terrestres ; conversion possible via le ratio <code>day_seconds</code>.</p>
-<h2>6. Cadre générique pour corps tiers</h2>
-<p>Une implémentation <strong>MAY</strong> définir <code>Δ_X</code> pour n'importe quel corps en enregistrant :</p>
+<p>Les trois corps suivants reçoivent des paramètres ATS <strong>normatifs</strong> en v0.7. Ces paramètres deviennent <strong>GELÉS</strong> en v1.0 selon <code>versioning.fr.md §3.1</code> (époque) et <code>multi-planetary.fr.md §7</code> (engagements de stabilité de cette annexe).</p>
+<h3>3.1 Terre (<code>Δ_Earth</code>, <code>Δ⊕</code>, ou <code>Δ</code> nu)</h3>
 <table>
 <thead>
 <tr>
-<th>Champ</th>
-<th>Exemple Vénus</th>
+<th>Paramètre</th>
+<th>Valeur</th>
+<th>Source</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><code>epoch_X</code> (UTC ISO 8601)</td>
-<td><code>1989-08-10T03:01:00Z</code> (Magellan orbital insertion)</td>
+<td><code>epoch_Earth</code></td>
+<td><code>1969-07-20T00:00:00Z</code></td>
+<td><code>manifesto.fr.md §2</code> — début du jour de l'alunissage d'Apollo 11.</td>
 </tr>
 <tr>
-<td><code>day_seconds_X</code> (Decimal positif)</td>
-<td><code>10 087 200</code> (jour vénusien synodique ≈ 116,75 j Terre)</td>
+<td><code>day_seconds_Earth</code></td>
+<td><code>86_400</code></td>
+<td>Sémantique POSIX selon <code>manifesto.fr.md §8.1</code>.</td>
 </tr>
 <tr>
-<td><code>suffix_X</code> (ASCII court)</td>
-<td><code>_Venus</code></td>
+<td><code>suffix_Earth</code></td>
+<td><code>_Earth</code></td>
+<td>Standard.</td>
 </tr>
 <tr>
-<td><code>symbol_X</code> (Unicode optionnel)</td>
-<td><code>♀</code></td>
+<td><code>symbol_Earth</code></td>
+<td><code>⊕</code> (U+2295)</td>
+<td>Symbole astronomique de la Terre.</td>
 </tr>
 </tbody></table>
-<p>L'implémentation <strong>SHOULD</strong> fournir un jeu de vecteurs <code>test-vectors-multi-planetary-&lt;body&gt;.json</code> avec ≥ 5 instants, suivant le même format que Mars et Lune. Voir §10.</p>
-<p><strong>Aucune autorité centrale n'enregistre les corps non-canoniques.</strong> Les conflits de suffixe sont résolus par la convention nominale (<code>_Venus</code>, <code>_Jupiter</code>, etc. en anglais). Les symboles Unicode astronomiques (U+263F à U+2647) sont la référence pour la forme symbolique.</p>
-<h2>7. Stabilité (v1.0 freeze)</h2>
-<p>Une fois v1.0 publiée, <strong>les paramètres Mars et Lune sont gelés</strong> (au même titre que les §3 freezes de <code>versioning.fr.md</code>). Les corps tiers restent libres ; un nouveau corps <code>_Venus</code> peut être ajouté en version mineure sans déclencher de RFC (additif, comme un nouveau pont calendaire).</p>
-<p>Hors période de freeze : tout changement de <code>epoch_Mars</code>, <code>epoch_Moon</code>, <code>day_seconds_Mars</code>, <code>day_seconds_Moon</code> exige un nouveau projet (ATS 2).</p>
-<h2>8. Annexe non-normative — corrections relativistes</h2>
-<p>Une horloge en surface lunaire bat <strong>environ 58,7 µs plus vite par jour</strong> qu'une horloge UTC en surface terrestre (cf. NIST 2024, NASA <em>Coordinated Lunar Time</em> proposal). Le différentiel cumulé sur 50 ans = ≈ 1,07 s.</p>
-<p>Une horloge en surface martienne (1 g_Mars + altitude équatoriale) est encore plus complexe (modèle Mars 2024 GCM).</p>
-<p><strong>Ces corrections sont en-dessous de la précision par défaut <code>ATS_DECIMALS = 5</code></strong> (1 / 100 000 jour ≈ 864 ms, soit 864 000 µs ≈ 14 700× supérieur au décalage lunaire quotidien). Pour un instant à 5 chiffres, <strong>elles sont négligeables sur des siècles</strong>.</p>
-<p>Les implémentations qui exigent une précision sub-milliseconde sur des corps non-Terre <strong>doivent</strong> maintenir leur propre table de corrections TAI ↔ surface-locale.</p>
-<h2>9. Vecteurs de conformance</h2>
-<p>Deux jeux additionnels :</p>
+<h3>3.2 Mars (<code>Δ_Mars</code>, <code>Δ♂</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Paramètre</th>
+<th>Valeur</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>epoch_Mars</code></td>
+<td><code>1997-07-04T16:56:55Z</code></td>
+<td>Touchdown de la Sagan Memorial Station de Mars Pathfinder dans Ares Vallis [NASA JPL Mission History ; date vérifiée contre les records de mission Pathfinder].</td>
+</tr>
+<tr>
+<td><code>day_seconds_Mars</code></td>
+<td><code>88_775,244_147</code> s</td>
+<td>Sol martien moyen [Allison &amp; McEwen 2000, <em>Planetary and Space Science</em> 48 (2-3), 215–235].</td>
+</tr>
+<tr>
+<td><code>suffix_Mars</code></td>
+<td><code>_Mars</code></td>
+<td>Standard.</td>
+</tr>
+<tr>
+<td><code>symbol_Mars</code></td>
+<td><code>♂</code> (U+2642)</td>
+<td>Symbole astronomique de Mars.</td>
+</tr>
+</tbody></table>
+<h4>3.2.1 Conséquence numérique</h4>
+<p>À <code>2026-06-13T12:00:00Z</code>, <code>Δ_Mars</code> vaut <code>T+ Δ_Mars 10.2.8.7.96477</code> (précision 5 chiffres).</p>
+<h4>3.2.2 Précision de la longueur du jour martien</h4>
+<p>La valeur <code>88_775,244_147</code> s est le <strong>sol martien moyen</strong> moyenné sur une année martienne. La longueur instantanée du sol varie de ±20 s avec l'excentricité orbitale de Mars. v0.7 utilise la valeur moyenne ; les implémentations haute précision <strong>PEUVENT</strong> utiliser la valeur variant dans le temps au prix d'une complexité du contrat de précision. Le paramètre normatif v1.0 est la moyenne.</p>
+<h3>3.3 Lune (<code>Δ_Moon</code>, <code>Δ☾</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Paramètre</th>
+<th>Valeur</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>epoch_Moon</code></td>
+<td><code>1969-07-20T00:00:00Z</code></td>
+<td><strong>Partagée avec la Terre.</strong> Choix doctrinal : la Lune est le satellite de la Terre ; son compteur s'aligne naturellement sur l'événement humain qui lie les deux corps (l'alunissage d'Apollo 11).</td>
+</tr>
+<tr>
+<td><code>day_seconds_Moon</code></td>
+<td><code>2_551_442,8128</code> s</td>
+<td>Jour lunaire synodique moyen = 29,530 588 jours terrestres [IAU ; Espenak 2014].</td>
+</tr>
+<tr>
+<td><code>suffix_Moon</code></td>
+<td><code>_Moon</code></td>
+<td>Standard.</td>
+</tr>
+<tr>
+<td><code>symbol_Moon</code></td>
+<td><code>☾</code> (U+263E)</td>
+<td>Symbole astronomique de la Lune.</td>
+</tr>
+</tbody></table>
+<h4>3.3.1 Conséquence numérique</h4>
+<p>À <code>2026-06-13T12:00:00Z</code>, <code>Δ_Moon</code> vaut <code>T+ Δ_Moon 0.7.0.3.76180</code> (précision 5 chiffres). Un <code>Δ_Moon</code> complet ≈ 29,53 <code>Δ_Earth</code>.</p>
+<h4>3.3.2 Synodique vs sidéral : justification</h4>
+<p>La Lune a deux longueurs de jour naturelles :</p>
 <ul>
-<li><code>docs/spec/test-vectors-multi-planetary-mars.json</code> — 10 instants UTC ↔ Δ_Mars couvrant l'époque, des sols ronds, des fractions complexes, des dates ≥ 2050.</li>
-<li><code>docs/spec/test-vectors-multi-planetary-moon.json</code> — 10 instants UTC ↔ Δ_Moon avec les mêmes profils.</li>
+<li><strong>Jour sidéral</strong> : 27,32 jours terrestres. Temps pour une rotation par rapport aux étoiles fixes.</li>
+<li><strong>Jour synodique</strong> : 29,53 jours terrestres. Temps entre deux levers de soleil successifs à un endroit donné lunaire.</li>
 </ul>
-<p>Chaque vecteur :</p>
+<p>ATS utilise le jour lunaire <strong>synodique</strong> parce que :</p>
+<ol>
+<li>Les colons lunaires expérimentent le cycle synodique (le cycle lever-coucher de soleil à la surface), pas le sidéral.</li>
+<li>Le cycle synodique correspond au cycle des phases lunaires observé depuis la Terre — la référence culturelle et observationnelle.</li>
+<li>Le framework Lunar Crewed Time (NASA Coordinated Lunar Time, 2024) utilise le cycle synodique pour les mêmes raisons.</li>
+</ol>
+<p>Le jour sidéral <strong>PEUT</strong> être exposé par les implémentations comme unité additionnelle ; ce n'est pas le jour canonique du corps pour ATS.</p>
+<hr>
+<h2>4. Conversion (<code>Δ_X ↔ UTC</code>)</h2>
+<p>Les implémentations conformantes <strong>DOIVENT</strong> implémenter la conversion ci-dessous pour tout corps paramétré selon §1.1. La conversion reflète <code>manifesto.fr.md §9</code> avec la longueur du jour locale au corps substituée.</p>
+<h3>4.1 UTC → <code>Δ_X</code> (pseudo-code)</h3>
+<pre><code>function utc_to_body_ats(utc: UTCInstant, body: Body) -&gt; BodyATS:
+    EPOCH = body.epoch
+    DAY_SECONDS = body.day_seconds
+    ATS_DECIMALS = 5
+    ATS_SCALE = 10 ** ATS_DECIMALS
+
+    delta_seconds = (utc - EPOCH).total_seconds()  # Decimal signé
+    total_days = delta_seconds / DAY_SECONDS       # Decimal signé
+
+    if total_days &gt;= 0:
+        sign = "T+"
+        abs_days = total_days
+    else:
+        sign = "T-"
+        abs_days = -total_days
+
+    integer_days = floor(abs_days)
+    frac_int = floor((abs_days - integer_days) * ATS_SCALE)  # plancher 5 chiffres
+
+    kilo, rem  = divmod(integer_days, 1000)
+    hecto, rem = divmod(rem, 100)
+    deka, kin  = divmod(rem, 10)
+
+    return BodyATS(body=body, sign=sign, kilo=kilo, hecto=hecto, deka=deka, kin=kin, frac=frac_int)
+</code></pre>
+<h3>4.2 <code>Δ_X</code> → UTC (pseudo-code)</h3>
+<pre><code>function body_ats_to_utc(ats: BodyATS) -&gt; UTCInstant:
+    integer_days = ats.kilo * 1000 + ats.hecto * 100 + ats.deka * 10 + ats.kin
+    abs_days = integer_days + ats.frac / 100_000
+    signed_days = abs_days if ats.sign == "T+" else -abs_days
+    delta_seconds = signed_days * ats.body.day_seconds
+    return ats.body.epoch + delta_seconds
+</code></pre>
+<h3>4.3 Invariant de troncature plancher</h3>
+<p>La même règle de troncature plancher (<code>manifesto.fr.md §6</code>) s'applique. La dérive maximale entre <code>body_ats_to_utc(utc_to_body_ats(t))</code> et <code>t</code> est bornée par <code>0,864 ms × (day_seconds_X / day_seconds_Earth)</code> :</p>
+<ul>
+<li>Terre : ≤ 0,864 ms (la dérive Terre standard).</li>
+<li>Mars : ≤ 0,888 ms (≈ 2,7 % plus large parce que le sol Mars est 2,7 % plus long).</li>
+<li>Lune : ≤ 25,5 ms (≈ 29,5× plus large parce qu'un jour Lune synodique est ≈ 29,5 jours Terre).</li>
+</ul>
+<p>Les implémentations revendiquant une précision sous-milliseconde sur la Lune <strong>DOIVENT</strong> utiliser une précision étendue (≥ 6 chiffres) selon <code>manifesto.fr.md §4.4</code>.</p>
+<hr>
+<h2>5. Algèbre inter-corps</h2>
+<h3>5.1 L'algèbre intra-corps est préservée</h3>
+<p>Pour tout corps X, l'algèbre de <code>manifesto.fr.md §11.4</code> s'applique <strong>sans modification</strong> :</p>
+<ul>
+<li><code>Δ_X + Δd_X → Δ_X</code> ✓</li>
+<li><code>Δd_X + Δ_X → Δ_X</code> ✓</li>
+<li><code>Δ_X − Δ_X → Δd_X</code> ✓</li>
+<li><code>Δ_X − Δd_X → Δ_X</code> ✓</li>
+<li><code>Δd_X + Δd_X → Δd_X</code> ✓</li>
+<li><code>Δd_X − Δd_X → Δd_X</code> ✓</li>
+<li><code>Δd_X × n → Δd_X</code> pour rationnel <code>n</code> ✓</li>
+<li><code>Δd_X ÷ n → Δd_X</code> pour rationnel non-zéro <code>n</code> ✓</li>
+<li>Comparaisons <code>&lt;, ≤, =, ≥, &gt;</code> sur deux <code>Δ_X</code> ou deux <code>Δd_X</code> ✓</li>
+</ul>
+<h3>5.2 Les opérations inter-corps sont interdites</h3>
+<p>Les opérations mélangeant différents corps sont un <strong>COMPORTEMENT INDÉFINI</strong> et les implémentations <strong>DOIVENT</strong> lever une erreur de type :</p>
+<ul>
+<li><code>Δ_Mars + Δd_Earth → ERREUR DE TYPE</code> ✗</li>
+<li><code>Δd_Mars + Δd_Earth → ERREUR DE TYPE</code> ✗</li>
+<li><code>Δ_Mars &lt; Δ_Earth → ERREUR DE TYPE</code> ✗</li>
+<li><code>Δ_Mars − Δ_Earth → ERREUR DE TYPE</code> ✗</li>
+</ul>
+<h3>5.3 Comparaison inter-corps via pont UTC</h3>
+<p>Pour comparer des instants sur différents corps, les <strong>deux</strong> instants <strong>DOIVENT</strong> être convertis en UTC d'abord :</p>
+<pre><code>result = body_ats_to_utc(ats_a) &lt; body_ats_to_utc(ats_b)
+</code></pre>
+<p>Les implémentations de référence exposent cela comme une méthode <code>to_utc()</code> sur le type spécifique au corps. Le résultat est une comparaison UTC standard.</p>
+<h3>5.4 Conversion de durée entre corps</h3>
+<p>Les durées exprimées en différents jours-de-corps sont convertibles par le ratio des longueurs de jour :</p>
+<pre><code>Δd_Mars_en_jours_terrestres = Δd_Mars × (day_seconds_Mars / day_seconds_Earth)
+                            = Δd_Mars × (88_775,244_147 / 86_400)
+                            ≈ Δd_Mars × 1,027 491
+</code></pre>
+<p>Les implémentations <strong>PEUVENT</strong> exposer une méthode <code>to_body(target_body)</code> qui effectue cette conversion. Le résultat est une durée dans l'unité du corps cible, qui <strong>DOIT</strong> ensuite être ajoutée ou soustraite à un instant dans le référentiel de ce corps.</p>
+<hr>
+<h2>6. Framework générique pour corps tiers</h2>
+<h3>6.1 Enregistrement</h3>
+<p>Une implémentation <strong>PEUT</strong> définir <code>Δ_X</code> pour n'importe quel corps en enregistrant les quatre paramètres du §1.1 :</p>
+<pre><code>register_body(
+    suffix="_Venus",
+    epoch=parse_utc("1989-08-10T03:01:00Z"),  # Insertion orbitale Magellan
+    day_seconds=Decimal("10_087_200"),         # Jour vénusien synodique ≈ 116,75 jours terrestres
+    symbol="♀"                            # ♀ (U+2640, symbole astronomique de Vénus)
+)
+</code></pre>
+<p>L'implémentation Python de référence fournit une classe <code>Body</code> avec cette interface (<code>code/ats_multi_planetary.py</code>).</p>
+<h3>6.2 Règles de collision de suffixe</h3>
+<p>Les corps tiers partagent l'espace de nommage global des suffixes. Pour prévenir les collisions :</p>
+<ul>
+<li>Les suffixes <strong>DOIVENT</strong> être la forme nominale anglaise préfixée par <code>_</code> (par exemple, <code>_Venus</code>, <code>_Jupiter</code>, <code>_Europa</code>).</li>
+<li>Les suffixes sont sensibles à la casse ; <code>_Venus</code> et <code>_venus</code> sont des chaînes distinctes mais <strong>NE DEVRAIENT PAS</strong> être utilisés simultanément (la convention standard est majuscule initiale).</li>
+<li>Une implémentation publiant un enregistrement de corps <strong>DEVRAIT</strong> vérifier la liste de référence canonique à <code>docs/spec/multi-planetary-bodies.md</code> (un registre planifié) avant de revendiquer un suffixe.</li>
+<li>En l'absence d'un registre central, les conflits de suffixe sont résolus par <strong>priorité d'annonce</strong> : le corps enregistré publiquement le premier gagne le suffixe.</li>
+</ul>
+<h3>6.3 Exigences de vecteurs pour corps tiers</h3>
+<p>Un corps tiers revendiquant la conformance <strong>DEVRAIT</strong> publier un fichier de vecteurs de conformance <code>test-vectors-multi-planetary-&lt;body&gt;.json</code> avec le même format que les fichiers Mars et Lune :</p>
+<ul>
+<li>Minimum 5 vecteurs couvrant :<ul>
+<li>L'époque du corps (<code>T+ Δ_X 0.0.0.0.00000</code>).</li>
+<li>Un nombre rond mi-vie (par exemple, <code>T+ Δ_X 1.0.0.0.00000</code>).</li>
+<li>Une fraction complexe (par exemple, <code>T+ Δ_X 0.0.0.0.50000</code>).</li>
+<li>Un instant direction-négative (<code>T- Δ_X k.h.d.kin.fffff</code>).</li>
+<li>Une date ≥ 2100 pour vérifier l'arithmétique long terme.</li>
+</ul>
+</li>
+<li><code>spec_version</code> mis au MAJEUR.MINEUR de la spec introduisant le corps.</li>
+</ul>
+<h3>6.4 Statut du registre central</h3>
+<p>Aucune autorité centrale n'enregistre les corps non canoniques en v0.7. Les éditeurs d'enregistrement PEUVENT adopter un enregistrement de corps tiers comme <strong>canonique</strong> (c.-à-d., le déplacer au §3) dans une future release MINEURE via la procédure RFC (<code>versioning.fr.md §6</code>).</p>
+<hr>
+<h2>7. Stabilité (gel v1.0)</h2>
+<p>Quand ATS v1.0 ship (selon <code>versioning.fr.md §7.2</code>), les éléments suivants de cette annexe deviennent <strong>GELÉS</strong> :</p>
+<ol>
+<li>Les paramètres Terre §3.1 (aussi gelés par <code>versioning.fr.md §3.1</code>).</li>
+<li>Les paramètres Mars §3.2 (<code>epoch_Mars</code>, <code>day_seconds_Mars</code>).</li>
+<li>Les paramètres Lune §3.3 (<code>epoch_Moon</code>, <code>day_seconds_Moon</code>).</li>
+<li>La notation §2 : syntaxe de suffixe ASCII, assignations de symbole Unicode, règles de forme courte.</li>
+<li>L'algorithme de conversion §4 (sémantique du pseudo-code, borne de dérive).</li>
+<li>Les règles d'algèbre inter-corps §5 (sémantique d'erreur de type).</li>
+</ol>
+<p>Modifier l'un d'eux post-v1.0 requiert un nouveau projet (ATS 2, selon <code>versioning.fr.md §3.8</code>).</p>
+<p>Les corps tiers enregistrés selon §6 <strong>NE SONT PAS</strong> gelés par cette annexe ; ils restent librement ajoutables, modifiables ou rétractables par leurs enregistreurs en releases MINEURES.</p>
+<hr>
+<h2>8. Pourquoi ces ancrages spécifiquement</h2>
+<p>Les choix de Mars Pathfinder et de l'époque Lune partagée avec la Terre sont des décisions contestées ; cette section documente la justification pour que les disputes soient adressables au niveau de la spec.</p>
+<h3>8.1 Pourquoi Mars Pathfinder, pas d'autres atterrissages ?</h3>
+<p>Les candidats d'ancrage martien et la justification de rejet :</p>
+<table>
+<thead>
+<tr>
+<th>Candidat</th>
+<th>UTC</th>
+<th>Raison de rejet / sélection</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Mars Pathfinder Sagan Memorial Station</strong></td>
+<td>1997-07-04T16:56:55Z</td>
+<td><strong>SÉLECTIONNÉ.</strong> Premier atterrissage moderne réussi sur Mars (post-Viking) ; date symbolique du 4 juillet correspond au cadrage culturel d'Apollo 11 ; timing précis dans les records publics.</td>
+</tr>
+<tr>
+<td>Atterrisseur Viking 1</td>
+<td>1976-07-20T11:53:06Z</td>
+<td>Même date UTC qu'Apollo 11 (20 juillet). Ambigüité dans le cadrage culturel (quel événement 1969-7-20 ?). Ère pré-internet moderne ; moins vérifiable depuis des records indépendants.</td>
+</tr>
+<tr>
+<td>Mars 3 (Soviétique)</td>
+<td>1971-12-02T13:50:35Z</td>
+<td>Premier atterrissage doux Mars, mais l'atterrisseur a échoué 14,5 s après le touchdown ; le record de données est incomplet.</td>
+</tr>
+<tr>
+<td>Rover Curiosity</td>
+<td>2012-08-06T05:17:57Z</td>
+<td>Moderne, bien documenté, mais « ancrer sur l'atterrissage le plus récent » est instable (Perseverance 2021, futurs atterrissages).</td>
+</tr>
+<tr>
+<td>Rover Perseverance</td>
+<td>2021-02-18T20:55:00Z</td>
+<td>Même critique que Curiosity.</td>
+</tr>
+<tr>
+<td>Mars Schiaparelli</td>
+<td>2016-10-19T14:48:18Z</td>
+<td>Atterrissage échoué — pas un événement de présence réussie.</td>
+</tr>
+<tr>
+<td>Premier atterrissage humain sur Mars</td>
+<td>(futur)</td>
+<td>Réservé comme révision future ; <strong>PEUT</strong> devenir l'ancrage quand une mission Mars habitée atterrit.</td>
+</tr>
+</tbody></table>
+<p>Pathfinder satisfait quatre propriétés parallèles à Apollo 11 (selon <code>manifesto.fr.md §2.3</code>) :</p>
+<ul>
+<li>(i) Vérifiable à la seconde depuis des records indépendants.</li>
+<li>(ii) Témoigné à l'échelle de l'espèce (diffusion en direct ; mission largement couverte).</li>
+<li>(iii) Sans victime identifiable.</li>
+<li>(iv) Marque une discontinuité dans la présence Mars de l'espèce : le premier atterrissage doux réussi de l'ère moderne d'exploration de Mars.</li>
+</ul>
+<h3>8.2 Pourquoi une époque partagée pour Terre et Lune ?</h3>
+<p>La Lune pourrait utiliser l'un de trois ancrages :</p>
+<ul>
+<li><strong>Alunissage Apollo 11 (1969-07-20T20:17:40Z)</strong> : l'instant du touchdown à la surface.</li>
+<li><strong>Époque Terre (1969-07-20T00:00:00Z)</strong> : le début du jour d'alunissage, partagée avec la Terre.</li>
+<li><strong>Un événement lunaire pré-Apollo</strong> : un jalon Luna soviétique, ou un ancrage de cycle synodique.</li>
+</ul>
+<p>Le choix d'<strong>époque partagée avec la Terre</strong> est doctrinal :</p>
+<ul>
+<li>La Lune est le satellite de la Terre ; son histoire est liée à celle de la Terre. Une époque Lune séparée impliquerait une chronologie parallèle.</li>
+<li>Le système Terre-Lune est gravitationnellement et astronomiquement un système ; utiliser une époque reflète cela.</li>
+<li>Le touchdown à la surface (20:17:40Z) a été rejeté pour la même raison qu'il a été rejeté comme époque Terre (<code>manifesto.fr.md §2.1</code>) : il décale le compteur de jour d'une référence naturelle.</li>
+</ul>
+<p>La revendication doctrinale — « le compteur de la Lune s'aligne naturellement sur l'événement humain qui lie les deux corps » — est ouverte à RFC. Une révision future <strong>PEUT</strong> introduire <code>epoch_Moon = 1969-07-20T20:17:40Z</code> (touchdown) ou une époque Lune complètement indépendante ; jusqu'à v1.0, le choix d'époque partagée tient.</p>
+<h3>8.3 Qu'en est-il de Vénus, Jupiter, Europe, exoplanètes ?</h3>
+<p>Ces corps sont hors périmètre des paramètres normatifs v0.7. Ils sont adressables via le framework générique §6. Les éditeurs ont l'INTENTION de canoniser des corps additionnels via RFC à mesure que les signaux d'adoption émergent (par exemple, si une présence habitée soutenue à Europe ou un orbiteur Vénus permanent est établi).</p>
+<hr>
+<h2>9. Corrections relativistes (non normative)</h2>
+<p>Les effets suivants affectent la précision sous-milliseconde ; ils sont <strong>en dessous</strong> de la précision par défaut 5 chiffres (1 Blink = 864 ms) et sont donc non normatifs pour les implémentations à précision par défaut. Les implémentations requérant une précision sous-milliseconde sur des corps non-Terre <strong>DOIVENT</strong> maintenir leurs propres tables de correction.</p>
+<h3>9.1 Dérive d'horloge à la surface lunaire</h3>
+<p>Une horloge à la surface lunaire tic environ <strong>58,7 µs plus vite par jour</strong> qu'une horloge UTC à la surface de la Terre, dû à la différence de potentiel gravitationnel [proposition NIST 2024 <em>Coordinated Lunar Time</em> ; Mazarico et al. 2018]. Différentiel cumulé sur 50 ans = ≈ 1,07 s.</p>
+<p>La dérive 58,7 µs/jour est approximativement :</p>
+<pre><code>58,7 µs / 864_000_000 µs/jour  ≈  6,8 × 10⁻⁸ dérive relative
+</code></pre>
+<p>ce qui est bien en dessous de la résolution Blink à 5 chiffres (864 ms = 8,64 × 10⁵ µs, ≈ 14_700× plus large que l'offset lunaire quotidien). Pour les valeurs ATS à 5 chiffres, la dérive d'horloge lunaire est <strong>négligeable sur des siècles</strong>.</p>
+<h3>9.2 Dérive d'horloge à la surface martienne</h3>
+<p>Une horloge à la surface martienne diffère d'UTC par des effets gravitationnels et orbitaux. L'offset instantané varie avec la position orbitale de Mars ; la dérive cumulée sur 50 ans est de l'ordre des secondes [Mars 2024 estimations basées sur Mars GCM ; pas encore formellement standardisé].</p>
+<p>Pour les valeurs ATS à 5 chiffres, la dérive d'horloge martienne est aussi <strong>négligeable sur des décennies</strong>.</p>
+<h3>9.3 Implémentations requérant une précision sous-milliseconde</h3>
+<p>Les implémentations ciblant :</p>
+<ul>
+<li>Les protocoles de navigation et communication lunaires.</li>
+<li>Les opérations à la surface de Mars (par exemple, planification autonome de rover).</li>
+<li>Le contrôle de vaisseaux spatiaux interplanétaires.</li>
+</ul>
+<p><strong>DOIVENT</strong> maintenir leurs propres tables de correction TAI ↔ surface-locale. L'implémentation de référence fournit la précision 5 chiffres selon <code>manifesto.fr.md §4.4</code> ; les cas d'usage à précision étendue sont hors périmètre pour v0.7.</p>
+<h3>9.4 Future variante ATS-TAI</h3>
+<p><code>manifesto.fr.md §8.3</code> réserve une variante ATS-TAI pour révision future. ATS-TAI sur Mars et Lune serait le framework naturel pour les corrections relativistes, mais n'est pas spécifié en v0.7.</p>
+<hr>
+<h2>10. Vecteurs de conformance</h2>
+<h3>10.1 Fichiers de vecteurs requis</h3>
+<p>Une implémentation conformante v0.7 <strong>DOIT</strong> passer les fichiers de vecteurs suivants :</p>
+<ul>
+<li><code>docs/spec/test-vectors.json</code> — 12 vecteurs ATS Terre (cf. <code>manifesto.fr.md §9.3</code>).</li>
+<li><code>docs/spec/test-vectors-arithmetic.json</code> — 12 vecteurs d'algèbre.</li>
+<li><code>docs/spec/test-vectors-multi-planetary-mars.json</code> — 10 vecteurs Mars.</li>
+<li><code>docs/spec/test-vectors-multi-planetary-moon.json</code> — 10 vecteurs Lune.</li>
+</ul>
+<p>Les implémentations qui ne supportent pas l'annexe multi-planétaire <strong>DOIVENT</strong> déclarer la conformance partielle explicitement (selon <code>manifesto.fr.md §16.5</code>).</p>
+<h3>10.2 Format de vecteur</h3>
+<p>Chaque vecteur multi-planétaire suit :</p>
 <pre><code class="language-json">{
-  "label": "Description",
+  "label": "Mars Pathfinder touchdown",
   "utc": "1997-07-04T16:56:55Z",
   "ats_canonical": "T+ Δ_Mars 0.0.0.0.00000"
 }
 </code></pre>
-<h2>10. Implémentations de référence</h2>
+<p>Le champ <code>label</code> est un contexte humainement lisible. Les champs <code>utc</code> et <code>ats_canonical</code> sont le contrat de conformance.</p>
+<h3>10.3 Exigences de couverture de vecteurs</h3>
+<p>Les fichiers de vecteurs Mars et Lune couvrent chacun :</p>
 <ul>
-<li><code>code/ats_multi_planetary.py</code> (Python) — classe générique <code>Body</code> paramétrée par <code>(epoch, day_seconds)</code>, plus singletons <code>EARTH</code>, <code>MARS</code>, <code>MOON</code>. Algèbre Δ/Δd préservée par corps.</li>
-<li>JS : portage prévu en v1.0 (cf. ROADMAP).</li>
+<li>L'époque du corps (<code>T+ Δ_X 0.0.0.0.00000</code>).</li>
+<li>Des instants Kilo ronds (par exemple, <code>T+ Δ_X 1.0.0.0.00000</code>, <code>T+ Δ_X 10.0.0.0.00000</code>).</li>
+<li>Des fractions complexes (vérifiant le comportement de troncature plancher).</li>
+<li>Un instant direction-négative (<code>T- Δ_X k.h.d.kin.fffff</code>).</li>
+<li>Une date dans le siècle suivant (vérifiant l'arithmétique long terme).</li>
+<li>L'ère courante (un instant contemporain vérifiable).</li>
 </ul>
-<p>Les conversions s'appuient sur le helper <code>_split_abs_days_floor</code> existant — aucun changement à <code>code/ats.py</code> n'est nécessaire pour la Terre (rétro-compatibilité totale).</p>
+<hr>
+<h2>11. Objections anticipées</h2>
+<h3>11.1 « Mars Pathfinder n'est pas niveau-espèce comme Apollo 11 l'était. »</h3>
+<p>Mars Pathfinder n'est pas niveau-espèce <strong>de la même façon</strong> ; le cadrage est parallèle, pas identique. Apollo 11 a marqué le premier atterrissage humain sur un autre corps ; Pathfinder a marqué le premier atterrissage Mars moderne réussi de l'ère contemporaine. Les quatre propriétés de <code>manifesto.fr.md §2.3 Attaque C</code> s'appliquent (vérifiabilité, échelle de témoignage, sans victime, discontinuité). Quand un atterrissage Mars habité se produira, une future RFC <strong>PEUT</strong> proposer de ré-ancrer <code>epoch_Mars</code> sur cet événement (le gel v1.0 au §7 serait relâché via la porte de sortie §3.8 dans <code>versioning.fr.md</code>).</p>
+<h3>11.2 « Synodique vs sidéral pour la Lune était arbitraire. »</h3>
+<p>§3.3.2 source le choix : synodique correspond au cycle lever-coucher de soleil qu'un colon lunaire expérimente, correspond au cycle des phases observé depuis la Terre, et correspond au framework NASA Coordinated Lunar Time. Sidéral <strong>PEUT</strong> être exposé comme unité additionnelle non normative. Le choix n'est pas arbitraire ; il est doctrinal et expliqué.</p>
+<h3>11.3 « Les effets relativistes comptent plus que vous ne le prétendez. »</h3>
+<p>Pour la précision à 5 chiffres (résolution 864 ms), §9.1 démontre que la dérive d'horloge lunaire est ≈ 14_700× plus petite qu'un Blink. Pour l'usage à précision étendue (sous-milliseconde, par exemple, planification autonome de rover Mars), §9.3 dirige explicitement les implémentations à maintenir leurs propres tables de correction, et §9.4 réserve une variante ATS-TAI pour standardisation future. L'annexe ne sous-estime pas l'effet ; elle le périmètre correctement.</p>
+<h3>11.4 « Le framework tiers est trop permissif — les collisions de suffixe sont inévitables. »</h3>
+<p>§6.2 reconnaît cela et offre un fallback : priorité d'annonce. Un registre central est planifié (<code>docs/spec/multi-planetary-bodies.md</code>) et les éditeurs d'enregistrement <strong>PEUVENT</strong> canoniser les corps tiers via RFC. Jusqu'à ce que le registre existe, les collisions de suffixe sont la responsabilité de l'implémenteur à résoudre ; en pratique, l'espace de nommage des corps célestes est fini et les formes nominales anglaises sont bien établies.</p>
+<h3>11.5 « Pourquoi ne pas utiliser directement Mars24 ou Mars Mean Sol ? »</h3>
+<p>Mars24 [Allison &amp; McEwen 2000] est la référence de chronométrage Mars établie. ATS-Mars <strong>utilise</strong> la même longueur de sol moyen (88 775,244 147 s) sourcée de Mars24. La différence est la <em>grammaire</em> : Mars24 exprime le temps martien en heures/minutes/secondes style jour-terrestre ; ATS-Mars utilise la grammaire positionnelle décimale <code>K.H.D.Kin.fffff</code>. ATS-Mars est <strong>superposé à</strong> Mars24 (utilisant la longueur de jour Mars24) ; il ne le remplace pas.</p>
+<h3>11.6 « La comparaison inter-corps via pont UTC est maladroite. »</h3>
+<p>Le pont est explicite par conception. Mélanger les corps silencieusement obscurcirait le fait que la comparaison se passe dans un troisième référentiel (UTC). Le contrat §5.3 — <code>body_ats_to_utc(ats_a) &lt; body_ats_to_utc(ats_b)</code> — rend le pont visible à l'implémenteur. Le coût est un appel de méthode additionnel ; le bénéfice est la sécurité de type.</p>
+<h3>11.7 « La dérive lunaire cumulée de 1,07 s sur 50 ans semble significative. »</h3>
+<p>Elle l'est, pour la précision sous-seconde. Pour la précision ATS à 5 chiffres (864 ms), 1,07 s ≈ 1,2 Blinks — significatif pour les applications haute précision, négligeable pour les applications à précision par défaut. La précision 5 chiffres est un choix de conception (<code>manifesto.fr.md §4.4</code>) ; les applications requérant plus <strong>DOIVENT</strong> utiliser la précision étendue et <strong>DOIVENT</strong> tenir compte de la dérive (§9.3). L'annexe est honnête sur ce compromis.</p>
+<h3>11.8 « Pourquoi la Lune n'a-t-elle pas sa propre époque ? »</h3>
+<p>§8.2 explique : le système Terre-Lune est un système ; une chronologie Lune parallèle créerait un surcoût de coordination sans bénéfice compensateur. Les calendriers des colons lunaires doivent s'aligner à la fois sur le jour lunaire (le cycle synodique) et sur le contrôle de mission basé sur Terre ; partager l'époque Terre supporte les deux. Une future RFC <strong>PEUT</strong> revisiter cela ; l'époque partagée tient jusqu'alors.</p>
+<hr>
+<h2>12. Implémentations de référence</h2>
+<h3>12.1 Python (existant, v0.7)</h3>
+<p><code>code/ats_multi_planetary.py</code> implémente :</p>
+<ul>
+<li>Une classe générique <code>Body</code> paramétrée par <code>(epoch, day_seconds, suffix, symbol)</code>.</li>
+<li>Trois singletons : <code>EARTH</code>, <code>MARS</code>, <code>MOON</code>.</li>
+<li>Un type <code>BodyATSDateTime</code> portant la référence au corps plus les chiffres <code>K.H.D.Kin.fffff</code> et le signe.</li>
+<li>Un type <code>BodyATSDuration</code> pour les durées signées typées par corps.</li>
+<li>L'algèbre §11.4 préservée par corps avec les opérations inter-corps levant <code>TypeError</code>.</li>
+</ul>
+<p>L'implémentation passe <code>test-vectors-multi-planetary-mars.json</code> et <code>-moon.json</code> bit-à-bit. Le singleton Terre est cohérent avec <code>code/ats.py</code> (pas de divergence).</p>
+<h3>12.2 JavaScript (planifié, v1.0)</h3>
+<p>Le port JS (<code>docs/assets/js/ats_multi_planetary.js</code>) est planifié pour le ship v1.0. Il reflètera la surface d'API Python :</p>
+<pre><code class="language-javascript">import { EARTH, MARS, MOON, Body, BodyATSDateTime } from './ats_multi_planetary.js';
+
+const ats = MARS.fromUtc(new Date('2026-06-13T12:00:00Z'));
+console.log(ats.toCanonical()); // "T+ Δ_Mars 10.2.8.7.96477"
+</code></pre>
+<p>L'implémentation JS est une exigence v1.0 selon <code>versioning.fr.md §7.2 (3)</code>.</p>
+<h3>12.3 Implémentations tierces</h3>
+<p>Une implémentation tierce Rust ou Go revendiquant la conformance v1.0 <strong>DOIT</strong> inclure l'annexe multi-planétaire (Terre + Mars + Lune au minimum). Selon <code>versioning.fr.md §7.2 (3)</code>, au moins une implémentation tierce passant 100 % des vecteurs de conformance est une exigence de ship v1.0.</p>
+<hr>
+<h2>Références</h2>
+<ul>
+<li><strong>Allison, M., &amp; McEwen, M. (2000).</strong> <em>A post-Pathfinder evaluation of areocentric solar coordinates with improved timing recipes for Mars seasonal/diurnal climate studies</em>. Planetary and Space Science, 48 (2–3), 215–235. (Source pour le sol martien moyen.)</li>
+<li><strong>Espenak, F. (2014).</strong> <em>Lunar synodic period and the synodic month</em>. NASA Goddard Eclipse Web Site. (Source pour le jour lunaire synodique.)</li>
+<li><strong>IAU.</strong> <em>IAU Recommendations on Celestial Time Scales</em>. Documents de groupe de travail de l'Union Astronomique Internationale. (Référence pour les définitions de temps astronomique.)</li>
+<li><strong>Mazarico, E., et al. (2018).</strong> <em>The lunar relativistic time scale</em>. Journal of Geodesy, 92, 1483–1494. (Source pour la dérive d'horloge à la surface lunaire.)</li>
+<li><strong>NASA JPL Mission History.</strong> <em>Record d'atterrissage de la Sagan Memorial Station de Mars Pathfinder</em>. (Source pour le timestamp UTC de Mars Pathfinder.)</li>
+<li><strong>NIST (2024).</strong> <em>Proposition Coordinated Lunar Time (LTC)</em>. Document blanc de l'Institut National des Standards et de la Technologie. (Source pour §9.1.)</li>
+<li><strong><code>manifesto.fr.md</code></strong> — Référence normative (spec ATS Terre).</li>
+<li><strong><code>versioning.fr.md</code></strong> — Annexe de stabilité (§7 références de gel).</li>
+<li><strong>RFC 2119</strong> — Bradner, S. <em>Key words for use in RFCs to Indicate Requirement Levels</em>. IETF (1997).</li>
+<li><strong>RFC 5234</strong> — Crocker, D., &amp; Overell, P. <em>Augmented BNF for Syntax Specifications: ABNF</em>. IETF (2008).</li>
+<li><strong>RFC 8174</strong> — Leiba, B. <em>Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words</em>. IETF (2017).</li>
+</ul>
+<p>Cette annexe ne fait aucune affirmation astronomique originale. Toutes les valeurs scientifiques sont sourcées depuis la littérature évaluée par les pairs ou des organismes de standards établis. Les choix doctrinaux (ancrages d'époque, synodique vs sidéral, époque Terre-Lune partagée) sont étiquetés comme décisions des éditeurs d'enregistrement et sont ouverts à RFC selon <code>versioning.fr.md §6</code>.</p>
 

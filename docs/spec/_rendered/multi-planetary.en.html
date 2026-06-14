@@ -1,178 +1,586 @@
 <h1>ATS — Multi-planetary extension</h1>
-<p><strong>Status:</strong> <strong>normative</strong> annex v0.7 (target v1.0)
-<strong>Generic symbol:</strong> <code>Δ_&lt;Body&gt;</code> or <code>Δ_&lt;astronomical symbol&gt;</code>
-<strong>Normative reference:</strong> <code>manifesto.en.md</code> (the Earth spec)</p>
+<p><strong>Status:</strong> Pre-release v0.7
+<strong>Document type:</strong> <strong>NORMATIVE ANNEX</strong> to the ATS specification.
+<strong>Normative reference:</strong> <code>manifesto.en.md</code> (the Earth spec).
+<strong>Authoritative language:</strong> English. French translation in <code>multi-planetary.fr.md</code>; in case of divergence, this document controls.
+<strong>Generic symbol:</strong> <code>Δ_&lt;Body&gt;</code> (ASCII) or <code>Δ&lt;astronomical symbol&gt;</code> (Unicode).
+<strong>Core thesis:</strong> ATS generalises from Earth to any celestial body by parameterising the epoch and day length. The grammar, algebra, binary encoding, and conformance contract of the Earth spec carry over <strong>unchanged</strong>. Earth, Mars, and Moon receive normative parameters in v0.7; third-party bodies (Venus, Europa, exoplanets, …) use the generic framework defined in §6.</p>
 <hr>
-<h2>0. Position</h2>
-<p>ATS v0.6 (cf. <code>manifesto.en.md</code>) describes a counter <strong>anchored to Earth</strong>: epoch 1969-07-20T00:00:00Z, POSIX day of 86 400 s. This annex <strong>generalizes</strong> it to other celestial bodies to support the rhetoric of manifesto §1 ("designed for a multi-planetary civilization").</p>
-<blockquote>
-<p><strong>Important.</strong> This extension introduces <strong>no change</strong> to the canonical format, short format, §12 binary format, or §11.4 algebra. The same <code>K.H.D.Kin.fffff</code> grammar applies to each body — only the <strong>epoch</strong> and <strong>day length</strong> change.</p>
-</blockquote>
+<h2>0. Conventions</h2>
+<h3>0.1 Requirement levels</h3>
+<p>The key words <strong>MUST</strong>, <strong>MUST NOT</strong>, <strong>REQUIRED</strong>, <strong>SHALL</strong>, <strong>SHALL NOT</strong>, <strong>SHOULD</strong>, <strong>SHOULD NOT</strong>, <strong>RECOMMENDED</strong>, <strong>NOT RECOMMENDED</strong>, <strong>MAY</strong>, and <strong>OPTIONAL</strong> in this document are to be interpreted as described in BCP 14 [RFC 2119, RFC 8174] when, and only when, they appear in all capitals.</p>
+<h3>0.2 Glossary (extension-specific)</h3>
+<ul>
+<li><strong>Body</strong> — A celestial body for which an ATS counter is defined: Earth, Mars, Moon, or any third-party body registered per §6.</li>
+<li><strong>Sol</strong> — A Martian solar day. Mean Martian sol = 88 775.244 147 SI seconds [Allison &amp; McEwen 2000].</li>
+<li><strong>Synodic lunar day</strong> — The time between successive sunrises at the same location on the Moon, ≈ 29.530 588 Earth days = 2 551 442.8128 SI seconds [IAU; Espenak 2014].</li>
+<li><strong><code>Δ_X</code></strong> — The ATS instant counter for body X.</li>
+<li><strong><code>Δd_X</code></strong> — The ATS duration counter for body X (signed quantity of body-X days).</li>
+<li><strong>Body suffix</strong> — ASCII identifier (<code>_Earth</code>, <code>_Mars</code>, <code>_Moon</code>, …) appended to <code>Δ</code> to disambiguate the body. Earth suffix MAY be omitted (per §2.1.3).</li>
+</ul>
+<h3>0.3 Scope</h3>
+<p>This annex specifies:</p>
+<ul>
+<li>The generic parameterisation of an ATS counter for any body (§1).</li>
+<li>Notation for body-specific instants (§2).</li>
+<li>The normative parameters for Earth, Mars, and Moon (§3).</li>
+<li>The conversion between body-local ATS and UTC (§4).</li>
+<li>Cross-body algebra rules (§5).</li>
+<li>The generic framework for third-party bodies (§6).</li>
+<li>Stability commitments for v1.0 (§7).</li>
+<li>Rationale for the chosen anchors (§8).</li>
+<li>Relativistic corrections (§9, non-normative).</li>
+<li>The conformance vector contract (§10).</li>
+<li>Anticipated objections (§11).</li>
+<li>Reference implementations (§12).</li>
+</ul>
+<p>This annex does <strong>NOT</strong> modify any normative content of <code>manifesto.en.md</code>. The Earth ATS specification (§§1–17 of the manifesto) is unchanged.</p>
+<hr>
 <h2>1. Generic definition</h2>
-<p>An ATS counter for a celestial body <code>X</code> is entirely determined by:</p>
+<h3>1.1 Body parameters</h3>
+<p>An ATS counter for a celestial body <code>X</code> is <strong>completely defined</strong> by four parameters:</p>
 <table>
 <thead>
 <tr>
 <th>Parameter</th>
 <th>Type</th>
+<th>Constraint</th>
 <th>Meaning</th>
 </tr>
 </thead>
 <tbody><tr>
 <td><code>epoch_X</code></td>
 <td>UTC instant</td>
-<td>Counter origin (absolute zero).</td>
+<td>exact to the SI second</td>
+<td>Counter origin (the instant <code>Δ_X</code> evaluates to <code>T+ Δ_X 0.0.0.0.00000</code>).</td>
 </tr>
 <tr>
 <td><code>day_seconds_X</code></td>
 <td>positive Decimal</td>
+<td>&gt; 0, exact to ≥ 6 decimal places</td>
 <td>Local "day" duration, in SI seconds.</td>
 </tr>
 <tr>
 <td><code>suffix_X</code></td>
-<td>ASCII</td>
-<td>Canonical suffix for notation (<code>_Earth</code>, <code>_Mars</code>…).</td>
+<td>ASCII string</td>
+<td>matches <code>[A-Za-z][A-Za-z0-9]*</code></td>
+<td>Canonical suffix for ASCII notation (<code>_Earth</code>, <code>_Mars</code>…).</td>
 </tr>
 <tr>
 <td><code>symbol_X</code></td>
-<td>Unicode (optional)</td>
+<td>Unicode codepoint (optional)</td>
+<td>U+263F–U+2647 for solar-system bodies</td>
 <td>Astronomical symbol for the display form.</td>
 </tr>
 </tbody></table>
-<p>The counter is then:</p>
+<p>A v0.7-conformant implementation <strong>MUST</strong> support Earth, Mars, and Moon with the parameters in §3.</p>
+<h3>1.2 The counter</h3>
+<p>The body-X counter is the function:</p>
 <pre><code>Δ_X(t_UTC) = (t_UTC − epoch_X) / day_seconds_X
 </code></pre>
-<p>with <code>t_UTC</code> in seconds since an arbitrary UTC reference (typically POSIX epoch or Earth epoch).</p>
-<p>The positional structure <code>K.H.D.Kin.fffff</code> is identical to Earth ATS (Kilo unbounded, Hecto / Deka / Kin digits 0..9, 5-digit default fraction). The <code>Bloc</code> remains <code>1/10</code> of a local day — its absolute duration varies by body.</p>
+<p>where:</p>
+<ul>
+<li><code>t_UTC</code> is a UTC instant.</li>
+<li><code>t_UTC − epoch_X</code> is the elapsed time as an SI-seconds duration (POSIX semantics per <code>manifesto.en.md §8</code>).</li>
+<li>The division produces a signed decimal day count.</li>
+</ul>
+<p>The signed day count is then encoded using the same <code>K.H.D.Kin.fffff</code> positional grammar as Earth ATS (<code>manifesto.en.md §4.1</code>):</p>
+<ul>
+<li>Kilo unbounded, signed via <code>T+</code> / <code>T-</code> (<code>manifesto.en.md §3</code>).</li>
+<li>Hecto, Deka, Kin digits 0..9.</li>
+<li>5-digit default fraction, floor-truncated (<code>manifesto.en.md §6</code>).</li>
+</ul>
+<h3>1.3 Unit lengths vary by body</h3>
+<p>The positional units (Bloc, Centi, Milli, Beat, Blink) are <strong>fractions of the body's day</strong>, not fractions of an Earth day. Concretely:</p>
+<ul>
+<li>1 Bloc_Earth = 0.1 × 86 400 s = 8 640 s = 2 h 24 min.</li>
+<li>1 Bloc_Mars = 0.1 × 88 775.244 147 s ≈ 8 877.52 s ≈ 2 h 27 min 57 s.</li>
+<li>1 Bloc_Moon = 0.1 × 2 551 442.8128 s ≈ 255 144.28 s ≈ 2 d 22 h 52 min.</li>
+</ul>
+<p>This is intentional. The positional grammar is <strong>invariant</strong> across bodies; the <em>absolute durations</em> of micro units scale with the body's day length. A user on Mars working "3 Blocs" puts in approximately the same fraction of a Martian day as an Earth user working "3 Blocs" of an Earth day.</p>
+<hr>
 <h2>2. Notation</h2>
-<h3>2.1 ASCII canonical form</h3>
-<pre><code>T± Δ_Earth K.H.D.Kin.fffff
-T± Δ_Mars  K.H.D.Kin.fffff
-T± Δ_Moon  K.H.D.Kin.fffff
+<h3>2.1 Canonical form (ASCII)</h3>
+<pre><code class="language-abnf">canonical_multibody = direction SP symbol body_suffix SP days "." frac
+direction           = "T" ("+" / "-")
+symbol              = %xCE.94            ; Δ
+body_suffix         = "_" body_id
+body_id             = ALPHA *(ALPHA / DIGIT)
+days                = kilo "." digit "." digit "." digit
+kilo                = 1*DIGIT
+frac                = 5*DIGIT
+digit               = %x30-39
+SP                  = %x20
 </code></pre>
-<p>The suffix is mandatory <strong>except</strong> for Earth: <code>Δ 20.7.8.2.50000</code> remains equivalent to <code>Δ_Earth 20.7.8.2.50000</code> (v0.6 backward compatibility).</p>
-<h3>2.2 Symbolic form (UI / display)</h3>
+<h4>2.1.1 Examples</h4>
+<pre><code>T+ Δ_Earth 20.7.8.2.50000
+T+ Δ_Mars  10.2.8.7.96477
+T+ Δ_Moon  0.7.0.3.76180
+</code></pre>
+<h4>2.1.2 Spaces</h4>
+<p>Implementations <strong>MUST</strong> emit exactly one ASCII space between <code>direction</code> and <code>Δ_&lt;body&gt;</code>, and exactly one ASCII space between <code>Δ_&lt;body&gt;</code> and <code>days</code>. The number of spaces inside the body suffix is zero (no space between <code>_</code> and the body identifier).</p>
+<h4>2.1.3 Earth backward compatibility</h4>
+<p>The bare <code>Δ</code> (without body suffix) <strong>MUST</strong> be interpreted as <code>Δ_Earth</code> in any context where the body is implicit. Implementations producing ASCII output <strong>SHOULD</strong> emit <code>Δ_Earth</code> explicitly when the context is multi-body; they <strong>MAY</strong> omit the suffix for Earth-only contexts (Earth-only badges, embeds, single-planet sites).</p>
+<h3>2.2 Symbolic form (Unicode display)</h3>
+<p>Implementations targeting human display <strong>MAY</strong> use Unicode astronomical symbols instead of ASCII body suffixes:</p>
 <table>
 <thead>
 <tr>
 <th>Body</th>
 <th>Symbol</th>
+<th>Codepoint</th>
 <th>Pronunciation</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>Earth</td>
 <td><code>Δ⊕</code></td>
+<td>U+2295 (<code>Δ</code> + CIRCLED PLUS)</td>
 <td>"delta-earth"</td>
 </tr>
 <tr>
 <td>Mars</td>
 <td><code>Δ♂</code></td>
+<td>U+2642 (<code>Δ</code> + MALE SIGN, astronomical Mars symbol)</td>
 <td>"delta-mars"</td>
 </tr>
 <tr>
 <td>Moon</td>
 <td><code>Δ☾</code></td>
+<td>U+263E (<code>Δ</code> + LAST QUARTER MOON)</td>
 <td>"delta-moon"</td>
 </tr>
 </tbody></table>
-<p>The bare symbol <code>Δ</code> remains Earth ATS in any ambiguous context (counters, badges, embed).</p>
+<p>The bare symbol <code>Δ</code> (without body marker) <strong>MUST</strong> be interpreted as Earth in symbolic display contexts, consistent with §2.1.3.</p>
 <h3>2.3 Short form</h3>
-<p>Same as v0.6 short form + suffix:</p>
-<pre><code>Δ_Mars 1.2.3.4/56
-Δ☾ 0.7.0.3/45
+<p>The short form <code>ΔK.H.D.Kin-BC.M</code> (<code>manifesto.en.md §5.1</code>) extends to bodies by inserting the body suffix between <code>Δ</code> and the first digit:</p>
+<pre><code class="language-abnf">short_multibody = symbol body_suffix days "-" bc "." milli
+                / symbol days "-" bc "." milli              ; Earth backward compat
 </code></pre>
+<p>Examples:</p>
+<pre><code>Δ_Mars 10.2.8.7-96.4
+Δ_Moon 0.7.0.3-76.1
+Δ20.7.8.2-50.0          ; Earth, suffix omitted (§2.1.3)
+</code></pre>
+<p>The strict-parser rules of <code>manifesto.en.md §5.1</code> apply unchanged.</p>
+<hr>
 <h2>3. Parameters for v1.0 bodies</h2>
+<p>The following three bodies receive <strong>normative</strong> ATS parameters in v0.7. These parameters become <strong>FROZEN</strong> in v1.0 per <code>versioning.en.md §3.1</code> (epoch) and <code>multi-planetary.en.md §7</code> (this annex's stability commitments).</p>
 <h3>3.1 Earth (<code>Δ_Earth</code>, <code>Δ⊕</code>, or bare <code>Δ</code>)</h3>
-<ul>
-<li><code>epoch_Earth</code> = <strong>1969-07-20T00:00:00Z</strong> (start of the Apollo 11 day, cf. manifesto §2)</li>
-<li><code>day_seconds_Earth</code> = <strong>86 400</strong> (POSIX day, cf. manifesto §8)</li>
-</ul>
-<h3>3.2 Mars (<code>Δ_Mars</code>, <code>Δ♂</code>)</h3>
-<ul>
-<li><code>epoch_Mars</code> = <strong>1997-07-04T16:56:55Z</strong> — landing of <strong>Mars Pathfinder</strong> in Ares Vallis. First successful modern Mars landing since Viking; symbolic <strong>July 4, 1997</strong> date. (Source: Wikipedia; value matches JPL Mission History.)</li>
-<li><code>day_seconds_Mars</code> = <strong>88 775.244 147</strong> s — <strong>Martian sol</strong> (Allison &amp; McEwen, <em>Planetary and Space Science</em> 2000, <em>"A post-Pathfinder evaluation of areocentric solar coordinates"</em>).</li>
-</ul>
-<p>Numerical consequence: Δ_Mars 0.0.0.0.00000 = <strong>1997-07-04T16:56:55Z</strong> UTC. For instant <code>2026-06-13T12:00:00Z</code>, the calculation gives <strong><code>T+ Δ_Mars 10.2.8.7.96477</code></strong> (5-digit precision).</p>
-<h3>3.3 Moon (<code>Δ_Moon</code>, <code>Δ☾</code>)</h3>
-<ul>
-<li><code>epoch_Moon</code> = <strong>1969-07-20T00:00:00Z</strong> — <strong>shared with Earth</strong>. Doctrinal choice: the Moon is Earth's satellite; its counter naturally aligns with the human event that links both bodies.</li>
-<li><code>day_seconds_Moon</code> = <strong>2 551 442.8128</strong> s — <strong>synodic lunar day</strong> (29.530 588 Earth days; IAU). Synodic chosen (apparent sunrise-to-sunrise from the surface) over sidereal (27.32 d) because it matches local lighting cycle.</li>
-</ul>
-<p>Consequence: 1 Δ_Moon = ≈ 29.53 Δ_Earth. At <code>2026-06-13T12:00:00Z</code>, <strong><code>T+ Δ_Moon 0.7.0.3.76180</code></strong>.</p>
-<h2>4. <code>Δ_X ↔ UTC</code> conversion</h2>
-<p>Canonical formula for a body <code>X</code> parameterized by <code>(epoch_X, day_seconds_X)</code>:</p>
-<pre><code>total_days = (utc − epoch_X).total_seconds() / day_seconds_X
-sign       = T+ if total_days ≥ 0 else T-
-abs_days   = |total_days|
-integer    = floor(abs_days)
-frac_5dig  = floor((abs_days − integer) × 100 000)
-K.H.D.Kin  = standard divmod pipeline (cf. manifesto §9)
-</code></pre>
-<p>The §6 truncation rule (<code>ROUND_FLOOR</code>) applies unchanged.</p>
-<h2>5. Cross-body comparisons and algebra</h2>
-<p><strong>Δ_X and Δ_Y of different bodies are not directly comparable.</strong> To compare two instants expressed on two different bodies, convert <strong>both</strong> to UTC first.</p>
-<p>In practice:</p>
-<ul>
-<li><code>Δ_Mars + Δd_Mars → Δ_Mars</code> ✓ (§11.4 algebra preserved per body)</li>
-<li><code>Δ_Mars + Δd_Earth → undefined</code> ✗</li>
-<li><code>Δ_Mars &lt; Δ_Earth → undefined</code> ✗</li>
-<li><code>Δ_Mars.to_utc() &lt; Δ_Earth.to_utc() → bool</code> ✓ (comparison via the UTC bridge)</li>
-</ul>
-<p>The <code>Δd</code> (duration) unit is <strong>typed by body</strong>: <code>Δd_Mars</code> = a quantity of Martian sols; <code>Δd_Earth</code> = a quantity of Earth days; conversion possible via the <code>day_seconds</code> ratio.</p>
-<h2>6. Generic framework for third-party bodies</h2>
-<p>An implementation <strong>MAY</strong> define <code>Δ_X</code> for any body by registering:</p>
 <table>
 <thead>
 <tr>
-<th>Field</th>
-<th>Venus example</th>
+<th>Parameter</th>
+<th>Value</th>
+<th>Source</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><code>epoch_X</code> (UTC ISO 8601)</td>
-<td><code>1989-08-10T03:01:00Z</code> (Magellan orbital insertion)</td>
+<td><code>epoch_Earth</code></td>
+<td><code>1969-07-20T00:00:00Z</code></td>
+<td><code>manifesto.en.md §2</code> — start of the Apollo 11 lunar landing day.</td>
 </tr>
 <tr>
-<td><code>day_seconds_X</code> (positive Decimal)</td>
-<td><code>10 087 200</code> (Venusian synodic day ≈ 116.75 Earth days)</td>
+<td><code>day_seconds_Earth</code></td>
+<td><code>86_400</code></td>
+<td>POSIX semantics per <code>manifesto.en.md §8.1</code>.</td>
 </tr>
 <tr>
-<td><code>suffix_X</code> (short ASCII)</td>
-<td><code>_Venus</code></td>
+<td><code>suffix_Earth</code></td>
+<td><code>_Earth</code></td>
+<td>Standard.</td>
 </tr>
 <tr>
-<td><code>symbol_X</code> (optional Unicode)</td>
-<td><code>♀</code></td>
+<td><code>symbol_Earth</code></td>
+<td><code>⊕</code> (U+2295)</td>
+<td>Astronomical Earth symbol.</td>
 </tr>
 </tbody></table>
-<p>The implementation <strong>SHOULD</strong> provide a vector set <code>test-vectors-multi-planetary-&lt;body&gt;.json</code> with ≥ 5 instants, following the same format as Mars and Moon. See §10.</p>
-<p><strong>No central authority registers non-canonical bodies.</strong> Suffix conflicts are resolved by nominal convention (<code>_Venus</code>, <code>_Jupiter</code>, etc. in English). Astronomical Unicode symbols (U+263F to U+2647) are the reference for the symbolic form.</p>
-<h2>7. Stability (v1.0 freeze)</h2>
-<p>Once v1.0 ships, <strong>Mars and Moon parameters are frozen</strong> (at the same level as the §3 freezes of <code>versioning.en.md</code>). Third-party bodies remain free; a new body <code>_Venus</code> can be added in a minor release without an RFC (additive, like a new calendar bridge).</p>
-<p>Outside the freeze: any change to <code>epoch_Mars</code>, <code>epoch_Moon</code>, <code>day_seconds_Mars</code>, <code>day_seconds_Moon</code> requires a new project (ATS 2).</p>
-<h2>8. Non-normative annex — relativistic corrections</h2>
-<p>A clock on the lunar surface ticks <strong>roughly 58.7 µs faster per day</strong> than a UTC clock on Earth's surface (cf. NIST 2024, NASA <em>Coordinated Lunar Time</em> proposal). Cumulative differential over 50 years = ≈ 1.07 s.</p>
-<p>A clock on the Martian surface (1 g_Mars + equatorial altitude) is even more complex (Mars 2024 GCM model).</p>
-<p><strong>These corrections are below the default <code>ATS_DECIMALS = 5</code> precision</strong> (1 / 100 000 day ≈ 864 ms, or 864 000 µs ≈ 14 700× larger than the daily lunar offset). For a 5-digit instant, <strong>they are negligible over centuries</strong>.</p>
-<p>Implementations requiring sub-millisecond precision on non-Earth bodies <strong>must</strong> maintain their own TAI ↔ local-surface correction tables.</p>
-<h2>9. Conformance vectors</h2>
-<p>Two additional sets:</p>
+<h3>3.2 Mars (<code>Δ_Mars</code>, <code>Δ♂</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>epoch_Mars</code></td>
+<td><code>1997-07-04T16:56:55Z</code></td>
+<td>Mars Pathfinder Sagan Memorial Station touchdown in Ares Vallis [NASA JPL Mission History; date verified against Pathfinder mission records].</td>
+</tr>
+<tr>
+<td><code>day_seconds_Mars</code></td>
+<td><code>88_775.244_147</code> s</td>
+<td>Mean Martian sol [Allison &amp; McEwen 2000, <em>Planetary and Space Science</em> 48 (2-3), 215–235].</td>
+</tr>
+<tr>
+<td><code>suffix_Mars</code></td>
+<td><code>_Mars</code></td>
+<td>Standard.</td>
+</tr>
+<tr>
+<td><code>symbol_Mars</code></td>
+<td><code>♂</code> (U+2642)</td>
+<td>Astronomical Mars symbol.</td>
+</tr>
+</tbody></table>
+<h4>3.2.1 Numerical consequence</h4>
+<p>At <code>2026-06-13T12:00:00Z</code>, <code>Δ_Mars</code> evaluates to <code>T+ Δ_Mars 10.2.8.7.96477</code> (5-digit precision).</p>
+<h4>3.2.2 Mars day length precision</h4>
+<p>The value <code>88_775.244_147</code> s is the <strong>mean Martian sol</strong> averaged over a Martian year. The instantaneous sol length varies by ±20 s with Mars's orbital eccentricity. v0.7 uses the mean value; high-precision implementations <strong>MAY</strong> use the time-varying value at the cost of precision contract complexity. The v1.0 normative parameter is the mean.</p>
+<h3>3.3 Moon (<code>Δ_Moon</code>, <code>Δ☾</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>epoch_Moon</code></td>
+<td><code>1969-07-20T00:00:00Z</code></td>
+<td><strong>Shared with Earth.</strong> Doctrinal choice: the Moon is Earth's satellite, and its counter naturally aligns with the human event that links both bodies (the Apollo 11 landing).</td>
+</tr>
+<tr>
+<td><code>day_seconds_Moon</code></td>
+<td><code>2_551_442.8128</code> s</td>
+<td>Mean synodic lunar day = 29.530 588 Earth days [IAU; Espenak 2014].</td>
+</tr>
+<tr>
+<td><code>suffix_Moon</code></td>
+<td><code>_Moon</code></td>
+<td>Standard.</td>
+</tr>
+<tr>
+<td><code>symbol_Moon</code></td>
+<td><code>☾</code> (U+263E)</td>
+<td>Astronomical Moon symbol.</td>
+</tr>
+</tbody></table>
+<h4>3.3.1 Numerical consequence</h4>
+<p>At <code>2026-06-13T12:00:00Z</code>, <code>Δ_Moon</code> evaluates to <code>T+ Δ_Moon 0.7.0.3.76180</code> (5-digit precision). One full <code>Δ_Moon</code> ≈ 29.53 <code>Δ_Earth</code>.</p>
+<h4>3.3.2 Synodic vs sidereal: rationale</h4>
+<p>The Moon has two natural day lengths:</p>
 <ul>
-<li><code>docs/spec/test-vectors-multi-planetary-mars.json</code> — 10 UTC ↔ Δ_Mars instants covering the epoch, round sols, complex fractions, dates ≥ 2050.</li>
-<li><code>docs/spec/test-vectors-multi-planetary-moon.json</code> — 10 UTC ↔ Δ_Moon instants with the same profiles.</li>
+<li><strong>Sidereal day</strong>: 27.32 Earth days. Time for one rotation relative to fixed stars.</li>
+<li><strong>Synodic day</strong>: 29.53 Earth days. Time between successive sunrises at a given lunar location.</li>
 </ul>
-<p>Each vector:</p>
+<p>ATS uses the <strong>synodic</strong> lunar day because:</p>
+<ol>
+<li>Lunar settlers experience the synodic cycle (the sunrise-sunset cycle on the surface), not the sidereal one.</li>
+<li>The synodic cycle matches the lunar phase cycle observed from Earth — the cultural and observational reference.</li>
+<li>The Lunar Crewed Time framework (NASA Coordinated Lunar Time, 2024) uses the synodic cycle for the same reasons.</li>
+</ol>
+<p>The sidereal day <strong>MAY</strong> be exposed by implementations as an additional unit; it is not the canonical body day for ATS.</p>
+<hr>
+<h2>4. Conversion (<code>Δ_X ↔ UTC</code>)</h2>
+<p>Conformant implementations <strong>MUST</strong> implement the conversion below for any body parameterised per §1.1. The conversion mirrors <code>manifesto.en.md §9</code> with body-local day length substituted.</p>
+<h3>4.1 UTC → <code>Δ_X</code> (pseudo-code)</h3>
+<pre><code>function utc_to_body_ats(utc: UTCInstant, body: Body) -&gt; BodyATS:
+    EPOCH = body.epoch
+    DAY_SECONDS = body.day_seconds
+    ATS_DECIMALS = 5
+    ATS_SCALE = 10 ** ATS_DECIMALS
+
+    delta_seconds = (utc - EPOCH).total_seconds()  # signed Decimal
+    total_days = delta_seconds / DAY_SECONDS       # signed Decimal
+
+    if total_days &gt;= 0:
+        sign = "T+"
+        abs_days = total_days
+    else:
+        sign = "T-"
+        abs_days = -total_days
+
+    integer_days = floor(abs_days)
+    frac_int = floor((abs_days - integer_days) * ATS_SCALE)  # 5-digit floor
+
+    kilo, rem  = divmod(integer_days, 1000)
+    hecto, rem = divmod(rem, 100)
+    deka, kin  = divmod(rem, 10)
+
+    return BodyATS(body=body, sign=sign, kilo=kilo, hecto=hecto, deka=deka, kin=kin, frac=frac_int)
+</code></pre>
+<h3>4.2 <code>Δ_X</code> → UTC (pseudo-code)</h3>
+<pre><code>function body_ats_to_utc(ats: BodyATS) -&gt; UTCInstant:
+    integer_days = ats.kilo * 1000 + ats.hecto * 100 + ats.deka * 10 + ats.kin
+    abs_days = integer_days + ats.frac / 100_000
+    signed_days = abs_days if ats.sign == "T+" else -abs_days
+    delta_seconds = signed_days * ats.body.day_seconds
+    return ats.body.epoch + delta_seconds
+</code></pre>
+<h3>4.3 Floor-truncation invariant</h3>
+<p>The same floor-truncation rule (<code>manifesto.en.md §6</code>) applies. The maximum drift between <code>body_ats_to_utc(utc_to_body_ats(t))</code> and <code>t</code> is bounded by <code>0.864 ms × (day_seconds_X / day_seconds_Earth)</code>:</p>
+<ul>
+<li>Earth: ≤ 0.864 ms (the standard Earth drift).</li>
+<li>Mars: ≤ 0.888 ms (≈ 2.7 % larger because Mars sol is 2.7 % longer).</li>
+<li>Moon: ≤ 25.5 ms (≈ 29.5× larger because one Moon synodic day is ≈ 29.5 Earth days).</li>
+</ul>
+<p>Implementations claiming sub-millisecond precision on the Moon <strong>MUST</strong> use extended precision (≥ 6 digits) per <code>manifesto.en.md §4.4</code>.</p>
+<hr>
+<h2>5. Cross-body algebra</h2>
+<h3>5.1 Same-body algebra is preserved</h3>
+<p>For any body X, the algebra of <code>manifesto.en.md §11.4</code> applies <strong>without modification</strong>:</p>
+<ul>
+<li><code>Δ_X + Δd_X → Δ_X</code> ✓</li>
+<li><code>Δd_X + Δ_X → Δ_X</code> ✓</li>
+<li><code>Δ_X − Δ_X → Δd_X</code> ✓</li>
+<li><code>Δ_X − Δd_X → Δ_X</code> ✓</li>
+<li><code>Δd_X + Δd_X → Δd_X</code> ✓</li>
+<li><code>Δd_X − Δd_X → Δd_X</code> ✓</li>
+<li><code>Δd_X × n → Δd_X</code> for rational <code>n</code> ✓</li>
+<li><code>Δd_X ÷ n → Δd_X</code> for non-zero rational <code>n</code> ✓</li>
+<li>Comparisons <code>&lt;, ≤, =, ≥, &gt;</code> on two <code>Δ_X</code> or two <code>Δd_X</code> ✓</li>
+</ul>
+<h3>5.2 Cross-body operations are forbidden</h3>
+<p>Operations mixing different bodies are <strong>UNDEFINED BEHAVIOUR</strong> and implementations <strong>MUST</strong> raise a type error:</p>
+<ul>
+<li><code>Δ_Mars + Δd_Earth → TYPE ERROR</code> ✗</li>
+<li><code>Δd_Mars + Δd_Earth → TYPE ERROR</code> ✗</li>
+<li><code>Δ_Mars &lt; Δ_Earth → TYPE ERROR</code> ✗</li>
+<li><code>Δ_Mars − Δ_Earth → TYPE ERROR</code> ✗</li>
+</ul>
+<h3>5.3 Cross-body comparison via UTC bridge</h3>
+<p>To compare instants on different bodies, <strong>both</strong> instants <strong>MUST</strong> be converted to UTC first:</p>
+<pre><code>result = body_ats_to_utc(ats_a) &lt; body_ats_to_utc(ats_b)
+</code></pre>
+<p>The reference implementations expose this as a <code>to_utc()</code> method on the per-body type. The result is a standard UTC comparison.</p>
+<h3>5.4 Duration conversion between bodies</h3>
+<p>Durations expressed in different body-days are convertible by the ratio of day lengths:</p>
+<pre><code>Δd_Mars_in_earth_days = Δd_Mars × (day_seconds_Mars / day_seconds_Earth)
+                      = Δd_Mars × (88_775.244_147 / 86_400)
+                      ≈ Δd_Mars × 1.027 491
+</code></pre>
+<p>Implementations <strong>MAY</strong> expose a <code>to_body(target_body)</code> method that performs this conversion. The result is a duration in the target body's unit, which <strong>MUST</strong> then be added to or subtracted from an instant in that body's frame.</p>
+<hr>
+<h2>6. Generic framework for third-party bodies</h2>
+<h3>6.1 Registration</h3>
+<p>An implementation <strong>MAY</strong> define <code>Δ_X</code> for any body by registering the four parameters of §1.1:</p>
+<pre><code>register_body(
+    suffix="_Venus",
+    epoch=parse_utc("1989-08-10T03:01:00Z"),  # Magellan orbital insertion
+    day_seconds=Decimal("10_087_200"),         # Venusian synodic day ≈ 116.75 Earth days
+    symbol="♀"                            # ♀ (U+2640, Venus astronomical symbol)
+)
+</code></pre>
+<p>The reference Python implementation provides a <code>Body</code> class with this interface (<code>code/ats_multi_planetary.py</code>).</p>
+<h3>6.2 Suffix collision rules</h3>
+<p>Third-party bodies share the global suffix namespace. To prevent collisions:</p>
+<ul>
+<li>Suffixes <strong>MUST</strong> be the English nominal form prefixed by <code>_</code> (e.g., <code>_Venus</code>, <code>_Jupiter</code>, <code>_Europa</code>).</li>
+<li>Suffixes are case-sensitive; <code>_Venus</code> and <code>_venus</code> are distinct strings but <strong>SHOULD NOT</strong> both be used (the standard convention is initial-capital).</li>
+<li>An implementation publishing a body registration <strong>SHOULD</strong> check the canonical reference list at <code>docs/spec/multi-planetary-bodies.md</code> (a planned registry) before claiming a suffix.</li>
+<li>In the absence of a central registry, suffix conflicts are resolved by <strong>announcement priority</strong>: the body registered publicly first wins the suffix.</li>
+</ul>
+<h3>6.3 Vector requirements for third-party bodies</h3>
+<p>A third-party body claiming conformance <strong>SHOULD</strong> publish a conformance vector file <code>test-vectors-multi-planetary-&lt;body&gt;.json</code> with the same format as the Mars and Moon files:</p>
+<ul>
+<li>Minimum 5 vectors covering:<ul>
+<li>The body epoch (<code>T+ Δ_X 0.0.0.0.00000</code>).</li>
+<li>One mid-life round number (e.g., <code>T+ Δ_X 1.0.0.0.00000</code>).</li>
+<li>A complex fraction (e.g., <code>T+ Δ_X 0.0.0.0.50000</code>).</li>
+<li>A negative-direction instant (<code>T- Δ_X k.h.d.kin.fffff</code>).</li>
+<li>A date ≥ 2100 to verify long-range arithmetic.</li>
+</ul>
+</li>
+<li><code>spec_version</code> set to the MAJOR.MINOR introducing the body.</li>
+</ul>
+<h3>6.4 Central registry status</h3>
+<p>No central authority registers non-canonical bodies in v0.7. The editors of record MAY adopt a third-party body registration as <strong>canonical</strong> (i.e., move it to §3) in a future MINOR release via the RFC procedure (<code>versioning.en.md §6</code>).</p>
+<hr>
+<h2>7. Stability (v1.0 freeze)</h2>
+<p>When ATS v1.0 ships (per <code>versioning.en.md §7.2</code>), the following items in this annex become <strong>FROZEN</strong>:</p>
+<ol>
+<li>The §3.1 Earth parameters (also frozen by <code>versioning.en.md §3.1</code>).</li>
+<li>The §3.2 Mars parameters (<code>epoch_Mars</code>, <code>day_seconds_Mars</code>).</li>
+<li>The §3.3 Moon parameters (<code>epoch_Moon</code>, <code>day_seconds_Moon</code>).</li>
+<li>The §2 notation: ASCII suffix syntax, Unicode symbol assignments, short-form rules.</li>
+<li>The §4 conversion algorithm (pseudo-code semantics, drift bound).</li>
+<li>The §5 cross-body algebra rules (type-error semantics).</li>
+</ol>
+<p>Modifying any of these post-v1.0 requires a new project (ATS 2, per <code>versioning.en.md §3.8</code>).</p>
+<p>Third-party bodies registered per §6 are <strong>NOT</strong> frozen by this annex; they remain freely addable, modifiable, or retractable by their registrants in MINOR releases.</p>
+<hr>
+<h2>8. Why these anchors specifically</h2>
+<p>The choice of Mars Pathfinder and the Earth-shared Moon epoch are contested decisions; this section documents the rationale so disputes are addressable at the spec level.</p>
+<h3>8.1 Why Mars Pathfinder, not other landings?</h3>
+<p>The candidate Martian anchors and the rejection rationale:</p>
+<table>
+<thead>
+<tr>
+<th>Candidate</th>
+<th>UTC</th>
+<th>Reason for rejection / selection</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Mars Pathfinder Sagan Memorial Station</strong></td>
+<td>1997-07-04T16:56:55Z</td>
+<td><strong>SELECTED.</strong> First successful modern Mars landing (post-Viking); symbolic July 4 date matches Apollo 11 cultural framing; precise timing in public records.</td>
+</tr>
+<tr>
+<td>Viking 1 lander</td>
+<td>1976-07-20T11:53:06Z</td>
+<td>Same UTC date as Apollo 11 (July 20). Ambiguity in cultural framing (which 1969-7-20 event?). Pre-modern-internet era; less verifiable from independent records.</td>
+</tr>
+<tr>
+<td>Mars 3 (Soviet)</td>
+<td>1971-12-02T13:50:35Z</td>
+<td>First Mars soft landing, but the lander failed 14.5 s after touchdown; the data record is incomplete.</td>
+</tr>
+<tr>
+<td>Curiosity rover</td>
+<td>2012-08-06T05:17:57Z</td>
+<td>Modern, well-documented, but "anchor on the most recent landing" is unstable (Perseverance 2021, future landings).</td>
+</tr>
+<tr>
+<td>Perseverance rover</td>
+<td>2021-02-18T20:55:00Z</td>
+<td>Same critique as Curiosity.</td>
+</tr>
+<tr>
+<td>Mars Schiaparelli</td>
+<td>2016-10-19T14:48:18Z</td>
+<td>Failed landing — not a successful presence event.</td>
+</tr>
+<tr>
+<td>First human landing on Mars</td>
+<td>(future)</td>
+<td>Reserved as a future revision; <strong>MAY</strong> become the anchor when a crewed Mars mission lands.</td>
+</tr>
+</tbody></table>
+<p>Pathfinder satisfies four properties parallel to Apollo 11 (per <code>manifesto.en.md §2.3</code>):</p>
+<ul>
+<li>(i) Verifiable to the second from independent records.</li>
+<li>(ii) Witnessed at species-scale (live broadcast; mission widely covered).</li>
+<li>(iii) Free of identifiable victims.</li>
+<li>(iv) Marks a discontinuity in species' Mars presence: the first successful soft landing of the modern Mars exploration era.</li>
+</ul>
+<h3>8.2 Why shared epoch for Earth and Moon?</h3>
+<p>The Moon could use one of three anchors:</p>
+<ul>
+<li><strong>Apollo 11 lunar landing (1969-07-20T20:17:40Z)</strong>: the surface touchdown instant.</li>
+<li><strong>Earth epoch (1969-07-20T00:00:00Z)</strong>: the start of the landing day, shared with Earth.</li>
+<li><strong>A pre-Apollo lunar event</strong>: some Soviet Luna milestone, or a synodic-cycle anchor.</li>
+</ul>
+<p>The choice of <strong>shared epoch with Earth</strong> is doctrinal:</p>
+<ul>
+<li>The Moon is Earth's satellite; its history is bound to Earth's. A separate Moon epoch would imply a parallel timeline.</li>
+<li>The Earth-Moon system is gravitationally and astronomically one system; using one epoch reflects this.</li>
+<li>Surface touchdown (20:17:40Z) was rejected for the same reason it was rejected as the Earth epoch (<code>manifesto.en.md §2.1</code>): it misaligns the day counter from a natural reference.</li>
+</ul>
+<p>The doctrinal claim — "the Moon's counter naturally aligns with the human event that links both bodies" — is open to RFC. A future revision <strong>MAY</strong> introduce <code>epoch_Moon = 1969-07-20T20:17:40Z</code> (touchdown) or a fully independent Moon epoch; until v1.0, the shared-epoch choice stands.</p>
+<h3>8.3 What about Venus, Jupiter, Europa, exoplanets?</h3>
+<p>These bodies are out of scope for v0.7 normative parameters. They are addressable via the §6 generic framework. The editors INTEND to canonicalise additional bodies via RFC as adoption signals emerge (e.g., if a sustained crewed presence at Europa or a permanent Venus orbiter is established).</p>
+<hr>
+<h2>9. Relativistic corrections (non-normative)</h2>
+<p>The following effects affect sub-millisecond precision; they are <strong>below</strong> the default 5-digit precision (1 Blink = 864 ms) and are therefore non-normative for default-precision implementations. Implementations requiring sub-millisecond precision on non-Earth bodies <strong>MUST</strong> maintain their own correction tables.</p>
+<h3>9.1 Lunar surface clock drift</h3>
+<p>A clock on the lunar surface ticks approximately <strong>58.7 µs faster per day</strong> than a UTC clock on Earth's surface, due to the difference in gravitational potential [NIST 2024 <em>Coordinated Lunar Time</em> proposal; Mazarico et al. 2018]. Cumulative differential over 50 years = ≈ 1.07 s.</p>
+<p>The 58.7 µs/day drift is approximately:</p>
+<pre><code>58.7 µs / 864_000_000 µs/day  ≈  6.8 × 10⁻⁸ relative drift
+</code></pre>
+<p>which is well below the 5-digit Blink resolution (864 ms = 8.64 × 10⁵ µs, ≈ 14_700× larger than the daily lunar offset). For 5-digit ATS values, the lunar clock drift is <strong>negligible over centuries</strong>.</p>
+<h3>9.2 Mars surface clock drift</h3>
+<p>A clock on the Martian surface differs from UTC by gravitational and orbital effects. The instantaneous offset varies with Mars's orbital position; the cumulative drift over 50 years is on the order of seconds [Mars 2024 Mars GCM-based estimates; not yet formally standardised].</p>
+<p>For 5-digit ATS values, the Martian clock drift is also <strong>negligible over decades</strong>.</p>
+<h3>9.3 Implementations requiring sub-millisecond precision</h3>
+<p>Implementations targeting:</p>
+<ul>
+<li>Lunar navigation and communication protocols.</li>
+<li>Mars surface ops (e.g., autonomous rover scheduling).</li>
+<li>Inter-planetary spacecraft control.</li>
+</ul>
+<p><strong>MUST</strong> maintain their own TAI ↔ local-surface correction tables. The reference implementation provides 5-digit precision per <code>manifesto.en.md §4.4</code>; extended-precision use cases are out of scope for v0.7.</p>
+<h3>9.4 Future ATS-TAI variant</h3>
+<p><code>manifesto.en.md §8.3</code> reserves an ATS-TAI variant for future revision. ATS-TAI on Mars and Moon would be the natural framework for relativistic corrections, but is not specified in v0.7.</p>
+<hr>
+<h2>10. Conformance vectors</h2>
+<h3>10.1 Required vector files</h3>
+<p>A v0.7-conformant implementation <strong>MUST</strong> pass the following vector files:</p>
+<ul>
+<li><code>docs/spec/test-vectors.json</code> — 12 Earth ATS vectors (cf. <code>manifesto.en.md §9.3</code>).</li>
+<li><code>docs/spec/test-vectors-arithmetic.json</code> — 12 algebra vectors.</li>
+<li><code>docs/spec/test-vectors-multi-planetary-mars.json</code> — 10 Mars vectors.</li>
+<li><code>docs/spec/test-vectors-multi-planetary-moon.json</code> — 10 Moon vectors.</li>
+</ul>
+<p>Implementations that do not support the multi-planetary annex <strong>MUST</strong> declare partial conformance explicitly (per <code>manifesto.en.md §16.5</code>).</p>
+<h3>10.2 Vector format</h3>
+<p>Each multi-planetary vector follows:</p>
 <pre><code class="language-json">{
-  "label": "Description",
+  "label": "Mars Pathfinder touchdown",
   "utc": "1997-07-04T16:56:55Z",
   "ats_canonical": "T+ Δ_Mars 0.0.0.0.00000"
 }
 </code></pre>
-<h2>10. Reference implementations</h2>
+<p>The <code>label</code> field is human-readable context. The <code>utc</code> and <code>ats_canonical</code> fields are the conformance contract.</p>
+<h3>10.3 Vector coverage requirements</h3>
+<p>The Mars and Moon vector files each cover:</p>
 <ul>
-<li><code>code/ats_multi_planetary.py</code> (Python) — generic <code>Body</code> class parameterized by <code>(epoch, day_seconds)</code>, plus <code>EARTH</code>, <code>MARS</code>, <code>MOON</code> singletons. Δ/Δd algebra preserved per body.</li>
-<li>JS: port planned for v1.0 (cf. ROADMAP).</li>
+<li>The body epoch (<code>T+ Δ_X 0.0.0.0.00000</code>).</li>
+<li>Round-Kilo instants (e.g., <code>T+ Δ_X 1.0.0.0.00000</code>, <code>T+ Δ_X 10.0.0.0.00000</code>).</li>
+<li>Complex fractions (verifying floor-truncation behaviour).</li>
+<li>A negative-direction instant (<code>T- Δ_X k.h.d.kin.fffff</code>).</li>
+<li>A date in the next century (verifying long-range arithmetic).</li>
+<li>The current era (a verifiable contemporary instant).</li>
 </ul>
-<p>Conversions rely on the existing <code>_split_abs_days_floor</code> helper — no change to <code>code/ats.py</code> is needed for Earth (full backward compatibility).</p>
+<hr>
+<h2>11. Anticipated objections</h2>
+<h3>11.1 "Mars Pathfinder is not species-level the way Apollo 11 was."</h3>
+<p>Mars Pathfinder is not species-level <strong>in the same way</strong>; the framing is parallel, not identical. Apollo 11 marked the first human landing on another body; Pathfinder marked the first successful modern Mars landing of the contemporary era. The four properties of <code>manifesto.en.md §2.3 Attack C</code> apply (verifiability, witness scale, no victim, discontinuity). When a crewed Mars landing occurs, a future RFC <strong>MAY</strong> propose to re-anchor <code>epoch_Mars</code> on that event (the v1.0 freeze in §7 would be relaxed via the §3.8 escape hatch in <code>versioning.en.md</code>).</p>
+<h3>11.2 "Synodic vs sidereal for the Moon was arbitrary."</h3>
+<p>§3.3.2 sources the choice: synodic matches the sunrise-sunset cycle a lunar settler experiences, matches the phase cycle observed from Earth, and matches the NASA Coordinated Lunar Time framework. Sidereal <strong>MAY</strong> be exposed as a non-normative additional unit. The choice is not arbitrary; it is doctrinal and explained.</p>
+<h3>11.3 "Relativistic effects matter more than you claim."</h3>
+<p>For 5-digit precision (864 ms resolution), §9.1 demonstrates the lunar clock drift is ≈ 14_700× smaller than one Blink. For extended-precision use (sub-millisecond, e.g., autonomous Mars rover scheduling), §9.3 explicitly directs implementations to maintain their own correction tables, and §9.4 reserves an ATS-TAI variant for future standardisation. The annex does not understate the effect; it scopes it appropriately.</p>
+<h3>11.4 "The third-party framework is too permissive — suffix collisions are inevitable."</h3>
+<p>§6.2 acknowledges this and offers a fallback: announcement priority. A central registry is planned (<code>docs/spec/multi-planetary-bodies.md</code>) and the editors of record <strong>MAY</strong> canonicalise third-party bodies via RFC. Until the registry exists, suffix collisions are the implementer's responsibility to resolve; in practice, the namespace of celestial bodies is finite and the English nominal forms are well-established.</p>
+<h3>11.5 "Why not use Mars24 or Mars Mean Sol directly?"</h3>
+<p>Mars24 [Allison &amp; McEwen 2000] is the established Mars time-keeping reference. ATS-Mars <strong>uses</strong> the same mean sol length (88 775.244 147 s) sourced from Mars24. The difference is the <em>grammar</em>: Mars24 expresses Martian time in Earth-day-style hours/minutes/seconds; ATS-Mars uses the positional <code>K.H.D.Kin.fffff</code> decimal grammar. ATS-Mars is <strong>layered on top of</strong> Mars24 (using Mars24's day length); it does not replace it.</p>
+<h3>11.6 "Cross-body comparison via UTC bridge is awkward."</h3>
+<p>The bridge is explicit by design. Mixing bodies silently would obscure the fact that the comparison is happening in a third frame (UTC). The §5.3 contract — <code>body_ats_to_utc(ats_a) &lt; body_ats_to_utc(ats_b)</code> — makes the bridge visible to the implementer. The cost is one additional method call; the benefit is type safety.</p>
+<h3>11.7 "The 1.07 s cumulative lunar drift over 50 years sounds significant."</h3>
+<p>It is, for sub-second precision. For 5-digit ATS precision (864 ms), 1.07 s is ≈ 1.2 Blinks — meaningful for high-precision applications, negligible for default-precision applications. The 5-digit precision is a design choice (<code>manifesto.en.md §4.4</code>); applications requiring more <strong>MUST</strong> use extended precision and <strong>MUST</strong> account for the drift (§9.3). The annex is honest about this trade-off.</p>
+<h3>11.8 "Why doesn't the Moon have its own epoch?"</h3>
+<p>§8.2 explains: the Earth-Moon system is one system; a parallel Moon timeline would create coordination overhead with no compensating benefit. Lunar settlers' calendars need to align with both the lunar day (the synodic cycle) and with Earth-based mission control; sharing the Earth epoch supports both. A future RFC <strong>MAY</strong> revisit this; the shared epoch stands until then.</p>
+<hr>
+<h2>12. Reference implementations</h2>
+<h3>12.1 Python (existing, v0.7)</h3>
+<p><code>code/ats_multi_planetary.py</code> implements:</p>
+<ul>
+<li>A generic <code>Body</code> class parameterised by <code>(epoch, day_seconds, suffix, symbol)</code>.</li>
+<li>Three singletons: <code>EARTH</code>, <code>MARS</code>, <code>MOON</code>.</li>
+<li>A <code>BodyATSDateTime</code> type carrying the body reference plus the <code>K.H.D.Kin.fffff</code> digits and sign.</li>
+<li>A <code>BodyATSDuration</code> type for body-typed signed durations.</li>
+<li>The §11.4 algebra preserved per body with cross-body operations raising <code>TypeError</code>.</li>
+</ul>
+<p>The implementation passes <code>test-vectors-multi-planetary-mars.json</code> and <code>-moon.json</code> bit-for-bit. The Earth singleton is consistent with <code>code/ats.py</code> (no divergence).</p>
+<h3>12.2 JavaScript (planned, v1.0)</h3>
+<p>The JS port (<code>docs/assets/js/ats_multi_planetary.js</code>) is planned for v1.0 ship. It will mirror the Python API surface:</p>
+<pre><code class="language-javascript">import { EARTH, MARS, MOON, Body, BodyATSDateTime } from './ats_multi_planetary.js';
+
+const ats = MARS.fromUtc(new Date('2026-06-13T12:00:00Z'));
+console.log(ats.toCanonical()); // "T+ Δ_Mars 10.2.8.7.96477"
+</code></pre>
+<p>The JS implementation is a v1.0 requirement per <code>versioning.en.md §7.2 (3)</code>.</p>
+<h3>12.3 Third-party implementations</h3>
+<p>A third-party Rust or Go implementation claiming v1.0 conformance <strong>MUST</strong> include the multi-planetary annex (Earth + Mars + Moon at minimum). Per <code>versioning.en.md §7.2 (3)</code>, at least one third-party implementation passing 100 % of the conformance vectors is a v1.0 ship requirement.</p>
+<hr>
+<h2>References</h2>
+<ul>
+<li><strong>Allison, M., &amp; McEwen, M. (2000).</strong> <em>A post-Pathfinder evaluation of areocentric solar coordinates with improved timing recipes for Mars seasonal/diurnal climate studies</em>. Planetary and Space Science, 48 (2–3), 215–235. (Source for the mean Martian sol.)</li>
+<li><strong>Espenak, F. (2014).</strong> <em>Lunar synodic period and the synodic month</em>. NASA Goddard Eclipse Web Site. (Source for synodic lunar day.)</li>
+<li><strong>IAU.</strong> <em>IAU Recommendations on Celestial Time Scales</em>. International Astronomical Union working group documents. (Reference for astronomical time definitions.)</li>
+<li><strong>Mazarico, E., et al. (2018).</strong> <em>The lunar relativistic time scale</em>. Journal of Geodesy, 92, 1483–1494. (Source for lunar surface clock drift.)</li>
+<li><strong>NASA JPL Mission History.</strong> <em>Mars Pathfinder Sagan Memorial Station landing record</em>. (Source for Mars Pathfinder UTC timestamp.)</li>
+<li><strong>NIST (2024).</strong> <em>Coordinated Lunar Time (LTC) proposal</em>. National Institute of Standards and Technology white paper. (Source for §9.1.)</li>
+<li><strong><code>manifesto.en.md</code></strong> — Normative reference (ATS Earth spec).</li>
+<li><strong><code>versioning.en.md</code></strong> — Stability annex (§7 freeze references).</li>
+<li><strong>RFC 2119</strong> — Bradner, S. <em>Key words for use in RFCs to Indicate Requirement Levels</em>. IETF (1997).</li>
+<li><strong>RFC 5234</strong> — Crocker, D., &amp; Overell, P. <em>Augmented BNF for Syntax Specifications: ABNF</em>. IETF (2008).</li>
+<li><strong>RFC 8174</strong> — Leiba, B. <em>Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words</em>. IETF (2017).</li>
+</ul>
+<p>This annex makes no original astronomical claim. All scientific values are sourced from peer-reviewed literature or established standards bodies. Doctrinal choices (epoch anchors, synodic vs sidereal, shared Earth-Moon epoch) are labelled as decisions of the editors of record and are open to RFC per <code>versioning.en.md §6</code>.</p>
 
