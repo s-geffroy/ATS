@@ -1,201 +1,146 @@
 # ATS — Roadmap
 
-Plan de travail consolidé pour les versions à venir (v0.4+). Les items sont indépendants sauf indication contraire — chaque "vague" peut être livrée seule.
+Plan de travail consolidé pour les versions à venir. Les items sont indépendants sauf indication contraire — chaque "vague" peut être livrée seule.
 
 **Légende effort** : XS (≤ 30 min) · S (≤ 2 h) · M (½ à 1 journée) · L (1–2 jours).
+**Statut** : ✅ livré · 🟢 en cours · ⬜ à faire.
 
 ---
 
-## Vague 1 — Quick wins (cumul ~2 h)
+## Ce qui est livré (v0.6.0 → v0.7.0)
 
-### 1.1 Pré-rendre le Markdown au commit · **S**
-- **Quoi** : script Node `scripts/render-md.mjs` qui lit `docs/spec/*.md` et émet `*.html` partiels prêts à inliner.
-- **Comment** : pre-commit hook (ou GitHub Action) qui régénère les HTML des pages manifesto/philosophy/comparison/FAQ. La balise `<script src=".../marked@13.0.3...">` et l'include DOMPurify disparaissent du runtime.
-- **Gain** : −35 KB sur 4 pages, TTI ÷ 2, supprime tout risque XSS résiduel sur le `.md`.
-- **Acceptance** : Lighthouse "Eliminate render-blocking resources" passe ; les pages markdown affichent leur contenu < 100 ms après chargement HTML.
-
-### 1.2 Toggle dark/light/auto explicite · **XS**
-- **Quoi** : bouton dans le header (à côté du lang-switch ou via `site.js`) avec 3 états mémorisés `localStorage["ats-theme"]`. Set `data-theme` sur `<html>`, CSS lit `[data-theme="dark"]` pour forcer la palette.
-- **Acceptance** : changement instantané, persiste entre pages, "auto" suit `prefers-color-scheme`.
-
-### 1.3 Permalien avec face (`?t=…&face=analog`) · **XS**
-- **Quoi** : le paramètre `face` choisit Numérique ou Analogique au chargement. Ajout au permalien partagé.
-- **Acceptance** : `?t=20.7.8.0.43210&face=analog` charge la face analogique figée à cet instant. Sans `face`, fallback sur la préférence localStorage.
-
-### 1.4 Audit Lighthouse complet · **S**
-- **Quoi** : lancer Lighthouse mobile + desktop sur l'horloge, le manifeste, embed, age. Capturer les scores.
-- **Suivre** : corriger les "easy wins" (font-display, defer manquants, dimensions d'image, etc.).
-- **Acceptance** : 4 catégories ≥ 90 sur ces 4 pages en mobile.
-
----
-
-## Vague 2 — Méthode : extensions doctrinales (cumul ~1 journée)
-
-### 2.1 Arithmétique des Δ et Δd formalisée · **S**
-- **Quoi** : nouvelle §11.4 (Durées — Algèbre) qui définit :
-  - Δ + Δd → Δ
-  - Δ − Δ → Δd (signe absolu)
-  - Δd + Δd → Δd, Δd × n → Δd, Δd ÷ n → Δd
-  - Comparaisons strictes <, ≤, =, ≥, > sur Δ et sur Δd
-  - Sémantique du débordement (Kilo non borné, frac sur N chiffres)
-- **Code** : `code/ats.py` reçoit `__add__`, `__sub__`, `__lt__`, `__eq__` sur `ATSDateTime` et une dataclass `ATSDuration`.
-- **Tests** : nouveaux vecteurs `arithmetic.json` (≥ 10 cas).
-- **Acceptance** : conformance Py + JS round-trip sur les opérations.
-
-### 2.2 Conventions sociales optionnelles · **S**
-- **Quoi** : annexe `docs/spec/conventions.{en,fr}.md` qui formalise (sans rendre obligatoire) :
-  - Kilo-versaire et Hecto-fête (déjà dans Philosophy mais épars)
-  - Rythme 7+3 sur la Deka comme convention proposée (pas imposée)
-  - Bandes solaires locales 08–22 par fuseau (les arcs villes de l'horloge analogique deviennent une convention citée)
-- **Acceptance** : le manifeste pointe l'annexe en §14 ; la page Philosophie y renvoie.
-
-### 2.3 Ponts calendaires (premier batch : Hébreu + Islamique) · **M**
-- **Quoi** : `code/bridges/{hebrew,islamic}.py` qui convertit `(date_hébraïque|hijri) ↔ Δ` via les algorithmes classiques (Falk pour hébreu, tabulaire pour islamique).
-- **UI** : convertisseur étendu sur la page horloge (un dropdown calendrier source).
-- **Test vectors** : 10 dates de référence par calendrier dans `test-vectors-bridges.json`.
-- **Acceptance** : conformance + UI fonctionnelle.
+| Item | Vague | Effort | Statut |
+|---|---|---|---|
+| Pré-rendre le Markdown au build (`scripts/render-md.mjs`) | 1.1 | S | ✅ v0.6 |
+| Permalien avec `?face=numeric\|analog` | 1.3 | XS | ✅ v0.6 |
+| Audit Lighthouse qualitatif (`lighthouse/v0.6.0.json`) | 1.4 | S | ✅ v0.6 |
+| Arithmétique des Δ et Δd formalisée + algèbre v0.6 §11.4 | 2.1 | S | ✅ v0.6 |
+| Annexe `conventions.{en,fr}.md` (Kilo-versaire, Hecto-fête, etc.) | 2.2 | S | ✅ v0.6 |
+| 5 ponts calendaires (`bridges/{hebrew,islamic,chinese,hindu,maya}.py`) | 2.3+ | M×5 | ✅ v0.6 |
+| Annexe Multi-planétaire normative + `EARTH`/`MARS`/`MOON` | 3.1 / V1.0-A | M | ✅ v0.7 |
+| PWA installable (`manifest.webmanifest` + `sw.js`) | 3.2 | M | ✅ v0.6 |
+| Pagefind search (manifeste + FAQ) | 5 | S | ✅ v0.6 |
+| Endpoint `/api/now.json` (cron GitHub Actions, `spec_version: "0.7"`) | 5 | M | ✅ v0.6 |
+| Page Test vectors interactive | 5 | S | ✅ v0.6 |
+| Easter egg Konami code → confetti | 5 | XS | ✅ v0.6 |
+| **Forme courte v0.7 `ΔK.H.D.Kin-BC.M`** (rupture, parseur strict) | — | M | ✅ v0.7 |
+| **Page Cités — carte du monde équirectangulaire** (~40 capitales) | — | M | ✅ v0.7 |
+| **Mode focus + camembert** au cadran analogique | — | M | ✅ v0.7 |
+| **Constructeur de villes personnalisées** (localStorage, 6 max) | 4.3 | M | ✅ v0.7 |
+| **Tests durcis** (Hypothesis 1000+ instants, bornes, leap second, perf) | V1.0-F | S | ✅ v0.7 |
+| **Lighthouse CI GitHub Actions** (4 pages × 4 catégories ≥ 90) | V1.0-D | S | ✅ v0.7 |
+| **Audit complet** (versions harmonisées, CSP, a11y, theme-aware, tz-utils) | — | M | ✅ v0.7 |
+| **Typographie hero `h1`** uniforme (`clamp 2–4rem`) sur 28 pages | — | XS | ✅ v0.7 |
 
 ---
 
-## Vague 3 — Multi-planétaire + PWA (cumul ~1 journée chacun)
+## Reste pour v1.0 — bloquants identifiés
 
-### 3.1 Annexe Multi-planétaire (Mars + Lune) · **M**
-- **Quoi** : `docs/spec/multi-planetary.{en,fr}.md` qui spécifie :
-  - `Δ_Mars` : compteur de sols (88 775 244 ms) depuis un point zéro à choisir (atterrissage Curiosity 2012-08-06T05:17:57Z ? ou Mars Pathfinder 1997 ?).
-  - `Δ_Moon` : pas de jour solaire mensuel, on garde le jour terrestre comme unité ; ancrage à 1969-07-20T20:17:40Z (alunissage).
-  - Mapping `Δ ↔ Δ_Mars ↔ Δ_Moon` (ratio fixe).
-  - Notation : `Δ⊕`, `Δ♂`, `Δ☾` (symboles astronomiques) en alternative.
-- **Code** : `code/ats_mars.py` (~50 lignes) et tests vectors.
-- **Site** : page "Multi-planetary" dans la nav avec horloges synchronisées Terre/Mars/Lune.
-- **Acceptance** : la rhétorique manifeste tient (horloge Mars opérationnelle).
-
-### 3.2 PWA installable · **M**
-- **Quoi** :
-  - `docs/manifest.webmanifest` (name, icons 192/512, theme-color, start_url, display: standalone)
-  - `docs/sw.js` minimal : cache-first sur `assets/css|js`, network-first sur HTML, fallback offline sur `/{fr,en}/`
-  - Favicon SVG (Δ stylisé) + variantes PNG 192/512
-  - `<link rel="manifest">` injecté dans toutes les pages
-- **Acceptance** : "Add to Home Screen" propose l'installation sur Chrome Android / Safari iOS. Horloge fonctionne offline (les arcs villes sont calculés localement, donc OK ; le clock-page.js + ats.js sont cachés).
-
----
-
-## Vague 4 — Implémentations larges + UX custom (cumul ~2-3 jours)
-
-### 4.1 Implémentation Rust de référence · **L**
-- **Quoi** : crate `ats` sur crates.io, dépendances minimales (`chrono` pour parse Greg). API symétrique au Python.
-- **Tests** : `cargo test` lit `docs/spec/test-vectors.json`, 10 vecteurs passent.
-- **CI** : matrix Rust stable + nightly dans `.github/workflows/ci.yml`.
-- **Doc** : `docs/{fr,en}/code.html` étendue avec onglet Rust.
-
-### 4.2 Implémentation Go · **L**
-- **Quoi** : module `github.com/s-geffroy/ats` avec `func Now() ATSDateTime`, conversion bidirectionnelle.
-- **Tests** : `go test`, mêmes vecteurs.
-- **CI** : matrix Go 1.21+.
-- **Doc** : onglet Go sur la page Code.
-
-### 4.3 Constructeur de villes (UI) · **M**
-- **Quoi** : dans `<details>` de la face analogique, un champ "Ajouter une ville" :
-  - Input ville (IANA timezone autocompleté) + couleur (color picker)
-  - Persistance dans `localStorage["ats-custom-cities"]`
-  - Bouton "Reset par défaut"
-- **Code** : étend `clock-page.js` pour fusionner CITIES par défaut + custom à `buildCityArcs`. Les rayons s'adaptent automatiquement.
-- **Acceptance** : ajouter "Sydney" (Australia/Sydney) → l'arc apparaît instantanément avec sa couleur.
-
-### 4.4 Implémentations supplémentaires (optionnelles) · **L chacune**
-- Kotlin (JVM + Android), Swift (iOS), Elixir.
-- Liées à l'adoption observée — pas prioritaire sans demande explicite.
-
----
-
-## Vague 5 — Optionnels / nice-to-have
-
-| Item | Effort | Quand |
-|---|---|---|
-| Ponts calendaires restants (Chinois, Hindou, Maya Long Count) | M chacun | si Vague 2.3 est bien reçue |
-| OG-image PNG (1200×630) générée au build via `rsvg-convert` ou Inkscape | XS | si LinkedIn/FB rendent mal l'OG SVG actuelle |
-| Recherche statique (Pagefind ou lunr.js sur FAQ + manifeste) | S | si le contenu grossit |
-| API endpoint `/api/now.json` (build-time régénéré par CI cron 1×/jour) | M | si demande externe |
-| Page "Test vectors" interactive (table + boutons copy) | S | aide pour implémenteurs tiers |
-| Service worker — Background Sync pour notifier les Kilo-versaires | L | utile seulement si PWA adoptée |
-| Easter egg : `Konami code` → confetti à chaque tick Beat | XS | pour le fun |
-| Themes alternatifs (terminal / aquarelle / néon) | M | bikeshedding, low ROI |
-
----
-
-## Ordre de priorité suggéré (top 5)
-
-1. **1.1 Pré-rendre Markdown** — pure gain technique, ~30 min, immédiatement visible.
-2. **3.1 Multi-planétaire** — colle la spec à sa rhétorique, fort potentiel viral.
-3. **3.2 PWA** — transforme le site en outil quotidien sur téléphone.
-4. **2.1 Arithmétique Δ/Δd** — rebouche un gap réel de la spec.
-5. **4.1 Rust** — crédibilité système, ouvre l'écosystème IoT/serveur.
-
----
-
-## Route vers v1.0 — blocants identifiés
-
-Items dérivés de l'audit « que manque-t-il pour une v1.0 vraiment solide ? » post-v0.6.0. L'item 1 (engagement de stabilité : `versioning.{en,fr}.md`, `SECURITY.md`, `GOVERNANCE.md`, `spec_version` dans les vecteurs) est **livré dans v0.6.0**. Les 9 suivants sont à traiter avant de tagger v1.0.
-
-### V1.0-A · Spec multi-planétaire (§3.1) · **M** · ✅ **livré**
-Décisions retenues : ancrage Mars **Pathfinder (1997-07-04T16:56:55Z)** ; ancrage Lune **partagé avec Terre** ; notation `Δ_<Body>` (ASCII) + `Δ⊕/♂/☾` (symbolique) ; périmètre Mars + Lune + cadre générique `Δ_X(epoch, day_seconds)` ; sol fixe (drift long-terme < 5 chiffres, documenté §8 non-normative). Livré :
-
-- `docs/spec/multi-planetary.{en,fr}.md` — annexe **normative** v0.7-rc1 (10 sections : définition générique, notation, paramètres corps v1.0, conversion, comparaisons inter-corps, cadre tiers, stabilité, relativisme, vecteurs, impl).
-- `code/ats_multi_planetary.py` — `Body` + `BodyATSDateTime` + singletons `EARTH/MARS/MOON`. Algèbre Δ/Δd préservée par corps, garde-fou TypeError sur arithmétique inter-corps.
-- `docs/spec/test-vectors-multi-planetary-{mars,moon}.json` — 10 vecteurs chacun, `spec_version: "0.7"`.
-- `tests/test_multi_planetary.py` — 8 cas verts (round-trip + algèbre + cross-body raises + body tiers ad-hoc).
-- Pages HTML `docs/{fr/multi-planetaire,en/multi-planetary}.html`, page test-vectors mise à jour, Pagefind index rebuild, Manifeste §14 cite l'annexe.
-
-Restera pour v1.0 final : porter `Body` + `BodyATSDateTime` en JS (cf. V1.0-C), ajouter des horloges Mars/Lune sur la page d'accueil (UI).
-
-### V1.0-B · 3ᵉ implémentation de référence (Rust ou Go) · **L**
-Sans une implémentation hors Python + JS, l'argument « standard universel » ne passe pas un comité. À choisir :
+### V1.0-B · 3ᵉ implémentation de référence (Rust **ou** Go) · **L** · ⬜
+Sans une implémentation hors Python + JS, l'argument « standard universel » ne tient pas. À choisir :
 - **Rust** (`ats` crate sur crates.io) — argumentaire systèmes / IoT / embedded, `no_std`-friendly.
 - **Go** (module `github.com/s-geffroy/ats`) — argumentaire serveurs / CLI / infra cloud.
-- **Les deux** (effort 2× L).
 
-Périmètre minimal de chaque implémentation : core `gregorian_to_ats` / `ats_to_gregorian` + algèbre §11.4 + parser canonique/court. Bridges calendaires optionnels. **CI matrix étendue** (matrix Rust stable/nightly ou Go 1.21+). **74 vecteurs verts**.
+Périmètre minimal : core `gregorian_to_ats` / `ats_to_gregorian` + algèbre §11.4 + parseurs canonique/court. Bridges calendaires optionnels. **CI matrix étendue** (Rust stable/nightly ou Go 1.21+). Les 12+10+10+10+10 vecteurs Earth/Mars/Moon/Hebrew/Islamic doivent passer.
 
-### V1.0-C · UI converter calendaire en JS · **M**
-Les 5 ponts (Hebrew, Islamic, Chinese, Hindu, Maya) sont Python-only. La promesse « universel » côté site n'est pas tenue. Porter Hebrew + Islamic + Maya (algorithmes courts, ~50–100 LoC chacun) en JS, ajouter dropdown calendar-source dans `clock-page.js`. Chinese (tables HKO 1900–2100) + Hindu (panchanga régional) restent Python-only documenté.
+### V1.0-C · UI converter calendaire en JS · **M** · ⬜
+Les 5 ponts (Hebrew, Islamic, Chinese, Hindu, Maya) sont Python-only. La promesse « universel » côté site n'est pas tenue. Porter Hebrew + Islamic + Maya (algorithmes courts, ~50–100 LoC chacun) en JS, ajouter dropdown calendar-source dans `clock-page.js`. Chinese (tables HKO 1900–2100) + Hindu (panchanga régional) restent Python-only — documenté.
 
-### V1.0-D · Lighthouse réel en CI Linux · **S**
-Le harness `lighthouse/` existe mais Apple Silicon empêche l'exécution locale. **GitHub Actions Linux runner** qui exécute `lighthouse/run-lighthouse.sh` sur chaque PR + assert ≥ 90 sur 4 catégories (Performance / Accessibility / Best Practices / SEO) sur les 4 pages cibles. Échec bloque le merge.
-
-### V1.0-E · i18n minimal au-delà FR/EN · **M**
+### V1.0-E · i18n minimal au-delà FR/EN · **M** · ⬜
 Un « standard universel » en 2 langues européennes est une contradiction. Ajouter **navigation + UI horloge** dans ES, DE, ZH, JA (4 langues couvrant ≈ 50 % des locuteurs natifs). Manifeste reste FR/EN ; seul le chrome multilingue. Outils : `data-i18n` attribute + `i18n/<lang>.json` chargés par `site.js`.
 
-### V1.0-F · Tests durcis · **S**
-- **Property-based** (Hypothesis) sur round-trip Δ → grégorien → Δ aléatoire sur 1 000 instants.
-- **Bornes** : Δ très négatif (kilo grand), Δ très futur (kilo ≥ 10 000), parsing d'inputs malformés (regex injection, séparateurs incorrects, frac > 5 chiffres).
-- **Leap second policy §8** : test explicite sur les instants 2016-12-31T23:59:60Z (skip / fold avec POSIX day = 86 400 s).
-- **Performance regression** : `bench/test_perf.py` qui mesure `gregorian_to_ats` à < 50 µs et publie en CI ; alarme si régression > 2×.
-
-### V1.0-G · Background sync §5.6 — revoir · **S**
+### V1.0-G · Background sync `§5.6` — décision à prendre · **S** · ⬜
 Ce qui est livré (Periodic Background Sync) ne fonctionne que sur Chrome desktop/Android avec PWA installée + permission. Sur > 95 % des configs, ça ne notifie jamais. Trois options :
 - **Retirer** et documenter comme expérimental, garder seulement le fallback in-page sur `age.html`.
 - **Backend Web Push** (compte hébergement requis, ~5 €/mois).
 - **Conserver tel quel** avec bandeau d'avertissement explicite dans `age.html`.
 
-### V1.0-H · Branding & artefacts release · **M**
-- **`npm publish`** de `@s-geffroy/ats` (l'entrée existe dans `package.json`, mais jamais poussée).
-- **`twine upload`** de `ats-time` sur PyPI (idem pour `pyproject.toml`).
-- **GitHub Releases signées GPG** avec `git tag -s v0.6.0`.
+### V1.0-H · Branding & artefacts release · **M** · ⬜
+- **`npm publish`** de `@s-geffroy/ats` (entrée existe dans `package.json`, jamais poussée).
+- **`twine upload`** de `ats-time` sur PyPI (idem `pyproject.toml`).
+- **GitHub Releases signées GPG** avec `git tag -s v0.7.0`.
 - Jeu favicon complet : `favicon.ico` (16/32/48), `apple-touch-icon.png` 180×180, `mstile-*.png` Windows.
-- Page « Press kit » : logo SVG/PNG en plusieurs résolutions, palette officielle (`#0b0f17 / #4a6cff / #e8eef7`), do/don't du symbole Δ.
+- Page « Press kit » : logo SVG/PNG plusieurs résolutions, palette officielle (`#0b0f17 / #4a6cff / #e8eef7`), do/don't du symbole Δ.
 
-### V1.0-I · Adoption tierce (signal externe) · **L** (effort éditorial)
+### V1.0-I · Adoption tierce (signal externe) · **L** (effort éditorial) · ⬜
 v1.0 sans **≥ 3 utilisateurs externes documentés** reste un projet personnel auto-déclaré standard. Critères mesurables :
 - ≥ 100 ★ GitHub + 10 forks indépendants, OU
 - ≥ 1 projet OSS tiers qui dépend de `@s-geffroy/ats` ou `ats-time`, OU
 - ≥ 1 mention dans un article de blog tiers / talk de conf / RFC / discussion ISO.
 
-Précurseurs : `Show HN`, `Bluesky`, `Reddit r/ISO8601`, soumission lightning talk OSCON / FOSDEM, article de blog « Why ATS » (déjà cité plus bas).
+Précurseurs : `Show HN`, `Bluesky`, `Reddit r/ISO8601`, soumission lightning talk OSCON / FOSDEM, article de blog « Why ATS ».
+
+### V1.0-F · Tests durcis — reste de la liste · **S** · 🟢 partiel
+Livré en v0.7 : property-based Hypothesis (1000 instants), bornes Kilo/frac/parser, leap second policy explicite, perf `gregorian_to_ats < 100 µs` médian.
+Reste à faire :
+- **JS property-based** : porter le même test à `tests/test_property.mjs` (avec `fast-check`).
+- **Perf JS** : équivalent du `test_perf.py` côté navigateur (bench `toShort` + `gregorian_to_ats` à 10 Hz tick budget).
+- **Compteur tail-p99** explicite dans le rapport de régression (pas seulement médian + p95).
+
+---
+
+## Vague 1 — quick wins restants
+
+### 1.2 Toggle dark/light/auto explicite · **XS** · ⬜
+Le site utilise déjà `Canvas` / `CanvasText` + `color-mix(in oklab, …)` partout (l'audit v0.7 a éliminé les hex codés en dur), donc le rendu suit automatiquement `prefers-color-scheme`. Reste à ajouter un **bouton 3 états** (light/dark/auto) qui force `data-theme` sur `<html>`, persistance `localStorage["ats-theme"]`. ~30 min.
+
+---
+
+## Vague 4 — implémentations larges restantes
+
+### 4.1 / 4.2 Rust + Go — voir V1.0-B ⬜
+
+### 4.4 Implémentations supplémentaires (optionnelles) · **L chacune** · ⬜
+- Kotlin (JVM + Android), Swift (iOS), Elixir.
+- Liées à l'adoption observée — pas prioritaires sans demande explicite.
+
+---
+
+## Vague 5 — optionnels / nice-to-have
+
+| Item | Effort | Statut | Quand |
+|---|---|---|---|
+| OG-image PNG (1200×630) générée au build via `rsvg-convert` | XS | ⬜ | si LinkedIn/FB rendent mal l'OG SVG actuelle |
+| Service worker — Background Sync pour notifier les Kilo-versaires | L | ⬜ | utile seulement si PWA largement adoptée ; cf. V1.0-G |
+| Themes alternatifs (terminal / aquarelle / néon) explicites | M | ⬜ | bikeshedding, low ROI — déjà compatible via `prefers-color-scheme` system |
+| Mini-horloges Mars/Lune sur la page d'accueil | S | ⬜ | extension UI naturelle de V1.0-A |
+| Carte des fuseaux ATS sur la page Cités (vs. carte d'activités) | M | ⬜ | si le visiteur veut « quel Bloc à Tokyo maintenant ? » |
+| Page « Code » étendue avec onglets Rust / Go (après V1.0-B) | XS | ⬜ | quand V1.0-B est livré |
+
+---
+
+## Ordre de priorité suggéré (top 4)
+
+1. **V1.0-D Lighthouse CI** ✅ livré v0.7 — la ceinture de sécurité protège tout ce qui suit.
+2. **V1.0-F Tests durcis** ✅ livré v0.7 — Hypothesis a déjà attrapé un bug d'invariant dans son écriture.
+3. **V1.0-B Rust ou Go** — la crédibilité « standard » bascule à partir de la 3ᵉ impl. Reco : **Rust** (plus haute valeur signal pour la communauté time/std).
+4. **V1.0-C UI converter calendaire JS** — finit de fermer la promesse « universel » côté browser, ~½ journée.
+
+Après V1.0-B et V1.0-C, on est à un cheveu de la v1.0 — il reste V1.0-E (i18n minimal), V1.0-G (décision background sync), V1.0-H (branding/release artifacts), V1.0-I (adoption externe).
+
+---
+
+## Route vers v1.0 — récapitulatif
+
+| Bloquant | Effort | Statut |
+|---|---|---|
+| V1.0-A · Spec multi-planétaire | M | ✅ |
+| V1.0-B · 3ᵉ impl (Rust ou Go) | L | ⬜ |
+| V1.0-C · UI converter calendaire JS | M | ⬜ |
+| V1.0-D · Lighthouse CI Linux | S | ✅ |
+| V1.0-E · i18n minimal (ES, DE, ZH, JA) | M | ⬜ |
+| V1.0-F · Tests durcis | S | 🟢 (partiel : Python ok, JS à faire) |
+| V1.0-G · Background sync — décision | S | ⬜ |
+| V1.0-H · Branding & release artifacts | M | ⬜ |
+| V1.0-I · Adoption tierce (signal externe) | L | ⬜ |
+
+**3 sur 9 fermés.** Restent : 1 L technique (Rust/Go), 1 M technique (JS converter), 1 M éditorial (i18n), 1 S décision (background sync), 1 M release (branding), 1 L externe (adoption), 1 S complétion (JS property-based).
 
 ---
 
 ## Hors-roadmap (mais à garder en tête)
 
-- **Show HN / Bluesky / Reddit `r/ISO8601`** — campagne d'annonce après Vague 3 (PWA + multi-planétaire).
+- **Show HN / Bluesky / Reddit `r/ISO8601`** — campagne d'annonce **après** V1.0-B (la 3ᵉ impl donne le levier).
 - **Demande à l'IANA** d'un sous-namespace pour ATS-aware applications (long terme).
-- **Article de blog "Why ATS"** synthétisant Philosophy + Comparison + FAQ — un seul lien à partager.
-- **Conférence d'idée** sur le calendrier décimal — peut-être Hack Days ou OSCON.
+- **Article de blog « Why ATS »** synthétisant Philosophy + Comparison + FAQ — un seul lien à partager.
+- **Conférence d'idée** sur le calendrier décimal — peut-être Hack Days ou FOSDEM.
