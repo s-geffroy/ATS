@@ -265,7 +265,7 @@
   // Colors are reshuffled (vs alphabetical/rainbow order) so adjacent cities
   // around the dial never share a hue family — every third step on the wheel.
   // Minimum hue gap between neighbours: 75° (DXB pink → BJG gold).
-  const CITIES = [
+  const DEFAULT_CITIES = [
     { code: 'LA',  tz: 'America/Los_Angeles', label: 'Los Angeles',                                 color: '#ef4444' }, // red
     { code: 'NYC', tz: 'America/New_York',    label: 'New York',                                    color: '#22c55e' }, // green
     { code: 'LDN', tz: 'Europe/London',       label: lang === 'fr' ? 'Londres'   : 'London',        color: '#8b5cf6' }, // purple
@@ -275,6 +275,11 @@
     { code: 'BJG', tz: 'Asia/Shanghai',       label: lang === 'fr' ? 'Pékin'     : 'Beijing',       color: '#eab308' }, // gold
     { code: 'TKO', tz: 'Asia/Tokyo',          label: 'Tokyo',                                       color: '#06b6d4' }, // cyan
   ];
+  // Mutated through addCustomCity / resetCustomCities — buildCityArcs reads
+  // the current effective list. Filled in from localStorage at boot.
+  const CUSTOM_CITIES_KEY = 'ats-custom-cities';
+  const MAX_CUSTOM_CITIES = 6;
+  let CITIES = DEFAULT_CITIES.slice();
   // Pattern per slot:
   //   matin       08-12 — dashed (hachures)
   //   midi        12-14 — solid
@@ -601,8 +606,140 @@
     });
   }
 
+  // -------- Custom cities (user-added pins on the analog dial) ----------
+  // Each entry shape: { code, label, tz, color }. Same shape as DEFAULT_CITIES
+  // — they are merged together and fed to buildCityArcs(). Persistence is
+  // purely local; nothing ever leaves the browser.
+  function loadCustomCities() {
+    try {
+      const raw = localStorage.getItem(CUSTOM_CITIES_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      // Defensive validation — survives older formats / hand-edited storage.
+      return parsed.filter(function (c) {
+        return c && typeof c.code === 'string' && typeof c.label === 'string'
+            && typeof c.tz === 'string' && typeof c.color === 'string';
+      }).slice(0, MAX_CUSTOM_CITIES);
+    } catch (e) { return []; }
+  }
+  function saveCustomCities(list) {
+    try { localStorage.setItem(CUSTOM_CITIES_KEY, JSON.stringify(list)); } catch (e) {}
+  }
+  function rebuildCityList() {
+    const customs = loadCustomCities();
+    CITIES = DEFAULT_CITIES.concat(customs);
+    buildCityArcs();
+    renderCustomCityList(customs);
+  }
+  function renderCustomCityList(customs) {
+    const ul = document.getElementById('custom-city-list');
+    if (!ul) return;
+    ul.innerHTML = '';
+    customs.forEach(function (city, idx) {
+      const li = document.createElement('li');
+      li.className = 'custom-city-item';
+      const swatch = document.createElement('span');
+      swatch.className = 'custom-city-swatch';
+      swatch.style.background = city.color;
+      li.appendChild(swatch);
+      const name = document.createElement('span');
+      name.className = 'custom-city-name';
+      name.textContent = city.code + ' — ' + city.label + ' (' + city.tz + ')';
+      li.appendChild(name);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'custom-city-remove';
+      btn.setAttribute('aria-label', (lang === 'fr' ? 'Retirer ' : 'Remove ') + city.label);
+      btn.textContent = '×';
+      btn.addEventListener('click', function () {
+        const next = loadCustomCities();
+        next.splice(idx, 1);
+        saveCustomCities(next);
+        rebuildCityList();
+      });
+      li.appendChild(btn);
+      ul.appendChild(li);
+    });
+  }
+  function populateIanaDatalist() {
+    const dl = document.getElementById('iana-tz-list');
+    if (!dl || dl.childElementCount > 0) return;
+    let zones = [];
+    try {
+      if (Intl.supportedValuesOf) zones = Intl.supportedValuesOf('timeZone');
+    } catch (e) {}
+    if (!zones.length) return; // Safari < 15.4 lacks supportedValuesOf — datalist stays empty, type-in still works.
+    const frag = document.createDocumentFragment();
+    zones.forEach(function (z) {
+      const opt = document.createElement('option');
+      opt.value = z;
+      frag.appendChild(opt);
+    });
+    dl.appendChild(frag);
+  }
+  function bindCustomCityForm() {
+    const form = document.getElementById('custom-city-form');
+    if (!form) return;
+    const codeEl  = document.getElementById('customCityCode');
+    const labelEl = document.getElementById('customCityLabel');
+    const tzEl    = document.getElementById('customCityTz');
+    const colorEl = document.getElementById('customCityColor');
+    const statusEl = document.getElementById('customCityStatus');
+    function setStat(msg, ok) {
+      if (!statusEl) return;
+      statusEl.textContent = msg;
+      statusEl.className = 'status ' + (ok === false ? 'err' : 'ok');
+    }
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      const code  = codeEl.value.trim().toUpperCase();
+      const label = labelEl.value.trim();
+      const tz    = tzEl.value.trim();
+      const color = colorEl.value;
+      const T = lang === 'fr' ? {
+        bad_code: 'Code invalide (2-4 lettres).',
+        bad_tz:   'Fuseau IANA invalide.',
+        dup:      'Code déjà utilisé.',
+        full:     'Maximum atteint (6 villes personnalisées).',
+        added:    'Ajouté.',
+      } : {
+        bad_code: 'Invalid code (2-4 letters).',
+        bad_tz:   'Invalid IANA time zone.',
+        dup:      'Code already in use.',
+        full:     'Maximum reached (6 custom cities).',
+        added:    'Added.',
+      };
+      if (!/^[A-Z]{2,4}$/.test(code)) { setStat(T.bad_code, false); return; }
+      // Validate tz by asking Intl to build a formatter — throws if unknown.
+      try { new Intl.DateTimeFormat('en-US', { timeZone: tz }).format(new Date()); }
+      catch (e) { setStat(T.bad_tz, false); return; }
+      const customs = loadCustomCities();
+      if (customs.length >= MAX_CUSTOM_CITIES) { setStat(T.full, false); return; }
+      const allCodes = DEFAULT_CITIES.concat(customs).map(function (c) { return c.code; });
+      if (allCodes.indexOf(code) !== -1) { setStat(T.dup, false); return; }
+      customs.push({ code: code, label: label, tz: tz, color: color });
+      saveCustomCities(customs);
+      rebuildCityList();
+      setStat(T.added, true);
+      codeEl.value = ''; labelEl.value = ''; tzEl.value = '';
+    });
+    const resetBtn = document.getElementById('btnResetCustomCities');
+    if (resetBtn) resetBtn.addEventListener('click', function () {
+      saveCustomCities([]);
+      rebuildCityList();
+      setStat(lang === 'fr' ? 'Réinitialisé.' : 'Reset.', true);
+    });
+  }
+
   buildAnalogTicks();
+  // Pre-load custom cities BEFORE first buildCityArcs so they appear on
+  // first render without a flash of the default-only dial.
+  CITIES = DEFAULT_CITIES.concat(loadCustomCities());
   buildCityArcs();
+  populateIanaDatalist();
+  bindCustomCityForm();
+  renderCustomCityList(loadCustomCities());
   selectFace(currentFace);
 
   // -------- Frozen / live mode --------

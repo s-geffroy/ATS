@@ -153,6 +153,36 @@
             Mode strict — l'aiguille Milli saute aussi (cohérent avec la spec, moins fluide)
           </label>
         </div>
+
+        <div class="custom-cities">
+          <h3>Mes villes (cadran analogique)</h3>
+          <p class="muted">Ajoute jusqu'à 6 villes personnalisées aux 8 villes par défaut. Persistance locale (<code>localStorage</code>), rien n'est envoyé.</p>
+          <form id="custom-city-form" class="custom-city-form" autocomplete="off">
+            <label class="lbl-inline">
+              <span class="lbl">Code (2-4 lettres)</span>
+              <input id="customCityCode" type="text" maxlength="4" minlength="2" pattern="[A-Za-z]{2,4}" required placeholder="SYD" />
+            </label>
+            <label class="lbl-inline">
+              <span class="lbl">Nom complet</span>
+              <input id="customCityLabel" type="text" maxlength="32" required placeholder="Sydney" />
+            </label>
+            <label class="lbl-inline">
+              <span class="lbl">Fuseau IANA</span>
+              <input id="customCityTz" type="text" list="iana-tz-list" required placeholder="Australia/Sydney" />
+              <datalist id="iana-tz-list"></datalist>
+            </label>
+            <label class="lbl-inline">
+              <span class="lbl">Couleur</span>
+              <input id="customCityColor" type="color" value="#7cffa1" required />
+            </label>
+            <div class="actions">
+              <button type="submit" id="btnAddCustomCity">Ajouter</button>
+              <button type="button" id="btnResetCustomCities">Réinitialiser</button>
+              <span id="customCityStatus" class="status ok">—</span>
+            </div>
+          </form>
+          <ul id="custom-city-list" class="custom-city-list"></ul>
+        </div>
       </details>
     </section>
   </main>

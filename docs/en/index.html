@@ -153,6 +153,36 @@
             Strict mode — Milli hand snaps too (spec-faithful, less smooth)
           </label>
         </div>
+
+        <div class="custom-cities">
+          <h3>My cities (analog dial)</h3>
+          <p class="muted">Add up to 6 custom cities on top of the 8 defaults. Stored locally (<code>localStorage</code>) — nothing leaves the browser.</p>
+          <form id="custom-city-form" class="custom-city-form" autocomplete="off">
+            <label class="lbl-inline">
+              <span class="lbl">Code (2-4 letters)</span>
+              <input id="customCityCode" type="text" maxlength="4" minlength="2" pattern="[A-Za-z]{2,4}" required placeholder="SYD" />
+            </label>
+            <label class="lbl-inline">
+              <span class="lbl">Full name</span>
+              <input id="customCityLabel" type="text" maxlength="32" required placeholder="Sydney" />
+            </label>
+            <label class="lbl-inline">
+              <span class="lbl">IANA time zone</span>
+              <input id="customCityTz" type="text" list="iana-tz-list" required placeholder="Australia/Sydney" />
+              <datalist id="iana-tz-list"></datalist>
+            </label>
+            <label class="lbl-inline">
+              <span class="lbl">Color</span>
+              <input id="customCityColor" type="color" value="#7cffa1" required />
+            </label>
+            <div class="actions">
+              <button type="submit" id="btnAddCustomCity">Add</button>
+              <button type="button" id="btnResetCustomCities">Reset</button>
+              <span id="customCityStatus" class="status ok">—</span>
+            </div>
+          </form>
+          <ul id="custom-city-list" class="custom-city-list"></ul>
+        </div>
       </details>
     </section>
   </main>
