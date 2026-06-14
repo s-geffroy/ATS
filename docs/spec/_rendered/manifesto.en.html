@@ -1,31 +1,161 @@
 <h1>The Apollonian Time System (ATS)</h1>
 <p><strong>Status:</strong> Pre-release v0.7
-<strong>Symbol:</strong> Δ
-<strong>Authoritative language:</strong> English (French is a translation)
-<strong>Core idea:</strong> Replace the Gregorian <em>year/month/week + local time</em> model with a single, universal, decimal, linear time standard anchored to a species-level technological milestone.</p>
+<strong>Symbol:</strong> Δ (U+0394 GREEK CAPITAL LETTER DELTA)
+<strong>Authoritative language:</strong> English. The French translation (<code>manifesto.fr.md</code>) is provided for accessibility; in case of divergence, this document controls.
+<strong>Document type:</strong> Normative specification with non-normative annexes.
+<strong>Canonical location:</strong> <code>https://github.com/s-geffroy/ATS</code> — file <code>docs/spec/manifesto.en.md</code>.
+<strong>Core assertion:</strong> ATS is the universal computational time standard for networked, multi-site, and multi-planetary civilisation. It replaces the Gregorian <em>year / month / week + local time</em> model with a single, decimal, linear counter anchored on a species-level technological milestone.</p>
 <hr>
-<h2>1. What ATS is</h2>
-<p>ATS is a <strong>continuous counter</strong> anchored to a single epoch and expressed in <strong>base‑10 positional units</strong>.</p>
+<h2>0. Conventions</h2>
+<h3>0.1 Requirement levels</h3>
+<p>The key words <strong>MUST</strong>, <strong>MUST NOT</strong>, <strong>REQUIRED</strong>, <strong>SHALL</strong>, <strong>SHALL NOT</strong>, <strong>SHOULD</strong>, <strong>SHOULD NOT</strong>, <strong>RECOMMENDED</strong>, <strong>NOT RECOMMENDED</strong>, <strong>MAY</strong>, and <strong>OPTIONAL</strong> in this document are to be interpreted as described in BCP 14 [RFC 2119, RFC 8174] when, and only when, they appear in all capitals.</p>
+<h3>0.2 Notation</h3>
 <ul>
-<li><strong>Linear:</strong> time is measured as elapsed days (and day‑fractions) since the epoch.</li>
-<li><strong>Decimal:</strong> all subdivisions are powers of 10.</li>
-<li><strong>Universal:</strong> one time for everyone; no time zones inside the system.</li>
+<li>Grammars are expressed in ABNF [RFC 5234].</li>
+<li>Pseudo-code uses a Python-flavoured imperative form for legibility; conformant implementations <strong>MAY</strong> use any programming language.</li>
+<li>Hexadecimal literals are prefixed <code>0x</code>. Integer literals use the <code>123_456</code> underscore-separator convention.</li>
+<li>UTC instants are written in ISO 8601 / RFC 3339 form (<code>YYYY-MM-DDTHH:MM:SS.ssssssZ</code>).</li>
+<li>Time intervals expressed as "seconds" refer to <strong>SI seconds on the UTC time scale</strong>, not TAI seconds, unless otherwise noted.</li>
 </ul>
-<p>The result is a time representation that is easier to compute with, easier to compare statistically, and designed for a networked, multi‑site, and eventually multi‑planetary civilization.</p>
+<h3>0.3 Glossary (condensed)</h3>
+<p>The full glossary is §17. Quick reference:</p>
+<ul>
+<li><strong>ATS</strong> — Apollonian Time System; this standard.</li>
+<li><strong>Epoch</strong> — The reference instant <code>1969-07-20T00:00:00Z</code> (§2).</li>
+<li><strong>Δ</strong> — The ATS symbol, U+0394, UTF-8 bytes <code>0xCE 0x94</code>. Used as the instant prefix.</li>
+<li><strong>Δd</strong> — Duration prefix (§11).</li>
+<li><strong>T+, T-</strong> — Direction markers: post-epoch, pre-epoch (§3).</li>
+<li><strong>Kin, Deka, Hecto, Kilo</strong> — Macro positional units (1, 10, 100, 1 000 days).</li>
+<li><strong>Bloc, Centi, Milli, Beat, Blink</strong> — Micro positional units (0.1, 0.01, 0.001, 0.0001, 0.00001 day).</li>
+<li><strong>Canonical form</strong> — Fully-qualified positional representation (§4).</li>
+<li><strong>Short form</strong> — Conversational truncated representation (§5).</li>
+<li><strong>UTC</strong> — Coordinated Universal Time as defined by ITU-R TF.460 and aligned via POSIX semantics in §8.</li>
+</ul>
+<hr>
+<h2>1. Scope</h2>
+<p>ATS is a <strong>continuous coordinate system on the UTC time axis</strong>: a deterministic, bijective mapping from a UTC instant <code>t</code> to a positional base-10 string <code>ats(t)</code>. The mapping is:</p>
+<ul>
+<li><strong>Linear</strong> — <code>ats(t)</code> is the count of elapsed days (and day-fractions) since the epoch. There is no cyclic component.</li>
+<li><strong>Decimal</strong> — all positional units are powers of 10; there is no mixed radix.</li>
+<li><strong>Universal</strong> — there is exactly one ATS value per UTC instant. The system has no time-zone, locale, or calendar parameter.</li>
+</ul>
+<p>Implementations <strong>MUST</strong> treat ATS values as identifiers of UTC instants. Implementations <strong>MUST NOT</strong> attach time-zone, locale, or calendar metadata to a stored ATS value. Software interfaces transporting ATS values <strong>MUST NOT</strong> carry a time-zone field.</p>
+<p>The benefits ATS delivers, in order of priority:</p>
+<ol>
+<li><strong>Unambiguous interchange</strong> — two systems exchanging ATS values cannot disagree about the instant being referenced.</li>
+<li><strong>Computational simplicity</strong> — duration arithmetic, scheduling, and statistical comparison reduce to ordinary base-10 arithmetic.</li>
+<li><strong>Long-horizon scalability</strong> — Kilo is unbounded; the format remains stable across centuries and across celestial bodies (per the multi-planetary annex).</li>
+<li><strong>Cultural neutrality</strong> — the system has one anchor and one set of units, identical for every user.</li>
+</ol>
+<h3>1.1 What ATS is not</h3>
+<p>To prevent category errors and pre-empt avoidable disputes, four boundaries are made explicit:</p>
+<ol>
+<li><p><strong>ATS is not a theory about the nature of time.</strong> Relativistic effects (gravitational time dilation, frame dragging, simultaneity disagreements) apply to UTC and therefore to ATS unchanged. ATS inherits UTC's coordinate semantics; it asserts nothing additional about physics. The word "linear" in this document <strong>MUST</strong> be read as "linear coordinates on the UTC time axis", not as a metaphysical claim.</p>
+</li>
+<li><p><strong>ATS is not a replacement for cultural, religious, or civic calendars.</strong> Lunar (Hebrew, Islamic), lunisolar (Chinese, Hindu), ecclesiastical (Liturgical), fiscal, academic, and civic calendars <strong>MAY</strong> coexist with ATS as independent presentations of the same UTC instant. ATS provides interoperability between such systems; it does not displace them. See §13.</p>
+</li>
+<li><p><strong>ATS is not a clock-synchronisation protocol.</strong> NTP [RFC 5905], PTP [IEEE 1588], GNSS, and TAI dissemination feed ATS implementations. They do not compete with ATS. ATS is a <em>representation</em>, not a <em>clock</em>.</p>
+</li>
+<li><p><strong>ATS does not assert that base 10 is metaphysically privileged.</strong> Base 10 is selected because its adoption friction across SI units, currencies, financial reporting, scientific notation, and digital computing is the lowest of any positional base. The choice is engineering, not numerology.</p>
+</li>
+</ol>
+<h3>1.2 Biological alignment</h3>
+<p>ATS is not only convenient for computation; its unit ladder <strong>tracks empirical biological cycles</strong>. This alignment is not a coincidence of base-10 — it reflects the fact that the natural unit of human life is the solar day, and that human physiology subdivides that day in approximate base-10 ratios. Each ATS unit corresponds to a measured granularity of human cognition or behaviour.</p>
+<p><strong>Micro units (intra-day) and chronobiology:</strong></p>
+<table>
+<thead>
+<tr>
+<th>ATS unit</th>
+<th>Duration</th>
+<th>Biological correlate</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Kin</strong> (1 day)</td>
+<td>24 h</td>
+<td>Circadian cycle — sleep/wake, cortisol, core body temperature</td>
+</tr>
+<tr>
+<td><strong>Bloc</strong> (0.1 day)</td>
+<td>2 h 24 min</td>
+<td>Ultradian rest–activity cycle — the natural span of deep focus before measurable fatigue, validated across vigilance, EEG, and basal hormonal studies (BRAC, Kleitman)</td>
+</tr>
+<tr>
+<td><strong>Centi</strong> (0.01 day)</td>
+<td>14 min 24 s</td>
+<td>Micro-task focus — the span of sustained attention on a single task, congruent with the Pomodoro micro-block and meditation "sit" intervals</td>
+</tr>
+<tr>
+<td><strong>Milli</strong> (0.001 day)</td>
+<td>1 min 26 s</td>
+<td>Slow respiratory regulation — 12 breaths at the calm pace of 6 breaths/min, the standard breathwork and meditation cadence</td>
+</tr>
+<tr>
+<td><strong>Beat</strong> (0.0001 day)</td>
+<td>8.64 s</td>
+<td>Attention beat — the span of a single conversational turn, one inhale-exhale at active rest, or one heartbeat coupling cycle (HRV LF band)</td>
+</tr>
+<tr>
+<td><strong>Blink</strong> (0.00001 day)</td>
+<td>0.864 s</td>
+<td>Reaction window — close to the upper bound of choice-reaction time and one slow voluntary eye blink</td>
+</tr>
+</tbody></table>
+<p><strong>Macro units (cross-day) and chronosociology:</strong></p>
+<table>
+<thead>
+<tr>
+<th>ATS unit</th>
+<th>Duration</th>
+<th>Biological / social correlate</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Kin</strong> (1 day)</td>
+<td>24 h</td>
+<td>The solar day — the reference unit of every chronobiological measurement</td>
+</tr>
+<tr>
+<td><strong>Deka</strong> (10 days)</td>
+<td>≈ 1.4 weeks</td>
+<td>Work-rest oscillation — the practical span over which fatigue accumulates and recovery is meaningful (training periodisation, shift work studies)</td>
+</tr>
+<tr>
+<td><strong>Hecto</strong> (100 days)</td>
+<td>≈ 3.3 months</td>
+<td>Season / planning quarter — the practical limit of human medium-term planning before priorities drift (OKR cadence, academic terms)</td>
+</tr>
+<tr>
+<td><strong>Kilo</strong> (1 000 days)</td>
+<td>≈ 2.7 years</td>
+<td>Multi-year project — the typical span of focused research projects, electoral mandates short of legislative cycles, or sustained skill acquisition (10 000 hours ≈ 1.25 Kilo at 8 h/day)</td>
+</tr>
+<tr>
+<td>Generation (informal, ≈ 10 000 days)</td>
+<td>≈ 27.4 years</td>
+<td>Demographic generation turnover — useful only for multi-generational discourse (cf. §4.2 note)</td>
+</tr>
+</tbody></table>
+<p>ATS is therefore not merely <em>imposed</em> on biology; the ladder is <em>legible</em> against biology. The Pomodoro Technique (≈ 25 min, between Centi and 2× Centi), the ultradian rhythm (90–120 min, close to one Bloc), the OKR quarter (≈ Hecto), and the "10 000-hour mastery" heuristic (≈ 1 Kilo of professional time) were all discovered independently of ATS. Each finds a normalised place in the ATS coordinate system.</p>
+<blockquote>
+<p>This alignment is <strong>non-normative</strong> — implementations cannot test for it, and the standard does not require any user to follow these correspondences. But the alignment is <strong>integral to the rationale</strong>: §1.1 states ATS does not assert base 10 is metaphysical; §1.2 explains why base 10 nonetheless lines up with measured human cycles once the solar day is the anchor.</p>
+</blockquote>
 <hr>
 <h2>2. Epoch (Point Zero)</h2>
-<p>ATS uses a technological, species-level milestone as its reference point: <strong>the day humanity first landed on another world.</strong></p>
+<p>ATS uses a verifiable, species-level technological milestone as its single reference instant: <strong>the day on which a member of the human species first occupied, in person, the surface of a body other than Earth</strong>.</p>
 <ul>
-<li><strong>Epoch event:</strong> start of the Apollo 11 landing day (UTC midnight boundary).</li>
-<li><strong>Epoch in UTC:</strong> <strong>1969‑07‑20T00:00:00Z</strong>.</li>
-<li><strong>ATS epoch value:</strong> <strong><code>T+ Δ 0.0.0.0.00000</code></strong>.</li>
-<li><strong>Lunar landing instant</strong> (Eagle touchdown, 20:17:40Z): a remarkable instant <em>within</em> Δ 0, at <strong><code>T+ Δ 0.0.0.0.84560</code></strong> — Bloc 8, Centi 4, Deka 5, Kin 6 in the intra-day breakdown (see §4.3).</li>
+<li><strong>Epoch event</strong> — The Apollo 11 lunar landing day. Eagle touchdown is the witnessed instant; the epoch is set on the UTC midnight that begins that day.</li>
+<li><strong>Epoch in UTC</strong> — <code>1969-07-20T00:00:00Z</code>.</li>
+<li><strong>Epoch in ATS</strong> — <code>T+ Δ 0.0.0.0.00000</code>.</li>
+<li><strong>Touchdown instant</strong> — <code>1969-07-20T20:17:40Z</code> is preserved as a remarkable point inside Δ 0 at <code>T+ Δ 0.0.0.0.84560</code> (Bloc 8, Centi 4, Deka 5, Kin 6 in the intra-day breakdown).</li>
 </ul>
-<blockquote>
-<p><strong>Rationale.</strong> Anchoring on the <em>start</em> of 1969‑07‑20 (UTC) — rather than on the touchdown instant (20:17:40Z) used during earlier drafts — aligns the day counter with UTC: <strong>Bloc 5 corresponds exactly to 12:00 UTC</strong> (5 × 2 h 24 min). The world remembers the date "July 20, 1969"; ATS keeps that date and snaps it to a midnight-UTC boundary, while preserving the touchdown moment as a celebrated instant inside Δ 0.</p>
-</blockquote>
-<h3>2.1 Alternative anchors (rejected)</h3>
-<p>For historical reference, other anchor points were considered and rejected:</p>
+<h3>2.1 Why the start of the day, not the touchdown instant</h3>
+<p>The epoch <strong>MUST</strong> be anchored on the UTC midnight of the landing date. The alternative (touchdown instant) would offset the day counter from UTC and make Bloc 5 fall at 08:17:40 UTC instead of 12:00 UTC. The chosen anchor preserves the property:</p>
+<pre><code>Bloc 5  ≡  12:00 UTC exactly
+Bloc 0  ≡  00:00 UTC exactly
+</code></pre>
+<p>This property is load-bearing for the analog dial (<code>analog-clock.md</code>), for human pedagogy, and for the cron-driven <code>/api/now.json</code> snapshot. The touchdown moment is preserved as a celebrated point within Δ 0 so the cultural meaning is not lost.</p>
+<h3>2.2 Rejected alternative anchors</h3>
 <table>
 <thead>
 <tr>
@@ -35,58 +165,89 @@
 </tr>
 </thead>
 <tbody><tr>
-<td>Exact touchdown instant</td>
-<td>1969‑07‑20T20:17:40Z</td>
-<td>Misaligns the day counter from UTC: Bloc 5 falls at 08:17:40 UTC instead of noon. Pedagogically confusing.</td>
+<td>Apollo 11 touchdown instant</td>
+<td>1969-07-20T20:17:40Z</td>
+<td>Misaligns the day counter from UTC: Bloc 5 falls at 08:17:40 UTC. Pedagogically and computationally confusing.</td>
 </tr>
 <tr>
 <td>Sputnik 1 launch</td>
-<td>1957‑10‑04T19:28:34Z</td>
-<td>Robotic, no human presence beyond Earth</td>
+<td>1957-10-04T19:28:34Z</td>
+<td>Robotic; no member of the species left the planet. Marks human capability, not human presence elsewhere.</td>
 </tr>
 <tr>
 <td>Hiroshima</td>
-<td>1945‑08‑06T08:15:00Z</td>
-<td>Civilization-marking but negative</td>
+<td>1945-08-06T08:15:00Z</td>
+<td>Civilisation-marking, but the species would justifiably object to dating itself from harm. Rejected on humanistic grounds.</td>
 </tr>
 <tr>
 <td>First powered flight (Wright)</td>
-<td>1903‑12‑17T15:35:00Z</td>
-<td>Atmospheric only</td>
+<td>1903-12-17T15:35:00Z</td>
+<td>Atmospheric only; species had not left its envelope.</td>
 </tr>
 <tr>
 <td>Apollo 11 launch</td>
-<td>1969‑07‑16T13:32:00Z</td>
-<td>Beginning of journey, not arrival</td>
+<td>1969-07-16T13:32:00Z</td>
+<td>Departure, not arrival. The relevant event is arrival on a body other than Earth.</td>
 </tr>
 <tr>
-<td>First step (EVA)</td>
-<td>1969‑07‑21T02:56:15Z</td>
-<td>Symbolic, but landing comes first and falls on the next UTC day (Δ 1)</td>
+<td>First lunar EVA (Armstrong)</td>
+<td>1969-07-21T02:56:15Z</td>
+<td>Symbolic but the landing precedes it; the EVA falls on the next UTC day (Δ 1).</td>
+</tr>
+<tr>
+<td>Year 0 of any existing calendar</td>
+<td>various</td>
+<td>Religious or arbitrary; none provides species-level consensus.</td>
+</tr>
+<tr>
+<td>Holocene start (≈ −10 000 BCE)</td>
+<td>unknown to seconds</td>
+<td>Fails verifiability to the second from independent records.</td>
 </tr>
 </tbody></table>
+<h3>2.3 The epoch withstands four common attacks</h3>
+<p>The choice of epoch is the most-contested decision in this specification. Four attacks recur and are answered normatively here, so dispute on the anchor is resolved at the level of the standard rather than carried into each implementation.</p>
+<p><strong>Attack A — "Apollo 11 is American; the choice is nationalist."</strong>
+The <em>event</em> is dated; the <em>standard</em> is not. ATS uses Apollo 11 as the dating anchor only — not as a claim of national priority over time. Compare UTC: time is defined at the prime meridian, but no party claims UTC is "British". A standard is identified by the integer counter it emits, not by the cultural origin of its anchor. Conformant implementations and conformant users of ATS make no assertion about national priority.</p>
+<p><strong>Attack B — "An anchor in 1969 makes pre-epoch dates inconvenient (large T- numbers)."</strong>
+All calendars share this problem: Gregorian uses negative years (BC/BCE); Hebrew, Islamic, and Holocene calendars push their epochs back to make positive numbers cover modern usage at the cost of pre-epoch dates being even further back. ATS deliberately privileges <em>post-epoch</em> dates because the post-Apollo era is when networked, multi-site computation begins — which is when a universal time standard becomes operationally necessary. Pre-epoch dates use T- and are mechanically symmetric (§3); the conversion is identical in both directions.</p>
+<p><strong>Attack C — "Why not an abstract event (Big Bang, Holocene start, year zero of some calendar)?"</strong>
+A valid ATS epoch event <strong>MUST</strong> satisfy four properties:</p>
+<p>  i. Verifiable to the second from independent records;
+  ii. Witnessed at the scale of the species (live to hundreds of millions);
+  iii. Free of identifiable human victims, so the standard does not commemorate harm;
+  iv. Marks a discontinuity in the species' situation, not merely in its perception.</p>
+<p>No XXth- or XXIst-century alternative satisfies all four. Abstract astronomical events fail (i). Religious events fail to be consensus-neutral. Acts of war fail (iii). The Apollo 11 landing is the unique consensual candidate.</p>
+<p><strong>Attack D — "The Moon and Mars landings are also arbitrary. Why these and not Curiosity, Voyager, Cassini?"</strong>
+The multi-planetary annex (<code>multi-planetary.md</code>) addresses this. Each celestial body that requires its own ATS counter receives its own anchor, justified by the same four properties applied to that body's history. The Earth anchor and the Mars anchor are independent decisions; conflating them is a category error.</p>
 <hr>
 <h2>3. Directionality: T+ and T-</h2>
 <p>ATS is symmetric around the epoch.</p>
 <ul>
-<li><strong>T+</strong>: elapsed time <strong>after</strong> the epoch.</li>
-<li><strong>T-</strong>: elapsed time <strong>before</strong> the epoch (a historical countdown).</li>
+<li><strong>T+</strong> denotes elapsed time <strong>after</strong> the epoch.</li>
+<li><strong>T-</strong> denotes elapsed time <strong>before</strong> the epoch.</li>
 </ul>
-<p>In everyday usage, the Δ symbol implies <em>T+</em> by default (most life occurs post-epoch), but <strong>T- must always be explicit</strong>.</p>
+<p>In the <strong>canonical form</strong> (§4), the direction marker is REQUIRED. Implementations <strong>MUST</strong> emit either <code>T+</code> or <code>T-</code> and <strong>MUST NOT</strong> omit it. The shorthand "<code>Δ</code> alone" is forbidden in canonical form.</p>
+<p>In the <strong>short form</strong> (§5), the direction marker is omitted; <code>T+</code> is assumed. Implementations decoding the short form <strong>MUST</strong> assume <code>T+</code> and <strong>MAY</strong> flag negative-direction usage as unsupported.</p>
+<p><code>T+ Δ 0.0.0.0.00000</code> and <code>T- Δ 0.0.0.0.00000</code> denote the same instant (the epoch). Implementations <strong>MUST</strong> treat them as equal.</p>
 <hr>
-<h2>4. Canonical representation (storage / interchange)</h2>
-<h3>4.1 Canonical syntax</h3>
-<pre><code>[DIR] Δ [KIL].[HEC].[DEK].[KIN].[fffff]
+<h2>4. Canonical representation</h2>
+<h3>4.1 Canonical syntax (normative)</h3>
+<p>Canonical syntax in ABNF [RFC 5234]:</p>
+<pre><code>canonical    = direction SP delta SP days "." frac
+direction    = "T" sign
+sign         = "+" / "-"
+delta        = %xCE.94            ; Δ (U+0394, UTF-8 0xCE 0x94)
+days         = kilo "." digit "." digit "." digit
+kilo         = 1*DIGIT            ; unbounded non-negative integer, no leading zeros except "0"
+frac         = 5*DIGIT            ; default precision; longer is permitted (§4.4)
+digit        = %x30-39
+SP           = %x20               ; one ASCII space
 </code></pre>
-<ul>
-<li><code>DIR</code> is <code>T+</code> or <code>T-</code>.</li>
-<li><code>KIL</code> is <strong>Kilo</strong> — an <strong>unbounded</strong> non-negative integer.</li>
-<li><code>HEC</code>, <code>DEK</code>, <code>KIN</code> are digits <code>0..9</code> (Hecto, Deka, Kin).</li>
-<li><code>fffff</code> is the <strong>fraction of the day</strong> encoded on 5 decimal digits (0..99999) by default — see §4.4 for variable precision.</li>
-</ul>
-<p>Example (current era, ~57 years post-epoch — noon UTC, 13 June 2026):</p>
+<p>Examples (current era, ≈ 57 years post-epoch, 12:00 UTC, 13 June 2026):</p>
 <pre><code>T+ Δ 20.7.8.2.50000
 </code></pre>
+<p>Implementations <strong>MUST</strong> emit exactly one ASCII space between <code>direction</code> and <code>delta</code>, and exactly one ASCII space between <code>delta</code> and <code>days</code>. Implementations <strong>MUST</strong> accept additional inner whitespace on input only if explicitly documented as a tolerance; the strict parser <strong>MUST</strong> reject extra whitespace.</p>
 <h3>4.2 Macro-time units (calendar)</h3>
 <p>ATS counts <strong>days</strong> using fixed base-10 places:</p>
 <table>
@@ -123,9 +284,9 @@
 <td>Mandate / multi-year project</td>
 </tr>
 </tbody></table>
-<p><code>Kilo</code> has no upper bound. As decades pass, the leading number grows freely (<code>20.x.x.x</code>, <code>100.x.x.x</code>, ...).</p>
+<p><code>Kilo</code> has no upper bound. As decades pass, the leading number grows freely (<code>20.x.x.x</code>, <code>100.x.x.x</code>, <code>1000.x.x.x</code>).</p>
 <blockquote>
-<p><strong>Note — "Generation" (informal).</strong> ~10 000 days (≈27.4 years) is colloquially called a <strong>Generation</strong>. It is <strong>not</strong> a positional digit in the canonical format — it lives only in social/philosophical discourse (see Philosophy annex).</p>
+<p><strong>Informal vocabulary — "Generation".</strong> ~10 000 days (≈ 27.4 years) is colloquially called a <strong>Generation</strong>. It is <strong>NOT</strong> a positional digit; it exists only in social and philosophical discourse (see Philosophy annex).</p>
 </blockquote>
 <h3>4.3 Micro-time units (clock)</h3>
 <p>The fraction of the day is decomposed into named places:</p>
@@ -170,101 +331,200 @@
 </tr>
 </tbody></table>
 <h3>4.4 Precision (variable)</h3>
-<p>The default canonical precision is <strong>5 fractional digits</strong> (down to Blink). Implementations may extend precision (e.g., 9 digits ≈ 0.0086 ms for scientific or network synchronization use cases), or shorten it for display.</p>
-<p>When precision is reduced for display, see §6 (rounding policy).</p>
+<p>The default canonical precision is <strong>5 fractional digits</strong> (down to Blink). Implementations <strong>MAY</strong> extend precision (e.g., 9 digits ≈ 0.0086 ms for scientific or network synchronisation use cases) by emitting additional digits after Blink. Implementations <strong>MUST</strong> declare the precision they emit, either out-of-band (schema, header) or by the count of digits actually present. Implementations <strong>MAY</strong> shorten precision for display; in that case the rounding policy of §6 applies.</p>
 <hr>
 <h2>5. Conversational format (human UI)</h2>
-<p>For everyday display (watches, apps, conversation), ATS defines a <strong>short</strong> form:</p>
-<pre><code>ΔK.H.D.Kin-BC.M
+<h3>5.1 Short syntax (normative)</h3>
+<p>Short syntax in ABNF:</p>
+<pre><code>short        = delta days "-" bc "." milli
+delta        = %xCE.94
+days         = kilo "." digit "." digit "." digit
+kilo         = 1*DIGIT
+bc           = 2DIGIT             ; the 2-digit Bloc+Centi pair, zero-padded
+milli        = DIGIT              ; single Milli digit
+digit        = %x30-39
 </code></pre>
-<ul>
-<li><code>K</code>, <code>H</code>, <code>D</code>, <code>Kin</code> are the <strong>Kilo</strong>, <strong>Hecto</strong>, <strong>Deka</strong>, <strong>Kin</strong> digits. Kilo is shown in full (it may be multi-digit); <code>Kin</code> is <strong>always shown</strong>, even when it is zero, so the calendar reference is never lost.</li>
-<li>No space between <code>Δ</code> and the first digit.</li>
-<li><code>BC</code> is the 2-digit Bloc + Centi pair (always 2 digits, zero-padded).</li>
-<li><code>.M</code> is the single <strong>Milli</strong> digit, <strong>always emitted</strong> even when zero — so the short form keeps a known ±1 min 26 s precision floor rather than the ±14 min 24 s of the historical 2-digit form.</li>
-<li>The separators are part of the canonical short form: <code>-</code> between <code>Kin</code> and <code>BC</code>, <code>.</code> before <code>M</code>, no spaces anywhere.</li>
-</ul>
 <p>Example:</p>
 <pre><code>Δ20.7.8.2-50.0
 </code></pre>
-<p><strong>When to use which:</strong></p>
+<p><strong>Mandatory properties of the short form</strong> (implementations <strong>MUST</strong> enforce):</p>
 <ul>
-<li><strong>Canonical:</strong> logs, storage, cryptographic signing, cross-system interop. Always uses <code>.</code> as date/fraction separator (URL-safe, filename-safe).</li>
-<li><strong>Short:</strong> UI, watches, conversation. Uses <code>-</code> between the calendar and the daily fraction, and <code>.</code> before the Milli digit.</li>
+<li>There is <strong>no whitespace</strong> anywhere in the short form. A parser receiving inner whitespace <strong>MUST</strong> reject the input.</li>
+<li>There is <strong>no direction marker</strong>. <code>T+</code> is implied (§3).</li>
+<li><code>Kin</code> is always emitted, even when zero, so the calendar reference is never lost.</li>
+<li><code>bc</code> is always 2 digits, zero-padded; the value <code>5</code> is written <code>05</code>.</li>
+<li><code>.milli</code> is always emitted, even when the Milli digit is <code>0</code>; the suffix is part of the format and pins the precision floor at ±86.4 s.</li>
+<li>The separator between <code>Kin</code> and <code>bc</code> is <code>-</code>; the separator between <code>bc</code> and <code>milli</code> is <code>.</code>. No other separators are permitted.</li>
 </ul>
-<blockquote>
-<p><strong>Input tolerance.</strong> The short parser is <strong>strict</strong> — no spaces, no alternative separators. The legacy <code>/cc</code> form (pre-v0.7) is <strong>rejected</strong>; canonical conversion via the 5-digit form remains the lossless path.</p>
-</blockquote>
+<p>The legacy short form <code>ΔK.H.D.Kin/cc</code> (pre-v0.7) is <strong>rejected</strong>. Implementations <strong>MUST NOT</strong> accept it; they <strong>MAY</strong> emit a diagnostic suggesting the equivalent canonical form for conversion.</p>
+<h3>5.2 When to use which form</h3>
+<ul>
+<li><strong>Canonical</strong> — logs, storage, cryptographic signing, cross-system interoperation. URL-safe and filename-safe (only digits, dots, spaces).</li>
+<li><strong>Short</strong> — UI, watches, conversation. Uses <code>-</code> between calendar and daily fraction, <code>.</code> before the Milli digit, no spaces.</li>
+</ul>
+<p>Encoding both forms is REQUIRED of any user-facing implementation.</p>
 <hr>
 <h2>6. Rounding policy</h2>
 <p>ATS uses <strong>strict floor truncation</strong> when reducing precision for display.</p>
+<h3>6.1 Definition</h3>
+<p>Let <code>t</code> be the true elapsed-days value (a real number) and <code>p</code> an integer precision (number of fractional digits). The displayed value at precision <code>p</code>, denoted <code>display(t, p)</code>, is defined as:</p>
+<pre><code>display(t, p) = floor(t × 10^p) / 10^p
+</code></pre>
+<h3>6.2 Invariants</h3>
+<p>For any <code>t ≥ 0</code> and any precision <code>p ≥ 0</code>:</p>
 <ul>
-<li>A digit is shown only once the corresponding unit is <strong>fully elapsed</strong>.</li>
-<li>A value of <code>0.99999</code> stays <code>0.99999</code> until the day is over — it never carries to <code>1.00000</code> early.</li>
-<li>Reason: ATS is a counter of <em>completed</em> units. Rounding forward would invent time that has not yet passed and break monotonicity.</li>
+<li><code>display(t, p) ≤ t</code>         (monotonicity: never anticipate)</li>
+<li><code>t − display(t, p) &lt; 10^(−p)</code> (drift bound: at most one unit of precision)</li>
+<li><code>display(t, p) ≤ display(t, p+1)</code> (refinement: more digits is never worse)</li>
 </ul>
-<p>The internal counter (the elapsed-days <code>Decimal</code>) always remains exact; truncation applies only to <em>displayed</em> digits.</p>
-<blockquote>
-<p><strong>Why not half-even / "banker's" rounding?</strong> Half-even is the right choice for averaging measurements (it avoids long-run statistical bias). It is the wrong choice for a monotonic counter: a half-even step can move the displayed value past the actual instant, even briefly. ATS prioritizes truthful monotonicity over averaging symmetry.</p>
-</blockquote>
+<p>For <code>t &lt; 0</code> (T- side), the same definition applies to <code>|t|</code> and the sign is preserved separately. Equivalently, on the T- side, <code>display</code> brings the value <em>toward</em> the epoch (since the magnitude shrinks under floor truncation).</p>
+<h3>6.3 Requirements</h3>
+<ul>
+<li>Implementations <strong>MUST</strong> use floor truncation when reducing precision.</li>
+<li>Implementations <strong>MUST NOT</strong> use round-half-up, round-half-even, round-half-down, or any rounding mode that can produce <code>display(t, p) &gt; t</code> (on the T+ side).</li>
+<li>The internal counter (the elapsed-days value) <strong>MUST</strong> be maintained at exact precision (rational or arbitrary-precision Decimal). Truncation applies only to <em>displayed</em> digits.</li>
+</ul>
+<h3>6.4 Rationale (against half-even)</h3>
+<p>Half-even ("banker's") rounding is correct when averaging measurements: it eliminates long-run statistical bias. It is incorrect for a monotonic counter: a half-even step can produce a displayed value strictly greater than the true elapsed time, even briefly. ATS prioritises truthful monotonicity over averaging symmetry. The cost is a fixed, deterministic bias of at most one unit of displayed precision <em>toward the past</em>; this bias is exposed as a contract (§6.2) and is acceptable to all use cases that prioritise determinism over symmetry.</p>
 <hr>
-<h2>7. Time zones policy</h2>
+<h2>7. Time zones</h2>
 <p>ATS has <strong>no internal time zones</strong>.</p>
 <ul>
-<li>ATS timestamps are <em>global instants</em> expressed in UTC.</li>
-<li>"Local Solar Time" (LST) may be presented as an <strong>informational overlay</strong> for human convenience (e.g., "in New York, sunrise is around <code>.55</code>"), but is <strong>never stored</strong> as part of an ATS value.</li>
+<li>ATS timestamps are <em>global instants</em> expressed in UTC. The same ATS value identifies the same UTC instant everywhere in the universe.</li>
+<li>Implementations <strong>MUST NOT</strong> carry a time-zone field on an ATS value. A wire format, database column, or in-memory type for an ATS value <strong>MUST NOT</strong> include a time-zone identifier or offset.</li>
+<li>Implementations <strong>MAY</strong> present a Local Solar Time (LST) overlay for human convenience (for example, "in New York, the dial currently reads <code>.55</code> of the local day"), but LST <strong>MUST NOT</strong> be stored as part of the ATS value. LST is a presentation-layer convenience defined as:</li>
 </ul>
-<p>Implementations and software interfaces SHOULD NOT carry a time-zone field on ATS timestamps.</p>
+<pre><code>LST(tz, t) = t + tz_offset_at(tz, t)
+</code></pre>
+<p>Where <code>tz_offset_at</code> consults the IANA Time Zone Database for the offset (including daylight-saving rules) at instant <code>t</code> in time zone <code>tz</code>. The underlying ATS value is unchanged. LST is non-normative; the only normative content of an ATS value is its UTC instant.</p>
 <hr>
 <h2>8. Leap seconds</h2>
-<p>ATS aligns with UTC POSIX semantics: <strong>a day is exactly 86 400 seconds</strong>.</p>
+<h3>8.1 Day length</h3>
+<p>ATS aligns with UTC POSIX semantics: every ATS day <strong>MUST</strong> contain exactly <strong>86 400 SI seconds</strong>.</p>
+<p>UTC leap seconds — both positive (insertions) and negative (deletions, theoretical) — <strong>MUST</strong> be absorbed into the standard day. ATS <strong>MUST NOT</strong> emit a 23:59:60 or analogous "leap" indicator.</p>
+<h3>8.2 Smearing policy</h3>
+<p>When a leap second occurs in UTC, implementations <strong>MUST</strong> choose, document, and apply deterministically one of the following smear policies for the affected ATS day:</p>
 <ul>
-<li>UTC leap seconds are absorbed silently into the standard day (same behavior as Unix time).</li>
-<li>A future variant aligned to TAI (no leap seconds) may be defined for aerospace use; it is not part of this spec.</li>
+<li><strong>POSIX-naïve smear</strong>: the inserted leap second is mapped to the same POSIX timestamp as the preceding second; ATS values therefore "freeze" for the leap second. RECOMMENDED for general use because it matches <code>time_t</code> semantics.</li>
+<li><strong>Linear smear (Google-style)</strong>: the leap second is distributed uniformly across a 20-hour window centred on the leap; each ATS Blink during the window is slightly extended in wall-clock terms. RECOMMENDED for distributed systems where clock-jump tolerance is low.</li>
+<li><strong>Step-jump (TAI-aligned)</strong>: the implementation tracks TAI internally and emits ATS values offset by the current TAI-UTC delta; the leap event causes a discrete +1 / −1 second jump in the UTC mapping but not in TAI. PERMITTED for aerospace and scientific use cases.</li>
 </ul>
+<p>Implementations <strong>MUST</strong> document their choice in their public documentation. Implementations interchanging ATS values <strong>MUST NOT</strong> assume the receiver shares the same smear policy; sub-second-accurate interchange around a leap event REQUIRES out-of-band coordination on TAI-UTC offset.</p>
+<h3>8.3 Reserved: ATS-TAI variant</h3>
+<p>A future revision <strong>MAY</strong> define an ATS-TAI variant whose epoch is anchored on TAI rather than UTC. ATS-TAI would not require smearing and would diverge from ATS-UTC by the current TAI-UTC offset. This variant is reserved; it is not part of v0.7.</p>
 <hr>
 <h2>9. Conversion definition</h2>
-<p>Let <code>EPOCH = 1969‑07‑20T00:00:00Z</code>.</p>
-<ol>
-<li>Compute elapsed time: <code>delta = now_utc - EPOCH</code>.</li>
-<li>Convert to <strong>decimal days</strong>: <code>days = delta_seconds / 86400</code>.</li>
-<li>If <code>days &gt;= 0</code> → <code>T+</code>, else <code>T-</code> with <code>abs(days)</code>.</li>
-<li>Integer part → Kilo/Hecto/Deka/Kin breakdown.</li>
-<li>Fractional part → <code>fffff</code> (multiply by 100000; round per §6).</li>
-</ol>
-<p>A reference Python implementation lives in <code>code/ats.py</code>.</p>
+<p>The conversion from a UTC instant to ATS, and back, <strong>MUST</strong> be implemented according to the pseudo-code below. Conformant implementations produce bit-identical results on the conformance vectors (<code>docs/spec/test-vectors.json</code>).</p>
+<h3>9.1 UTC → ATS (gregorian_to_ats)</h3>
+<pre><code>function gregorian_to_ats(utc: UTCInstant) -&gt; ATS:
+    # Required precision: the host's UTC representation MUST resolve to at
+    # least microseconds. Sub-microsecond resolution is OPTIONAL and only
+    # meaningful at extended precision (§4.4).
+    EPOCH_UTC = "1969-07-20T00:00:00Z"
+    US_PER_DAY = 86_400_000_000
+    ATS_DECIMALS = 5
+    ATS_SCALE = 10 ** ATS_DECIMALS              # = 100_000
+
+    delta_us = microseconds_since(utc, EPOCH_UTC)   # signed integer
+
+    if delta_us &gt;= 0:
+        sign = "T+"
+        abs_us = delta_us
+    else:
+        sign = "T-"
+        abs_us = -delta_us
+
+    integer_days, remainder_us = divmod(abs_us, US_PER_DAY)
+    # frac_int has exactly ATS_DECIMALS = 5 digits, in [0, 100_000).
+    frac_int = floor((remainder_us * ATS_SCALE) / US_PER_DAY)
+
+    kilo, rem  = divmod(integer_days, 1000)
+    hecto, rem = divmod(rem, 100)
+    deka, kin  = divmod(rem, 10)
+
+    return ATS(sign, kilo, hecto, deka, kin, frac_int)
+</code></pre>
+<h3>9.2 ATS → UTC (ats_to_gregorian)</h3>
+<pre><code>function ats_to_gregorian(ats: ATS) -&gt; UTCInstant:
+    EPOCH_UTC = "1969-07-20T00:00:00Z"
+    US_PER_DAY = 86_400_000_000
+    ATS_SCALE = 100_000
+
+    integer_days = ats.kilo * 1000 + ats.hecto * 100 + ats.deka * 10 + ats.kin
+    abs_us = integer_days * US_PER_DAY + ats.frac * (US_PER_DAY / ATS_SCALE)
+    # Note: US_PER_DAY / ATS_SCALE = 864_000 exactly; no rounding.
+
+    if ats.sign == "T+":
+        return EPOCH_UTC + abs_us microseconds
+    else:
+        return EPOCH_UTC - abs_us microseconds
+</code></pre>
+<h3>9.3 Conformance contract</h3>
+<p>A conformant implementation <strong>MUST</strong> satisfy:</p>
+<pre><code>for every (utc, ats) pair in test-vectors.json:
+    assert gregorian_to_ats(utc) == ats
+    assert ats_to_gregorian(ats) == truncate_to_blink(utc)
+</code></pre>
+<p>Where <code>truncate_to_blink(utc)</code> truncates <code>utc</code> to the nearest multiple of 864 microseconds (one Blink) in the past. The 12 base vectors in <code>test-vectors.json</code> cover Earth ATS; the 10 vectors each in <code>test-vectors-multi-planetary-mars.json</code> and <code>-moon.json</code> cover the multi-planetary annex.</p>
+<p>A reference implementation in Python lives in <code>code/ats.py</code>. A reference implementation in JavaScript lives in <code>docs/assets/js/ats.js</code>. Both <strong>MUST</strong> produce bit-identical output on all conformance vectors.</p>
 <hr>
 <h2>10. Decoding the short form</h2>
-<p>The short form <code>ΔK.H.D.Kin-BC.M</code> is intentionally lossy:</p>
+<p>The short form <code>ΔK.H.D.Kin-BC.M</code> is intentionally lossy. Implementations decoding it <strong>MUST</strong> apply the following contract:</p>
+<h3>10.1 Decoding contract</h3>
+<pre><code>function decode_short(short_str: str) -&gt; ATS:
+    # Parse per §5.1 ABNF. Reject malformed input with an explicit error.
+    match = strict_short_regex.match(short_str)
+    if match is None:
+        raise InvalidShortForm(short_str)
+    kilo, hecto, deka, kin, bc, milli = parse(match)
+    # The short form encodes Bloc+Centi as a 2-digit pair and Milli as
+    # a single digit; Beat and Blink are unknown and MUST default to 0.
+    frac = bc * 1000 + milli * 100
+    return ATS("T+", kilo, hecto, deka, kin, frac)
+</code></pre>
+<h3>10.2 Precision contract</h3>
+<p>The decoded ATS value corresponds to a half-open UTC interval. Let <code>decoded</code> be the result of decoding short string <code>s</code>. The true UTC instant that produced <code>s</code> lies in:</p>
+<pre><code>[ats_to_gregorian(decoded), ats_to_gregorian(decoded) + 86.4 seconds)
+</code></pre>
+<p>That is, <strong>exactly one Milli of uncertainty</strong>. Implementations exposing the decoded result to other systems <strong>MUST</strong> label it as approximate (precision: ±86.4 s).</p>
+<h3>10.3 Strict parsing</h3>
+<p>Implementations <strong>MUST</strong> reject:</p>
 <ul>
-<li>No sign (assumed <code>T+</code>).</li>
-<li>Three-digit fraction only (Bloc + Centi + Milli; the finer positions Beat/Blink are assumed <code>0</code>).</li>
-<li>Kilo is shown in full — there is <strong>no Myriade context</strong> to recover.</li>
+<li>The legacy <code>/cc</code> form (pre-v0.7 separator).</li>
+<li>Whitespace anywhere in the input.</li>
+<li>Direction markers (<code>T+</code> or <code>T-</code>).</li>
+<li>Missing leading <code>Δ</code> symbol.</li>
+<li>A <code>bc</code> field with fewer or more than 2 digits.</li>
+<li>A missing <code>.M</code> suffix (a short form without the Milli digit is malformed).</li>
+<li>A non-digit character anywhere in the positional fields.</li>
 </ul>
-<p>Implementations decoding a short form into a precise Gregorian instant SHOULD label the result as approximate (precision: ±~1 min 26 s — one Milli).</p>
 <hr>
 <h2>11. Durations (Δd)</h2>
-<p>ATS up to §10 describes <strong>instants</strong>. A separate notation is defined for <strong>durations</strong> (deltas between instants).</p>
+<p>ATS up to §10 describes <strong>instants</strong>. A separate notation is defined for <strong>durations</strong> (signed differences between instants).</p>
 <h3>11.1 Syntax</h3>
-<pre><code>T± Δd K.H.D.Kin.fffff
+<pre><code>duration     = direction SP "Δd" SP days "." frac
+direction    = "T" sign
+sign         = "+" / "-"
+days         = kilo "." digit "." digit "." digit
+kilo         = 1*DIGIT
+frac         = 5*DIGIT
 </code></pre>
 <ul>
-<li><strong>Signed</strong> since v0.6 — see §11.4. The canonical form carries an explicit <code>T+</code> or <code>T-</code>; the absolute value is written <code>|Δd|</code>.</li>
-<li>Same positional structure as an instant (Kilo unbounded; Hecto / Deka / Kin digits 0..9; fffff fractional digits).</li>
-<li>Prefix <code>Δd</code> ("delta-duration") distinguishes a duration from an instant. <code>Δ</code> alone always denotes an instant.</li>
-<li>Subtracting two ATS instants yields a signed duration: <code>Δd = Δ(a) − Δ(b)</code> (see §11.4).</li>
+<li>The prefix <code>Δd</code> ("delta-duration") distinguishes a duration from an instant. <code>Δ</code> alone always denotes an instant.</li>
+<li>The direction marker is REQUIRED, even on durations. A duration is <strong>signed</strong>.</li>
+<li>The absolute value of a duration is denoted <code>|Δd|</code> in informal text; the canonical form always carries the explicit sign.</li>
 </ul>
 <h3>11.2 Examples</h3>
 <ul>
 <li>One Hecto: <code>T+ Δd 0.1.0.0.00000</code> (100 days).</li>
-<li>One year of Gregorian usage (~365 days): <code>T+ Δd 0.3.6.5.00000</code>.</li>
+<li>One year of Gregorian usage (≈ 365 days): <code>T+ Δd 0.3.6.5.00000</code>.</li>
 <li>"I have lived for 7 Kilos and 893 days" → <code>T+ Δd 7.8.9.3.00000</code>.</li>
 <li>Step back half a day: <code>T- Δd 0.0.0.0.50000</code>.</li>
 </ul>
 <h3>11.3 Constraints</h3>
-<p>Durations are always written in canonical form; <strong>no short form</strong> is defined. Their precision matches the instants from which they are derived — the floor-truncation rule (§6) applies on both sides.</p>
-<h3>11.4 Algebra of durations (v0.6+)</h3>
-<p>The following algebra defines the only legal operations on the <code>Δ</code> (instant) and <code>Δd</code> (signed duration) types. Any other combination is undefined.</p>
+<p>Durations are written only in canonical form; no short form is defined. Their precision matches the instants from which they are derived — the floor-truncation rule (§6) applies on both sides.</p>
+<h3>11.4 Algebra (normative)</h3>
+<p>The following operations are the only legal operations on <code>Δ</code> (instant) and <code>Δd</code> (signed duration) types. Any other combination is undefined behaviour; implementations <strong>MUST</strong> raise a type error.</p>
 <p><strong>Signatures.</strong></p>
 <table>
 <thead>
@@ -272,95 +532,121 @@
 <th>Operation</th>
 <th>Types</th>
 <th>Result</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody><tr>
 <td><code>Δ + Δd</code></td>
 <td>(instant, duration)</td>
 <td><code>Δ</code></td>
+<td>Advance an instant by a duration.</td>
 </tr>
 <tr>
 <td><code>Δd + Δ</code></td>
 <td>(duration, instant)</td>
 <td><code>Δ</code></td>
-</tr>
-<tr>
-<td><code>Δ − Δ</code></td>
-<td>(instant, instant)</td>
-<td><code>Δd</code> (signed)</td>
+<td>Commutative form of the above.</td>
 </tr>
 <tr>
 <td><code>Δ − Δd</code></td>
 <td>(instant, duration)</td>
 <td><code>Δ</code></td>
+<td>Step back by a duration.</td>
+</tr>
+<tr>
+<td><code>Δ − Δ</code></td>
+<td>(instant, instant)</td>
+<td><code>Δd</code></td>
+<td>Signed difference between two instants.</td>
 </tr>
 <tr>
 <td><code>Δd + Δd</code></td>
 <td>(duration, duration)</td>
 <td><code>Δd</code></td>
+<td>Duration sum.</td>
 </tr>
 <tr>
 <td><code>Δd − Δd</code></td>
 <td>(duration, duration)</td>
 <td><code>Δd</code></td>
+<td>Duration difference.</td>
 </tr>
 <tr>
 <td><code>Δd × n</code></td>
 <td>(duration, scalar)</td>
 <td><code>Δd</code></td>
+<td>Scale a duration by a rational <code>n</code>.</td>
 </tr>
 <tr>
 <td><code>Δd ÷ n</code></td>
 <td>(duration, scalar)</td>
 <td><code>Δd</code></td>
+<td>Inverse scale.</td>
 </tr>
 <tr>
 <td><code>−Δd</code></td>
 <td>(duration)</td>
-<td><code>Δd</code> (negated)</td>
+<td><code>Δd</code></td>
+<td>Negation.</td>
 </tr>
 <tr>
 <td>`</td>
 <td>Δd</td>
 <td>`</td>
+<td>(duration)</td>
 </tr>
 </tbody></table>
-<p><code>n</code> is any integer or rational; implementations that expose durations as floating-point document their precision (the reference JS port uses <code>Number</code>/float64, ~15 significant digits).</p>
-<p><strong>Comparisons.</strong> <code>&lt; ≤ = ≥ &gt;</code> are defined on two <code>Δ</code> (via the signed day counter, T- &lt; T+) and on two <code>Δd</code>. <code>Δ ↔ Δd</code> comparison is <strong>not</strong> defined — they are disjoint types.</p>
-<p><strong>Overflow semantics.</strong> Any operation that produces an instant or a duration re-emits the canonical form with:</p>
+<p><code>n</code> is any integer or rational. Implementations exposing durations via floating-point <strong>MUST</strong> document the float precision used and the resulting bound on accumulated rounding error.</p>
+<p><strong>Comparisons.</strong> <code>&lt; ≤ = ≥ &gt;</code> are defined:</p>
 <ul>
-<li>Kilo unbounded (may grow arbitrarily),</li>
-<li>Hecto, Deka, Kin digits 0..9,</li>
-<li><code>fffff</code> truncated via floor (<code>ROUND_FLOOR</code>, §6) to <code>ATS_DECIMALS = 5</code> default digits.</li>
+<li>On two <code>Δ</code> values: ordered by the signed elapsed-day counter (<code>T-</code> &lt; <code>T+</code>).</li>
+<li>On two <code>Δd</code> values: ordered by the signed duration value.</li>
+<li><strong>Not defined</strong> on a mixed <code>Δ</code> × <code>Δd</code> pair: they are disjoint types. Implementations <strong>MUST</strong> raise a type error.</li>
 </ul>
-<p><strong>Identities.</strong> <code>T+ Δd 0.0.0.0.00000 == T- Δd 0.0.0.0.00000</code> (the zero duration is unique); likewise for <code>Δ</code> at the epoch: <code>T+ Δ 0.0.0.0.00000 == T- Δ 0.0.0.0.00000</code>.</p>
-<p><strong>Conformance vectors.</strong> <code>docs/spec/test-vectors-arithmetic.json</code> (12 cases) covers the seven operations, the Kin→Deka and Deka→Hecto→Kilo carries, the epoch crossing (T+ → T-), and the cross-sign comparisons.</p>
+<p><strong>Overflow semantics.</strong> Any operation that produces an instant or a duration <strong>MUST</strong> re-emit the canonical form with:</p>
+<ul>
+<li>Kilo unbounded (may grow arbitrarily);</li>
+<li>Hecto, Deka, Kin digits in 0..9;</li>
+<li><code>frac</code> floor-truncated to <code>ATS_DECIMALS = 5</code> digits by default.</li>
+</ul>
+<p><strong>Identities.</strong></p>
+<ul>
+<li><code>T+ Δd 0.0.0.0.00000 == T- Δd 0.0.0.0.00000</code> (the zero duration is unique).</li>
+<li><code>T+ Δ 0.0.0.0.00000 == T- Δ 0.0.0.0.00000</code> (the epoch is sign-invariant).</li>
+</ul>
+<p><strong>Conformance vectors.</strong> <code>docs/spec/test-vectors-arithmetic.json</code> (12 cases) covers the seven operations, the Kin → Deka and Deka → Hecto → Kilo carries, the epoch crossing (T+ → T-), and the cross-sign comparisons.</p>
 <hr>
 <h2>12. Binary encoding</h2>
-<p>For storage, IoT and binary interchange, ATS defines a <strong>fixed 64-bit</strong> layout (big-endian, two's complement on the day count).</p>
+<p>For storage, IoT, and binary interchange, ATS defines a <strong>fixed 64-bit</strong> layout.</p>
 <pre><code>┌──────┬────────────────────────────────────────────────┬──────────────────────────────┐
 │ bit  │            high 40 bits (days, signed)         │   low 24 bits (fraction)     │
-│      │  T+ for ≥ 0, T- for &lt; 0 (two's complement)    │  0 .. 16_777_215             │
+│      │  two's complement, big-endian                  │  unsigned big-endian          │
+│      │  range: −2^39 .. 2^39 − 1                      │  0 .. 16_777_215             │
 └──────┴────────────────────────────────────────────────┴──────────────────────────────┘
 </code></pre>
 <h3>12.1 Fields</h3>
 <ul>
-<li><strong><code>days</code></strong> (signed int40, two's complement, big-endian) — number of full ATS days elapsed since the epoch. Range: <code>−2^39 .. 2^39 − 1</code> (~ ±1.5 × 10¹¹ days, far beyond any astronomical horizon).</li>
-<li><strong><code>frac24</code></strong> (unsigned uint24, big-endian) — fraction of the current day, scaled to 24 bits: <code>frac24 = floor(day_fraction × 2^24)</code>. Yields ≈ 5.15 ms of resolution.</li>
+<li><strong><code>days</code></strong> (signed int40, two's complement, big-endian) — number of full ATS days elapsed since the epoch. Range: ±(2^39 − 1) ≈ ±1.5 × 10¹¹ days, ≈ ±400 million years. Far beyond any practical horizon.</li>
+<li><strong><code>frac24</code></strong> (unsigned uint24, big-endian) — fraction of the current day, scaled to 24 bits: <code>frac24 = floor(day_fraction × 2^24)</code>. Resolution: 1/16 777 216 day ≈ 5.15 ms.</li>
 </ul>
-<h3>12.2 Encoding</h3>
-<p>Given an instant with sign <code>s ∈ {T+, T-}</code>, integer day count <code>D ≥ 0</code> and day-fraction <code>f ∈ [0, 1)</code>:</p>
-<pre><code>days = D if s == T+ else -D
-frac24 = floor(f × 16_777_216)
-out = (days &lt;&lt; 24) | frac24      # arithmetic shift; 64 bits total
+<h3>12.2 Encoding (normative pseudo-code)</h3>
+<pre><code>function encode_binary(ats: ATS) -&gt; bytes:
+    integer_days = ats.kilo * 1000 + ats.hecto * 100 + ats.deka * 10 + ats.kin
+    days_signed = integer_days if ats.sign == "T+" else -integer_days
+    day_fraction = ats.frac / 100_000        # exact when ats.frac &lt; 100_000
+    frac24 = floor(day_fraction * 16_777_216) # 0 .. 16_777_215
+    # Pack as 64-bit big-endian: top 40 bits = days (two's complement),
+    # bottom 24 bits = frac24.
+    return pack_big_endian_int40(days_signed) || pack_big_endian_uint24(frac24)
 </code></pre>
 <h3>12.3 Properties</h3>
 <ul>
-<li>A canonical ATS value (5 fractional digits, ≈ 864 ms resolution) round-trips through the binary form <strong>without loss</strong>, because 24 bits (≈ 5.15 ms) is finer.</li>
-<li><strong>Bytewise comparison gives chronological order only inside one sign class.</strong> For two T+ instants (days ≥ 0), <code>memcmp</code> is equivalent to chronological order. For two T- instants, it is also chronological (closer to the epoch comes after in <code>memcmp</code>, which matches "less far in the past"). For a <strong>mixed T+/T- comparison</strong>, raw <code>memcmp</code> does <em>not</em> yield chronological order (two's-complement T- values start with <code>FF…</code> and sort after T+ values starting with <code>00…</code>); use signed-integer comparison on the day field instead. A future variant could adopt a biased representation (<code>days + 2³⁹</code>) to make <code>memcmp</code> globally chronological.</li>
-<li>The all-zeros value is the epoch (<code>T+ Δ 0.0.0.0.00000</code>).</li>
+<li>A canonical ATS value at default 5-fractional-digit precision (≈ 864 ms resolution) round-trips through the binary form <strong>without loss</strong>, because 5.15 ms (24-bit fraction) is finer than 864 ms.</li>
+<li><strong>Within one sign class</strong>, bytewise (<code>memcmp</code>) comparison gives chronological order. For two <code>T+</code> instants (non-negative days), <code>memcmp</code> is equivalent to chronological order. For two <code>T-</code> instants, <code>memcmp</code> is also chronological (closer to the epoch sorts after, matching "less far in the past").</li>
+<li><strong>Across sign classes</strong>, raw <code>memcmp</code> does NOT yield chronological order, because two's-complement negative values start with <code>0xFF…</code> and sort after non-negative values starting with <code>0x00…</code>. Mixed <code>T+</code>/<code>T-</code> comparison <strong>MUST</strong> use signed-integer comparison on the day field. A future revision <strong>MAY</strong> introduce a biased-offset encoding (<code>days + 2^39</code>) to make <code>memcmp</code> globally chronological; it is not yet defined.</li>
+<li>The all-zeros 8-byte value (<code>0x00 00 00 00 00 00 00 00</code>) is the epoch.</li>
 </ul>
-<h3>12.4 Reference octets (test vector)</h3>
+<h3>12.4 Reference octets (test vectors)</h3>
 <table>
 <thead>
 <tr>
@@ -380,47 +666,171 @@ out = (days &lt;&lt; 24) | frac24      # arithmetic shift; 64 bits total
 <td>Epoch − 1 day</td>
 <td><code>FF FF FF FF FF 00 00 00</code></td>
 </tr>
+<tr>
+<td>Epoch + 0.5 day</td>
+<td><code>00 00 00 00 00 80 00 00</code></td>
+</tr>
+<tr>
+<td>Epoch − 0.5 day</td>
+<td><code>FF FF FF FF FF 80 00 00</code></td>
+</tr>
+<tr>
+<td><code>T+ Δ 20.7.8.2.50000</code></td>
+<td><code>00 00 00 51 1F 80 00 00</code></td>
+</tr>
+<tr>
+<td><code>T- Δ 0.0.0.1.00000</code></td>
+<td><code>FF FF FF FF FF 00 00 00</code> (= epoch − 1 day)</td>
+</tr>
 </tbody></table>
+<h3>12.5 Interoperability</h3>
+<ul>
+<li>Wire formats <strong>MUST</strong> use big-endian byte order. Little-endian storage in memory is permitted only with explicit conversion at I/O boundaries.</li>
+<li>Implementations <strong>SHOULD</strong> prefer the 64-bit form for embedded and IoT use; the textual canonical form (§4) <strong>SHOULD</strong> be used for logs and human-readable interchange.</li>
+</ul>
 <hr>
 <h2>13. Non-goals</h2>
+<p>ATS is a coordinate system, not a culture. The following are explicitly out of scope:</p>
+<ol>
+<li><p><strong>ATS does not preserve months, weekdays, or religious cycles.</strong> Cultural calendars (Hebrew, Islamic, Chinese, Hindu, Mayan, Liturgical, Baha'i, etc.) <strong>MAY</strong> express the same UTC instant in their own positional systems. ATS provides interoperability between such systems; it does not displace them. The conformance bridges (<code>code/bridges/*.py</code>) demonstrate that an implementation can express an ATS instant in any cultural calendar.</p>
+</li>
+<li><p><strong>ATS does not encode local solar noon directly.</strong> Sunrise, sunset, and local noon are functions of geographic position. They are presentation-layer concerns. See §7 on LST.</p>
+</li>
+<li><p><strong>ATS does not legislate a work-rest rhythm.</strong> The Deka (10 days) is a measurement unit, not a social mandate. Any social convention laid over the Deka (e.g., 7+3 work-rest, 6+4, 5+5) is a <em>convention</em> (see <code>conventions.md</code>), never normative.</p>
+</li>
+<li><p><strong>ATS does not take a position on religious observance.</strong> The Sabbath, Friday prayer, Easter, Eid al-Fitr, Diwali, and other observances are events on the wall clock; an ATS implementation can store and report them, but ATS does not interpret them or rank them.</p>
+</li>
+<li><p><strong>ATS does not replace UTC.</strong> ATS is a <em>representation</em> of UTC instants. Migrating from a UTC-based representation (ISO 8601, Unix epoch) to ATS leaves the underlying timeline unchanged. UTC remains the source of truth; ATS is the canonical projection of UTC into a decimal coordinate system.</p>
+</li>
+<li><p><strong>ATS does not impose itself on bodies it does not address.</strong> The multi-planetary annex defines anchors for Mars and the Moon. Bodies for which no annex exists (Venus, Europa, exoplanets) have no normative ATS counter; third parties <strong>MAY</strong> define their own using the generic framework (<code>multi-planetary.md §6</code>).</p>
+</li>
+<li><p><strong>ATS does not claim to be more "spiritual" or more "natural" than alternatives.</strong> ATS claims to be more <em>computational</em>: precise, unambiguous, base-10, no time zones, no months. Computational virtues are sufficient justification; aesthetic or metaphysical claims are not made by this document.</p>
+</li>
+</ol>
+<hr>
+<h2>14. Annexes</h2>
 <ul>
-<li>ATS does not preserve months, weekdays, or religious cycles.</li>
-<li>ATS does not encode local solar noon directly.</li>
-<li>ATS does not legislate a work-rest rhythm. The Deka (10 days) is a measurement unit, not a social mandate.</li>
-<li>ATS is not "more spiritual"; it is a universal computational standard.</li>
+<li><strong>Philosophy</strong> (<code>philosophy.md</code>) — non-normative. Why ATS: alignment with biological cycles (circadian, social, project, generational); proposed rituals (Kilo-versary, Hecto-feast).</li>
+<li><strong>Comparison</strong> (<code>comparison.md</code>) — non-normative. ATS vs Holocene, International Fixed Calendar, Hanke-Henry, French Republican, Swatch Internet Time, Darian (Mars).</li>
+<li><strong>Conventions</strong> (<code>conventions.md</code>) — non-normative. Kilo-versary, Hecto-feast, 7+3 rhythm, 08-22 solar bands. Described, not required.</li>
+<li><strong>Versioning &amp; stability</strong> (<code>versioning.md</code>) — normative. SemVer contract, post-v1.0 freezes, additive vector policy, RFC process. See §15.</li>
+<li><strong>Multi-planetary</strong> (<code>multi-planetary.md</code>) — normative. Extends the ATS counter to other celestial bodies (Mars, Moon) and provides a generic framework <code>Δ_X(epoch, day_seconds)</code> for third-party bodies. Preserves canonical, short, binary formats and §11.4 algebra.</li>
+<li><strong>Analog clock</strong> (<code>analog-clock.md</code>) — non-normative. Reference dial layout and angular formulas for analog rendering.</li>
+<li><strong>Test vectors</strong> (<code>test-vectors.json</code>, <code>test-vectors-arithmetic.json</code>, <code>test-vectors-multi-planetary-mars.json</code>, <code>test-vectors-multi-planetary-moon.json</code>, <code>test-vectors-bridges-*.json</code>) — machine-readable conformance suites; all carry a root <code>spec_version</code>.</li>
 </ul>
 <hr>
-<h2>14. Annexes (non-normative)</h2>
+<h2>15. Versioning and stability</h2>
+<h3>15.1 Current version</h3>
+<p>This document specifies ATS <strong>v0.7 (pre-release)</strong>.</p>
+<h3>15.2 SemVer contract</h3>
 <ul>
-<li><strong>Philosophy</strong> (<code>philosophy.md</code>) — why ATS: alignment with biological cycles (circadian, social, project, generational); proposed rituals (Kilo-versary, Hecto-feast).</li>
-<li><strong>Comparison</strong> (<code>comparison.md</code>) — ATS vs Holocene, International Fixed, Hanke-Henry, French Republican, Swatch Internet Time, Darian (Mars).</li>
-<li><strong>Conventions</strong> (<code>conventions.md</code>) — <strong>non-normative annex</strong>: Kilo-versary, Hecto-feast, 7+3 rhythm, 08-22 solar bands. Described, not required.</li>
-<li><strong>Versioning &amp; stability</strong> (<code>versioning.md</code>) — <strong>normative annex</strong>: SemVer contract, post-v1.0 freezes, additive vector policy, RFC process.</li>
-<li><strong>Multi-planetary</strong> (<code>multi-planetary.md</code>) — <strong>normative annex</strong>: extends the ATS counter to other celestial bodies (Mars, Moon) + generic framework <code>Δ_X(epoch, day_seconds)</code> for third-party bodies. Preserves canonical, short, binary formats and §11.4 algebra.</li>
-<li><strong>Test vectors</strong> (<code>test-vectors.json</code>, <code>test-vectors-arithmetic.json</code>, <code>test-vectors-bridges-*.json</code>) — machine-readable conformance suites, all carry a root <code>spec_version</code>.</li>
+<li><strong>Pre-v1.0</strong> (current): breaking changes are PERMITTED at minor versions. Each change <strong>MUST</strong> be recorded in <code>CHANGELOG.md</code> with a migration note. Conformance vectors carry <code>spec_version</code> so consumers can detect which spec produced them.</li>
+<li><strong>Post-v1.0</strong> (committed below): breaking changes <strong>MUST NOT</strong> be introduced at minor versions. Major version bumps are reserved for breaking changes; minor versions are additive only; patch versions are clarifications only.</li>
 </ul>
-<hr>
-<h2>15. Versioning</h2>
-<p>This spec is <strong>v0.7 (pre-release)</strong>.</p>
-<h3>Changes from v0.3.x (previous pre-release, "RC v1.1")</h3>
+<h3>15.3 Post-v1.0 stability commitments</h3>
+<p>The following items are <strong>frozen</strong> post-v1.0. Changing any of them requires a major version bump:</p>
 <ul>
-<li><strong>Epoch shifted</strong> from the touchdown instant (1969‑07‑20T20:17:40Z) to the <strong>start of the landing day</strong> (1969‑07‑20T00:00:00Z). This is a <strong>breaking change</strong>: every stored ATS value from earlier drafts is offset by 73 060 s ≈ 0.84560 day. Because the project is still pre-v1, no conversion shim is provided; consumers should regenerate their values.</li>
-<li><strong>Direct consequence:</strong> Bloc 5 = 12:00 UTC exactly. The touchdown moment becomes a remarkable instant within Δ 0 at <code>T+ Δ 0.0.0.0.84560</code>.</li>
-<li>§2.1 grew by one row: "Exact touchdown instant" is now itself a rejected anchor (the reason it was demoted: misalignment with UTC).</li>
-<li>Worked examples in §4.1 and §5 updated to reflect the new epoch.</li>
-<li>§9 conversion definition updated.</li>
+<li>The epoch (<code>1969-07-20T00:00:00Z</code>).</li>
+<li>The unit ladder (Kin / Deka / Hecto / Kilo / Bloc / Centi / Milli / Beat / Blink).</li>
+<li>The default canonical precision (5 fractional digits, Blink).</li>
+<li>The short-form syntax (<code>ΔK.H.D.Kin-BC.M</code>).</li>
+<li>The binary encoding layout (40+24 bits, big-endian, two's complement).</li>
+<li>The duration prefix (<code>Δd</code>).</li>
+<li>The Earth day length (86 400 SI seconds; see §8 for leap policy).</li>
 </ul>
-<h3>Earlier (kept for archival reference) — changes that defined RC v1.1 (now superseded)</h3>
+<p>The following items <strong>MAY</strong> evolve at minor versions post-v1.0 in an additive-only fashion:</p>
 <ul>
-<li>Myriade removed from the positional format; Kilo is now unbounded. "Generation" demoted to informal vocabulary.</li>
+<li>New conformance vectors (additive only; previously-valid vectors remain valid).</li>
+<li>New annexes (non-normative).</li>
+<li>New celestial bodies in the multi-planetary annex (additive only).</li>
+<li>New algebraic operations on <code>Δd</code>, provided they are extensions, not modifications of existing ones.</li>
+</ul>
+<h3>15.4 Changes from v0.3.x ("RC v1.1") to v0.7</h3>
+<ul>
+<li><strong>Epoch shifted</strong> from the touchdown instant (1969-07-20T20:17:40Z) to the start of the landing day (1969-07-20T00:00:00Z). Direct consequence: Bloc 5 = 12:00 UTC exactly.</li>
+<li><strong>Myriade</strong> removed from the positional format; Kilo is unbounded. "Generation" demoted to informal vocabulary (§4.2 note).</li>
 <li>0.1-day unit renamed <code>D-Day</code> → <code>Bloc</code>.</li>
-<li>Short form: separator changed from <code>|</code> to <code>/</code>, no spaces around it; the <code>Kin</code> digit is now <strong>always shown</strong> (even when zero) to preserve the calendar reference.</li>
-<li>Rounding policy: strict floor truncation. A banker's half-even variant briefly considered earlier was rejected as incompatible with the "counter of completed units" principle.</li>
-<li>Local Solar Time (LST) layer explicitly introduced.</li>
-<li>Leap second policy explicitly aligned to POSIX.</li>
-<li>Decoding rules for the short form documented (intentional lossiness).</li>
-<li>Philosophy and comparison moved to annexes.</li>
+<li><strong>Short form</strong> evolved: <code>Δ K.H.D.Kin/cc</code> → <code>ΔK.H.D.Kin-BC.M</code> in v0.7 (no space after Δ, separator <code>-</code> instead of <code>/</code>, Milli digit added). The Kin digit is always shown to preserve the calendar reference.</li>
+<li><strong>Rounding policy</strong> formalised as strict floor truncation. A banker's half-even variant was rejected as incompatible with the "counter of completed units" principle (§6.4).</li>
+<li>Local Solar Time (LST) layer formally introduced as a non-normative presentation overlay (§7).</li>
+<li>Leap second policy formalised with three permitted smearing options (§8.2).</li>
 <li>§11 (Durations / <code>Δd</code>) and §12 (Binary encoding, 64-bit) added.</li>
-<li>Annexes renumbered §14, Versioning §15.</li>
+<li>§11.4 (Algebra of durations) added.</li>
+<li>§1.1 (What ATS is not), §1.2 (Biological alignment of the unit ladder), §2.3 (Epoch withstands four attacks), and §16 (Standards process &amp; governance) added in v0.7 as defensive normative content.</li>
+<li>Multi-planetary annex promoted to normative status (v0.7).</li>
+</ul>
+<hr>
+<h2>16. Standards process and governance</h2>
+<h3>16.1 Process model</h3>
+<p>ATS is developed as a <strong>living public specification</strong>. Normative decisions are made by the document editors; the public participates by submitting issues and pull requests against the canonical text. Conformant implementations are listed in the project's <code>README.md</code>.</p>
+<h3>16.2 RFC procedure</h3>
+<p>Any normative change to this document <strong>MUST</strong> follow the RFC procedure defined in <code>versioning.md §6</code>:</p>
+<ol>
+<li>The proposer opens a public RFC document (GitHub issue or pull request) describing the change, the rationale, and the migration path.</li>
+<li>The RFC remains open for public comment for a minimum of 14 calendar days.</li>
+<li>The document editors record a decision (accept, modify, reject) with reasoning.</li>
+<li>Accepted changes are recorded in <code>CHANGELOG.md</code> and become normative on merge.</li>
+</ol>
+<h3>16.3 IANA / IETF intent</h3>
+<p>The editors INTEND to submit ATS as an Informational RFC to the IETF after v1.0 freeze. An IANA registry is planned for canonical-form and short-form labels, multi-planetary body identifiers, and conformance vector locations. Until adoption by a recognised standards organisation, ATS is a <strong>publicly developed specification</strong>, not a recognised international standard.</p>
+<p>This positioning is intentional and not a weakness. Many widely-deployed standards (TOML, JSON, EditorConfig) began as publicly-developed specifications outside formal standards bodies. The criterion that matters is <strong>conformance reproducibility</strong>: any two implementations passing the conformance vectors produce identical output. ATS meets this criterion in v0.7.</p>
+<h3>16.4 Governance</h3>
+<p>Until v1.0, normative decisions belong to the document editors of record. Post-v1.0, governance is committed to a multi-editor model with the following properties:</p>
+<ul>
+<li>A minimum of three editors of record, listed in <code>GOVERNANCE.md</code>.</li>
+<li>Decision rule: rough consensus (IETF-style) with editor veto on backward-compatibility concerns.</li>
+<li>Public RFC archive: every accepted and rejected RFC is preserved in <code>docs/spec/rfcs/</code>.</li>
+<li>Implementer rotation: a recognised conformant implementation <strong>MAY</strong> nominate an editor to the panel.</li>
+</ul>
+<h3>16.5 Conformance</h3>
+<p>An implementation CLAIMS CONFORMANCE to this specification by:</p>
+<ol>
+<li>Passing <code>docs/spec/test-vectors.json</code> (Earth) bit-for-bit.</li>
+<li>Passing <code>docs/spec/test-vectors-arithmetic.json</code> (algebra) bit-for-bit.</li>
+<li>Implementing the strict parsers for canonical and short forms.</li>
+<li>Documenting its leap-second smear policy (§8.2).</li>
+<li>Documenting its precision class (default 5-digit, or extended).</li>
+</ol>
+<p>Conformance is <strong>binary, not graduated</strong>: an implementation is either conformant or not. Partial conformance to optional sections (multi-planetary, binary encoding) <strong>MUST</strong> be documented explicitly.</p>
+<hr>
+<h2>17. Glossary (full)</h2>
+<ul>
+<li><strong>ATS</strong> — Apollonian Time System; this standard.</li>
+<li><strong>Beat</strong> — Micro positional unit, 0.0001 day ≈ 8.64 s (§4.3).</li>
+<li><strong>Bloc</strong> — Micro positional unit, 0.1 day = 2 h 24 min (§4.3).</li>
+<li><strong>Blink</strong> — Micro positional unit, 0.00001 day ≈ 0.864 s (§4.3).</li>
+<li><strong>Canonical form</strong> — Fully-qualified textual representation (§4).</li>
+<li><strong>Centi</strong> — Micro positional unit, 0.01 day = 14 min 24 s (§4.3).</li>
+<li><strong>Conformance vector</strong> — A normative test case in a JSON file used by all implementations to verify bit-identical output.</li>
+<li><strong>Δ</strong> — The ATS instant symbol (U+0394).</li>
+<li><strong>Δd</strong> — The ATS duration symbol.</li>
+<li><strong>Deka</strong> — Macro positional unit, 10 days (§4.2).</li>
+<li><strong>Drift</strong> — The bounded difference between a true instant and its truncated displayed form (§6.2).</li>
+<li><strong>Epoch</strong> — The reference UTC instant <code>1969-07-20T00:00:00Z</code> (§2).</li>
+<li><strong>Floor truncation</strong> — The rounding mode mandated by §6.</li>
+<li><strong>Generation</strong> — Informal label for ≈ 10 000 days (≈ 27.4 years); NOT a positional unit (§4.2).</li>
+<li><strong>Hecto</strong> — Macro positional unit, 100 days (§4.2).</li>
+<li><strong>Kilo</strong> — Macro positional unit, 1 000 days; the only unbounded positional digit (§4.2).</li>
+<li><strong>Kin</strong> — Macro positional unit, 1 day; the solar day (§4.2).</li>
+<li><strong>Leap second smear</strong> — Implementation-chosen policy for absorbing UTC leap seconds (§8.2).</li>
+<li><strong>LST</strong> — Local Solar Time; a non-normative presentation overlay (§7).</li>
+<li><strong>Milli</strong> — Micro positional unit, 0.001 day ≈ 1 min 26.4 s (§4.3).</li>
+<li><strong>Multi-planetary annex</strong> — Normative annex extending ATS to bodies other than Earth.</li>
+<li><strong>Short form</strong> — Conversational truncated representation (§5).</li>
+<li><strong>Spec_version</strong> — A root-level string in conformance vector files identifying the spec revision that produced them.</li>
+<li><strong>T+, T-</strong> — Direction markers (§3).</li>
+<li><strong>UTC</strong> — Coordinated Universal Time (§0.2).</li>
+</ul>
+<hr>
+<h2>References</h2>
+<ul>
+<li><strong>RFC 2119</strong> — Key words for use in RFCs to Indicate Requirement Levels.</li>
+<li><strong>RFC 5234</strong> — Augmented BNF for Syntax Specifications: ABNF.</li>
+<li><strong>RFC 5905</strong> — Network Time Protocol Version 4: Protocol and Algorithms Specification.</li>
+<li><strong>RFC 8174</strong> — Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words.</li>
+<li><strong>ITU-R TF.460</strong> — Standard-frequency and time-signal emissions (UTC).</li>
+<li><strong>ISO 8601</strong> — Date and time format.</li>
+<li><strong>BCP 14</strong> — RFC 2119 + RFC 8174 (requirement levels).</li>
+<li><strong>IEEE 1588</strong> — Precision Time Protocol (PTP).</li>
 </ul>
 
