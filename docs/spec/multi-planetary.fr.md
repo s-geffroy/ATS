@@ -1,6 +1,6 @@
 # ATS — Extension multi-planétaire
 
-**Statut :** annexe **normative** v0.7-rc1 (cible v1.0)
+**Statut :** annexe **normative** v0.7 (cible v1.0)
 **Symbole générique :** `Δ_<Body>` ou `Δ_<symbole astronomique>`
 **Référence normative :** `manifesto.fr.md` (la spec Terre)
 

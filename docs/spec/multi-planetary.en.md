@@ -1,6 +1,6 @@
 # ATS — Multi-planetary extension
 
-**Status:** **normative** annex v0.7-rc1 (target v1.0)
+**Status:** **normative** annex v0.7 (target v1.0)
 **Generic symbol:** `Δ_<Body>` or `Δ_<astronomical symbol>`
 **Normative reference:** `manifesto.en.md` (the Earth spec)
 

@@ -1,6 +1,6 @@
 # Le Système Temporel Apollonien (ATS)
 
-**Statut :** Pré-release v0.5
+**Statut :** Pré-release v0.7
 **Symbole :** Δ
 **Langue source :** Anglais (le français est une traduction)
 **Idée principale :** Remplacer le modèle grégorien *année/mois/semaine + heure locale* par un standard temporel unique, universel, décimal et linéaire, ancré sur un jalon technologique à l'échelle de l'espèce.
@@ -323,7 +323,7 @@ out = (days << 24) | frac24      # décalage arithmétique ; 64 bits au total
 
 ## 15. Versionnement
 
-Cette spec est en **v0.5 (pré-release)**.
+Cette spec est en **v0.7 (pré-release)**.
 
 ### Différences avec v0.3.x (« RC v1.1 », précédente pré-release)
 

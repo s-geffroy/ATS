@@ -3,7 +3,7 @@
 > Standard temporel décimal, linéaire, universel — ancré sur le **début du jour** de l'alunissage d'Apollo 11 (1969‑07‑20T00:00:00Z). **Bloc 5 = 12:00 UTC.**
 
 **Symbole :** Δ
-**Statut :** Pré-release **v0.6.0** (Δ/Δd algebra · 5 ponts calendaires · PWA · Pagefind)
+**Statut :** Pré-release **v0.7.0** (forme courte `ΔK.H.D.Kin-BC.M` · annexe multi-planétaire normative · page Cités carte du monde)
 **Site :** https://s-geffroy.github.io/ATS/ (bilingue FR / EN)
 **Badge :** [![I run on Δ ATS](https://s-geffroy.github.io/ATS/assets/badge.svg)](https://s-geffroy.github.io/ATS/)
 
@@ -22,7 +22,7 @@ Lecture : 20 Kilos, 7 Hecto, 8 Deka, 2 Kin, fraction de jour `.50000` (= Bloc 5 
 
 | Dossier / fichier | Rôle |
 |---|---|
-| `docs/spec/manifesto.{en,fr}.md` | **Manifeste v0.5** — source de vérité |
+| `docs/spec/manifesto.{en,fr}.md` | **Manifeste v0.7** — source de vérité |
 | `docs/spec/{philosophy,comparison,faq}.{en,fr}.md` | Annexes : philosophie, comparatif, FAQ |
 | `docs/spec/_rendered/*.html` | Fragments HTML pré-rendus (générés par `scripts/render-md.mjs`) |
 | `docs/spec/test-vectors.json` | **12 instants de référence** — contrat de conformance |
@@ -126,7 +126,7 @@ Toute implémentation tierce doit produire des sorties **bit-identiques** sur `d
 
 ## Versionnement
 
-Manifeste et code/site sont alignés sur **v0.5** (pré-release ; le projet est toujours pré-v1). Voir [`CHANGELOG.md`](./CHANGELOG.md). La bascule depuis l'ancien epoch (1969-07-20T20:17:40Z) est un **breaking change** : aucune conversion automatique n'est fournie.
+Manifeste, code, site et annexe multi-planétaire sont alignés sur **v0.7.0** (pré-release ; le projet est toujours pré-v1). Voir [`CHANGELOG.md`](./CHANGELOG.md). La bascule depuis l'ancien epoch (1969-07-20T20:17:40Z) et le passage du séparateur `/` à `-` en forme courte sont des **breaking changes** : aucune conversion automatique n'est fournie.
 
 ## Licence
 

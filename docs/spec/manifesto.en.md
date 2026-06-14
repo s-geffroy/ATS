@@ -1,6 +1,6 @@
 # The Apollonian Time System (ATS)
 
-**Status:** Pre-release v0.5
+**Status:** Pre-release v0.7
 **Symbol:** Δ
 **Authoritative language:** English (French is a translation)
 **Core idea:** Replace the Gregorian *year/month/week + local time* model with a single, universal, decimal, linear time standard anchored to a species-level technological milestone.
@@ -323,7 +323,7 @@ out = (days << 24) | frac24      # arithmetic shift; 64 bits total
 
 ## 15. Versioning
 
-This spec is **v0.5 (pre-release)**.
+This spec is **v0.7 (pre-release)**.
 
 ### Changes from v0.3.x (previous pre-release, "RC v1.1")
 

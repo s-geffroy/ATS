@@ -1,5 +1,5 @@
 <h1>Le Système Temporel Apollonien (ATS)</h1>
-<p><strong>Statut :</strong> Pré-release v0.5
+<p><strong>Statut :</strong> Pré-release v0.7
 <strong>Symbole :</strong> Δ
 <strong>Langue source :</strong> Anglais (le français est une traduction)
 <strong>Idée principale :</strong> Remplacer le modèle grégorien <em>année/mois/semaine + heure locale</em> par un standard temporel unique, universel, décimal et linéaire, ancré sur un jalon technologique à l'échelle de l'espèce.</p>
@@ -401,7 +401,7 @@ out = (days &lt;&lt; 24) | frac24      # décalage arithmétique ; 64 bits au to
 </ul>
 <hr>
 <h2>15. Versionnement</h2>
-<p>Cette spec est en <strong>v0.5 (pré-release)</strong>.</p>
+<p>Cette spec est en <strong>v0.7 (pré-release)</strong>.</p>
 <h3>Différences avec v0.3.x (« RC v1.1 », précédente pré-release)</h3>
 <ul>
 <li><strong>Époque déplacée</strong> de l'instant d'alunissage (1969‑07‑20T20:17:40Z) au <strong>début du jour de l'alunissage</strong> (1969‑07‑20T00:00:00Z). C'est un <strong>breaking change</strong> : toute valeur ATS produite par les versions antérieures est décalée de 73 060 s ≈ 0,84560 jour. Le projet étant encore en pré-v1, <strong>aucun convertisseur n'est fourni</strong> : les consommateurs doivent régénérer leurs valeurs.</li>

@@ -1,4 +1,4 @@
-"""ATS — Multi-planetary extension (v0.7-rc1, target v1.0).
+"""ATS — Multi-planetary extension (v0.7, target v1.0).
 
 Generalizes the Earth ATS counter (manifesto §1-15) to other celestial
 bodies. Each ``Body`` is parameterized by an ``epoch`` UTC instant and

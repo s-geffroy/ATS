@@ -6,6 +6,21 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — vers v1.0
 
+_(rien encore — la prochaine entrée passera ici)_
+
+---
+
+## [0.7.0] — 2026-06-14
+
+### Audit & harmonisation
+- **Versions alignées** : `manifesto.{en,fr}.md`, `multi-planetary.{en,fr}.md`, `pyproject.toml`, `code/ats_multi_planetary.py`, README et tous les footers HTML (28 pages) passent à **v0.7.0**. Le manifeste annonçait encore v0.5 alors que le format court v0.7 était en prod ; le multi-planétaire passe de `v0.7-rc1` à `v0.7` normatif.
+- **CSP durcie** : retrait de `'wasm-unsafe-eval'` sur les 4 pages (`{fr,en}/{faq,manifesto|manifeste}.html`) où aucun WASM n'est chargé.
+- **A11y carte** : `:focus-visible` restauré sur `.cities-pin` (l'outline était écrasé), hits des trigrammes horloge agrandis de r=14 à r=18 (touch target), hauteur min du slider Cités passée à 44 px.
+- **Thèmes** : couleurs `.cities-pin[data-state="…"]`, Beat/Blink, erreurs passées de hex codés en dur à `color-mix(in oklab, … CanvasText/Canvas)` pour respecter dark mode + thèmes terminal/aquarelle/néon.
+- **Refactor** : `getTzOffsetMin()` extrait en util partagé `tz-utils.js` (était dupliqué entre `clock-page.js` et `cities-page.js`). `_US_PER_DAY` réutilisée dans `ats_multi_planetary.py`. Regex `_ATS_SHORT_RE` durcie (refuse l'espace en bordure).
+- **HTML polish** : `data-lang` ajouté sur ~10 pages où il manquait, `rel="noopener"` sur tous les liens externes, `lang-switch` de `fr/index.html` désormais explicite (`../en/index.html`).
+- **Process** : section `## [0.7.0]` créée (le CHANGELOG n'avait pas de release officielle v0.6.0 → v0.7.0 documentée). `pages-build` workflow GitHub Actions ajouté pour garantir `render-md.mjs` avant deploy. `spec_version` ajouté à `now.json`. Validateur `cities.json` ajouté au CI (codes uniques, tz IANA valides, lat/lon bornés, ordre chronologique).
+
 ### Changed — Forme courte v0.7 : `Δ20.7.8.2-50.0` (suppression de l'espace, séparateur `-`, ajout du Milli)
 **Rupture de format (sans rétrocompat).** L'ancienne forme `Δ K.H.D.Kin/cc` est remplacée par `ΔK.H.D.Kin-BC.M` :
 - Plus d'espace entre `Δ` et le premier chiffre.

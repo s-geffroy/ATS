@@ -6,8 +6,8 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://raw.githubusercontent.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
-  <meta name="description" content="Δ ATS specification v0.5 — decimal date-time format, epoch, units, rounding policy, time zones, leap seconds, durations, binary encoding." />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://raw.githubusercontent.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+  <meta name="description" content="Δ ATS specification v0.7.0 — decimal date-time format, epoch, units, rounding policy, time zones, leap seconds, durations, binary encoding." />
   <link rel="canonical" href="https://s-geffroy.github.io/ATS/en/manifesto.html" />
   <link rel="alternate" hreflang="en" href="https://s-geffroy.github.io/ATS/en/manifesto.html" />
   <link rel="alternate" hreflang="fr" href="https://s-geffroy.github.io/ATS/fr/manifeste.html" />
@@ -15,14 +15,14 @@
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:title" content="Δ ATS — Manifesto" />
-  <meta property="og:description" content="Δ ATS specification v0.5 — decimal date-time format, epoch, units, rounding policy, time zones, leap seconds, durations, binary encoding." />
+  <meta property="og:description" content="Δ ATS specification v0.7.0 — decimal date-time format, epoch, units, rounding policy, time zones, leap seconds, durations, binary encoding." />
   <meta property="og:url" content="https://s-geffroy.github.io/ATS/en/manifesto.html" />
   <meta property="og:image" content="https://s-geffroy.github.io/ATS/assets/og-card.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Δ ATS — Manifesto" />
-  <meta name="twitter:description" content="Δ ATS specification v0.5 — decimal date-time format, epoch, units, rounding policy, time zones, leap seconds, durations, binary encoding." />
+  <meta name="twitter:description" content="Δ ATS specification v0.7.0 — decimal date-time format, epoch, units, rounding policy, time zones, leap seconds, durations, binary encoding." />
   <meta name="twitter:image" content="https://s-geffroy.github.io/ATS/assets/og-card.png" />
   <title>Δ ATS — Manifesto</title>
   <link rel="stylesheet" href="../assets/css/style.css" />
@@ -53,7 +53,7 @@
     <article id="content" class="markdown">
 <!-- ATS:INLINE manifesto.en.md -->
 <h1>The Apollonian Time System (ATS)</h1>
-<p><strong>Status:</strong> Pre-release v0.5
+<p><strong>Status:</strong> Pre-release v0.7
 <strong>Symbol:</strong> Δ
 <strong>Authoritative language:</strong> English (French is a translation)
 <strong>Core idea:</strong> Replace the Gregorian <em>year/month/week + local time</em> model with a single, universal, decimal, linear time standard anchored to a species-level technological milestone.</p>
@@ -295,7 +295,7 @@
 <li>Three-digit fraction only (Bloc + Centi + Milli; the finer positions Beat/Blink are assumed <code>0</code>).</li>
 <li>Kilo is shown in full — there is <strong>no Myriade context</strong> to recover.</li>
 </ul>
-<p>Implementations decoding a short form into a precise Gregorian instant SHOULD label the result as approximate (precision: ±~14 min 24 s — one Centi).</p>
+<p>Implementations decoding a short form into a precise Gregorian instant SHOULD label the result as approximate (precision: ±~1 min 26 s — one Milli).</p>
 <hr>
 <h2>11. Durations (Δd)</h2>
 <p>ATS up to §10 describes <strong>instants</strong>. A separate notation is defined for <strong>durations</strong> (deltas between instants).</p>
@@ -455,7 +455,7 @@ out = (days &lt;&lt; 24) | frac24      # arithmetic shift; 64 bits total
 </ul>
 <hr>
 <h2>15. Versioning</h2>
-<p>This spec is <strong>v0.5 (pre-release)</strong>.</p>
+<p>This spec is <strong>v0.7 (pre-release)</strong>.</p>
 <h3>Changes from v0.3.x (previous pre-release, "RC v1.1")</h3>
 <ul>
 <li><strong>Epoch shifted</strong> from the touchdown instant (1969‑07‑20T20:17:40Z) to the <strong>start of the landing day</strong> (1969‑07‑20T00:00:00Z). This is a <strong>breaking change</strong>: every stored ATS value from earlier drafts is offset by 73 060 s ≈ 0.84560 day. Because the project is still pre-v1, no conversion shim is provided; consumers should regenerate their values.</li>
@@ -483,7 +483,7 @@ out = (days &lt;&lt; 24) | frac24      # arithmetic shift; 64 bits total
   </main>
 
   <footer class="site">
-    Δ ATS v0.6.0 · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
+    Δ ATS v0.7.0 · <a href="https://github.com/s-geffroy/ATS" rel="noopener">GitHub</a>
   </footer>
   <script src="../assets/js/search.js" defer></script>
   <script src="../assets/js/site.js" defer></script>

@@ -1,5 +1,5 @@
 <h1>The Apollonian Time System (ATS)</h1>
-<p><strong>Status:</strong> Pre-release v0.5
+<p><strong>Status:</strong> Pre-release v0.7
 <strong>Symbol:</strong> Δ
 <strong>Authoritative language:</strong> English (French is a translation)
 <strong>Core idea:</strong> Replace the Gregorian <em>year/month/week + local time</em> model with a single, universal, decimal, linear time standard anchored to a species-level technological milestone.</p>
@@ -401,7 +401,7 @@ out = (days &lt;&lt; 24) | frac24      # arithmetic shift; 64 bits total
 </ul>
 <hr>
 <h2>15. Versioning</h2>
-<p>This spec is <strong>v0.5 (pre-release)</strong>.</p>
+<p>This spec is <strong>v0.7 (pre-release)</strong>.</p>
 <h3>Changes from v0.3.x (previous pre-release, "RC v1.1")</h3>
 <ul>
 <li><strong>Epoch shifted</strong> from the touchdown instant (1969‑07‑20T20:17:40Z) to the <strong>start of the landing day</strong> (1969‑07‑20T00:00:00Z). This is a <strong>breaking change</strong>: every stored ATS value from earlier drafts is offset by 73 060 s ≈ 0.84560 day. Because the project is still pre-v1, no conversion shim is provided; consumers should regenerate their values.</li>
