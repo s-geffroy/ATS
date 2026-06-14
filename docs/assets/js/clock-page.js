@@ -416,7 +416,7 @@
       const hit = document.createElementNS(NS, 'circle');
       hit.setAttribute('cx', lx.toFixed(2));
       hit.setAttribute('cy', ly.toFixed(2));
-      hit.setAttribute('r', '14');
+      hit.setAttribute('r', '18');
       hit.setAttribute('class', 'city-hit');
       hit.setAttribute('fill', 'transparent');
       hit.setAttribute('role', 'button');

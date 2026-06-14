@@ -353,7 +353,8 @@ a:hover { text-decoration: underline; }
 }
 .face-toggle button[aria-selected="true"] {
   background: var(--accent);
-  color: #ffffff;
+  /* Compute readable text on the accent regardless of theme (light accent → dark text, dark accent → light text). */
+  color: color-mix(in oklab, var(--accent), Canvas 90%);
   opacity: 1;
 }
 .face-toggle button:focus-visible {
@@ -385,8 +386,10 @@ a:hover { text-decoration: underline; }
 .ats-readout .u-bloc  { color: var(--fg); }
 .ats-readout .u-centi { color: var(--accent); }
 .ats-readout .u-milli { color: var(--fg); opacity: 0.5; }
-.ats-readout .u-beat  { color: #2bb673; }
-.ats-readout .u-blink { color: #ff5a5a; }
+/* Beat & Blink: blend the brand greens/reds with CanvasText so they remain
+   distinct from each other AND legible against any theme background. */
+.ats-readout .u-beat  { color: color-mix(in oklab, #2bb673 65%, CanvasText); }
+.ats-readout .u-blink { color: color-mix(in oklab, #ff5a5a 65%, CanvasText); }
 
 /* World-cities color legend (matin / midi / soir) and city list. */
 .city-legend {
@@ -521,22 +524,29 @@ a:hover { text-decoration: underline; }
   r: 11;
   fill: color-mix(in oklab, CanvasText 95%, Canvas);
 }
+/* Keyboard focus must stay visible — the dot's stroke alone is not enough. */
 .cities-pin:focus { outline: none; }
-.cities-pin:focus .cities-pin-dot {
+.cities-pin:focus-visible .cities-pin-dot {
+  stroke: color-mix(in oklab, var(--accent) 80%, CanvasText);
+  stroke-width: 2.5;
+}
+.cities-pin:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
+.cities-pin:focus:not(:focus-visible) .cities-pin-dot {
   stroke: color-mix(in oklab, CanvasText 60%, transparent);
   stroke-width: 2;
 }
-/* State-tinted halo around dot, very subtle */
-.cities-pin[data-state="sleep"]    .cities-pin-dot { fill: #2c3e6b; }
-.cities-pin[data-state="wake"]     .cities-pin-dot { fill: #f5a04a; }
-.cities-pin[data-state="breakfast"].cities-pin-dot { fill: #d97759; }
-.cities-pin[data-state="commute"]  .cities-pin-dot { fill: #6b7280; }
-.cities-pin[data-state="school"]   .cities-pin-dot { fill: #8b5cf6; }
-.cities-pin[data-state="work"]     .cities-pin-dot { fill: #4a6cff; }
-.cities-pin[data-state="lunch"]    .cities-pin-dot { fill: #eab308; }
-.cities-pin[data-state="evening"]  .cities-pin-dot { fill: #ec4899; }
-.cities-pin[data-state="dinner"]   .cities-pin-dot { fill: #c2410c; }
-.cities-pin[data-state="leisure"]  .cities-pin-dot { fill: #14b8a6; }
+/* State-tinted halo around dot. Each base hex is blended with CanvasText so the
+   pin keeps theme-aware contrast on light, dark, terminal, and neon palettes. */
+.cities-pin[data-state="sleep"]    .cities-pin-dot { fill: color-mix(in oklab, #2c3e6b 70%, CanvasText); }
+.cities-pin[data-state="wake"]     .cities-pin-dot { fill: color-mix(in oklab, #f5a04a 70%, CanvasText); }
+.cities-pin[data-state="breakfast"].cities-pin-dot { fill: color-mix(in oklab, #d97759 70%, CanvasText); }
+.cities-pin[data-state="commute"]  .cities-pin-dot { fill: color-mix(in oklab, #6b7280 70%, CanvasText); }
+.cities-pin[data-state="school"]   .cities-pin-dot { fill: color-mix(in oklab, #8b5cf6 70%, CanvasText); }
+.cities-pin[data-state="work"]     .cities-pin-dot { fill: color-mix(in oklab, #4a6cff 70%, CanvasText); }
+.cities-pin[data-state="lunch"]    .cities-pin-dot { fill: color-mix(in oklab, #eab308 70%, CanvasText); }
+.cities-pin[data-state="evening"]  .cities-pin-dot { fill: color-mix(in oklab, #ec4899 70%, CanvasText); }
+.cities-pin[data-state="dinner"]   .cities-pin-dot { fill: color-mix(in oklab, #c2410c 70%, CanvasText); }
+.cities-pin[data-state="leisure"]  .cities-pin-dot { fill: color-mix(in oklab, #14b8a6 70%, CanvasText); }
 
 .cities-controls {
   display: flex;
@@ -559,6 +569,7 @@ a:hover { text-decoration: underline; }
   flex: 1;
   min-width: 180px;
   max-width: 480px;
+  min-height: 44px;            /* WCAG touch target on mobile */
   accent-color: color-mix(in oklab, CanvasText 60%, transparent);
 }
 .cities-caption {
@@ -768,7 +779,7 @@ button:hover { background: color-mix(in oklab, Canvas 80%, CanvasText); }
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 .status.ok { color: color-mix(in oklab, CanvasText 75%, transparent); }
-.status.err { color: #d34a4a; }
+.status.err { color: color-mix(in oklab, #d34a4a 75%, CanvasText); }
 
 /* Markdown rendering */
 .markdown {
