@@ -469,6 +469,7 @@
     group.removeAttribute('hidden');
     const NS = 'http://www.w3.org/2000/svg';
     const today = new Date();
+    const boundaryHours = new Set();
     for (let s = 0; s < SLOTS.length; s++) {
       const slot = SLOTS[s];
       const f1 = localHourToDayFrac(city.tz, slot.from, today);
@@ -490,7 +491,28 @@
       wedge.setAttribute('opacity', String(CAMEMBERT_OPACITY));
       wedge.setAttribute('stroke', 'none');
       group.appendChild(wedge);
+      boundaryHours.add(slot.from);
+      boundaryHours.add(slot.to);
     }
+    // Radial separators between adjacent periods (matin|midi, midi|après-midi, etc.)
+    // and on the two edges of the 22-08 night gap. Same city colour at higher
+    // opacity than the wedge fill so the boundaries read clearly through the
+    // transparent fill without competing with the hands on top.
+    boundaryHours.forEach(function (h) {
+      const f = localHourToDayFrac(city.tz, h, today);
+      const a = f * 2 * Math.PI - Math.PI / 2;
+      const x = CAMEMBERT_R * Math.cos(a);
+      const y = CAMEMBERT_R * Math.sin(a);
+      const sep = document.createElementNS(NS, 'line');
+      sep.setAttribute('x1', '0');
+      sep.setAttribute('y1', '0');
+      sep.setAttribute('x2', x.toFixed(2));
+      sep.setAttribute('y2', y.toFixed(2));
+      sep.setAttribute('stroke', city.color);
+      sep.setAttribute('stroke-width', '1');
+      sep.setAttribute('opacity', '0.55');
+      group.appendChild(sep);
+    });
   }
 
   // Bring the selected city's halo + trigram to the foreground on the outer
