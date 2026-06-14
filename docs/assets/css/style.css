@@ -468,25 +468,6 @@ a:hover { text-decoration: underline; }
 .city-hit   { cursor: pointer; }
 .city-hit:focus-visible { outline: 2px solid currentColor; outline-offset: 1px; }
 
-/* Centred camembert that appears when a trigram is clicked. 4 wedges of
-   the city colour, no labels on the wedges themselves — only the trigram
-   and full name at the centre, picked for contrast against the colour. */
-.cam-trigram {
-  font-family: ui-monospace, Menlo, Consolas, monospace;
-  font-weight: 700;
-  font-size: 12px;
-  text-anchor: middle;
-  dominant-baseline: middle;
-}
-.cam-label {
-  font-family: ui-sans-serif, system-ui, sans-serif;
-  font-weight: 500;
-  font-size: 7px;
-  text-anchor: middle;
-  dominant-baseline: middle;
-  opacity: 0.8;
-}
-
 /* Cities × activities page — wide matrix table. Sticky header row + first
    column keep the city name and activity label visible while the user
    scrolls horizontally on narrow screens. Each cell stacks the local

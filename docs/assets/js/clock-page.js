@@ -340,10 +340,16 @@
   //   • the centred camembert
   //   • hand-inner-radius offset (so hands don't overlap the camembert)
   let focusedCity = null;
-  // Inner radius the hands collapse to during focus mode. Picked so every
-  // hand (Bloc=40 .. Blink=95) keeps a visible segment outside the camembert.
-  const CAMEMBERT_R = 26;
-  const HAND_INNER_R = 30;
+  // Camembert fills the inner dial to r=100 (the main ring). Wedges are
+  // semi-transparent so the ticks, labels, and the 5 hands stay legible
+  // straight through them.
+  const CAMEMBERT_R = 100;
+  const CAMEMBERT_OPACITY = 0.20;
+  // Focused trigram emphasis on the outer ring: bigger halo + bigger code.
+  const HALO_R_DEFAULT = 8.5;
+  const HALO_R_FOCUS   = 12;
+  const CODE_SIZE_DEFAULT = 10;
+  const CODE_SIZE_FOCUS   = 14;
 
   function buildCityArcs() {
     const group = document.getElementById('city-arcs');
@@ -387,10 +393,11 @@
       const halo = document.createElementNS(NS, 'circle');
       halo.setAttribute('cx', lx.toFixed(2));
       halo.setAttribute('cy', ly.toFixed(2));
-      halo.setAttribute('r', '8.5');
+      halo.setAttribute('r', String(HALO_R_DEFAULT));
       halo.setAttribute('class', 'city-halo');
       halo.setAttribute('fill', city.color);
       halo.setAttribute('pointer-events', 'none');
+      halo.dataset.cityCode = city.code;
       group.appendChild(halo);
       const t = document.createElementNS(NS, 'text');
       t.setAttribute('x', lx.toFixed(2));
@@ -398,11 +405,12 @@
       t.setAttribute('text-anchor', 'middle');
       t.setAttribute('dominant-baseline', 'middle');
       t.setAttribute('font-family', 'ui-monospace, Menlo, Consolas, monospace');
-      t.setAttribute('font-size', '10');
+      t.setAttribute('font-size', String(CODE_SIZE_DEFAULT));
       t.setAttribute('font-weight', '700');
       t.setAttribute('class', 'city-code');
       t.setAttribute('fill', textColor);
       t.setAttribute('pointer-events', 'none');
+      t.dataset.cityCode = city.code;
       t.textContent = city.code;
       group.appendChild(t);
       const hit = document.createElementNS(NS, 'circle');
@@ -450,8 +458,9 @@
   // -------- Camembert + focus state --------
   // Build (or rebuild) the centred wedge group for the currently focused city.
   // Each of the 4 slots (matin / midi / après-midi / soir) becomes a pie wedge
-  // anchored at the city's LOCAL hour-of-day on the 24 h dial. The 22-08 night
-  // gap is intentionally empty so the centre of the dial stays readable.
+  // anchored at the city's LOCAL hour-of-day on the 24 h dial. Wedges fan all
+  // the way out to the main ring (r=100) and are very transparent so the
+  // hands, ticks, and labels remain fully readable on top.
   function buildCamembert(city) {
     const group = document.getElementById('city-camembert');
     if (!group) return;
@@ -460,7 +469,6 @@
     group.removeAttribute('hidden');
     const NS = 'http://www.w3.org/2000/svg';
     const today = new Date();
-    const textColor = pickContrastText(city.color);
     for (let s = 0; s < SLOTS.length; s++) {
       const slot = SLOTS[s];
       const f1 = localHourToDayFrac(city.tz, slot.from, today);
@@ -479,42 +487,30 @@
       const wedge = document.createElementNS(NS, 'path');
       wedge.setAttribute('d', d);
       wedge.setAttribute('fill', city.color);
-      wedge.setAttribute('opacity', '0.85');
-      wedge.setAttribute('stroke', 'Canvas');
-      wedge.setAttribute('stroke-width', '0.5');
-      if (slot.dasharray) {
-        wedge.setAttribute('stroke-dasharray', slot.dasharray);
-        wedge.setAttribute('stroke-linecap', slot.linecap);
-      }
+      wedge.setAttribute('opacity', String(CAMEMBERT_OPACITY));
+      wedge.setAttribute('stroke', 'none');
       group.appendChild(wedge);
     }
-    // Centre trigram + label so the focused city is named even at a glance.
-    const trig = document.createElementNS(NS, 'text');
-    trig.setAttribute('class', 'cam-trigram');
-    trig.setAttribute('x', '0');
-    trig.setAttribute('y', '-2');
-    trig.setAttribute('fill', textColor);
-    trig.textContent = city.code;
-    group.appendChild(trig);
-    const label = document.createElementNS(NS, 'text');
-    label.setAttribute('class', 'cam-label');
-    label.setAttribute('x', '0');
-    label.setAttribute('y', '8');
-    label.setAttribute('fill', textColor);
-    label.textContent = city.label;
-    group.appendChild(label);
   }
 
-  // Move the inner end of every hand to the periphery of the camembert (or
-  // back to the centre when leaving focus mode). The animation each tick only
-  // touches `transform` — the x1/y1 we set here is therefore stable.
-  function setHandsInnerRadius(r) {
-    const hands = [handBloc, handCenti, handMilli, handBeat, handBlink];
-    hands.forEach(function (h) {
-      if (!h) return;
-      h.setAttribute('x1', '0');
-      h.setAttribute('y1', (-r).toFixed(2));
-    });
+  // Bring the selected city's halo + trigram to the foreground on the outer
+  // ring, restoring all the others to their default size. With the centre
+  // label gone, this is the only on-dial signal of which city is focused.
+  function highlightSelectedTrigram(city) {
+    const arcGroup = document.getElementById('city-arcs');
+    if (!arcGroup) return;
+    const halos = arcGroup.querySelectorAll('circle.city-halo[data-city-code]');
+    for (let i = 0; i < halos.length; i++) {
+      const h = halos[i];
+      const focused = city && h.dataset.cityCode === city.code;
+      h.setAttribute('r', String(focused ? HALO_R_FOCUS : HALO_R_DEFAULT));
+    }
+    const codes = arcGroup.querySelectorAll('text.city-code[data-city-code]');
+    for (let i = 0; i < codes.length; i++) {
+      const t = codes[i];
+      const focused = city && t.dataset.cityCode === city.code;
+      t.setAttribute('font-size', String(focused ? CODE_SIZE_FOCUS : CODE_SIZE_DEFAULT));
+    }
   }
 
   // Single entry-point for any change to the focused city. Idempotent.
@@ -536,10 +532,7 @@
       }
     }
     buildCamembert(focusedCity);
-    setHandsInnerRadius(focusedCity ? HAND_INNER_R : 0);
-    // The blink dot sits inside the dial — keep it hidden while the camembert
-    // is on so it doesn't visually float through the wedges.
-    if (handBlinkDot) handBlinkDot.style.opacity = focusedCity ? '0' : '1';
+    highlightSelectedTrigram(focusedCity);
   }
 
   // ESC unfocuses; the listener is always on (it's a no-op when focusedCity
