@@ -472,7 +472,7 @@ a:hover { text-decoration: underline; }
    equirectangular projection; the pin's emoji morphs with what's
    happening LOCALLY at the current reference UTC instant. The user can
    either watch live (1 Hz tick) or scrub a slider through the 24 h day. */
-.cities-note { max-width: 70ch; }
+.cities-note { max-width: none; }
 .cities-legend {
   display: flex;
   flex-wrap: wrap;
