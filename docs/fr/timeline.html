@@ -93,6 +93,23 @@
     }
     .legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
     .legend .swatch { width: 0.7rem; height: 0.7rem; border-radius: 999px; border: 1px solid currentColor; }
+    .tl-event .src {
+      grid-column: 1 / -1;
+      font-size: 0.78rem;
+      opacity: 0.7;
+      margin-top: 0.1rem;
+    }
+    .tl-event .src a { color: inherit; text-decoration: underline; text-decoration-style: dotted; }
+    .tl-event .src.computed { font-style: italic; }
+    .criteria, .disclosure {
+      margin: 1.5rem 0;
+      padding: 0.75rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: color-mix(in oklab, var(--accent) 5%, transparent);
+      border-radius: 0 6px 6px 0;
+      font-size: 0.9rem;
+    }
+    .criteria h2, .disclosure h2 { margin-top: 0; font-size: 1rem; }
   </style>
 </head>
 <body data-lang="fr">
@@ -125,6 +142,18 @@
       <strong>à l'intérieur</strong> de Δ 0, signalé par un badge ★. Bloc 5 vaut exactement 12:00 UTC.
     </p>
 
+    <section class="criteria" aria-label="Critères de sélection">
+      <h2>Critères de sélection</h2>
+      <p>Un événement entre dans la frise quand il satisfait <strong>tous</strong> les critères suivants :</p>
+      <ul>
+        <li><strong>Sourcé</strong> : une source primaire ou secondaire reconnue (Wikipédia, article peer-reviewed, archive officielle) est liée sous chaque entrée.</li>
+        <li><strong>Instant vérifiable</strong> : l'heure UTC est documentée à la minute près, ou la journée est documentée et l'heure est normalisée à 00:00 UTC.</li>
+        <li><strong>Lisible civilisationnellement</strong> : reconnaissable par un large public, illustre un point d'inflexion en sciences, technologies, politique ou exploration spatiale.</li>
+        <li><strong>Ancré relativement à Δ 0</strong> : l'entrée se lit naturellement en T- et T+ — la valeur de la frise est de <em>voir</em> le XXᵉ siècle compressé autour d'un seul point.</li>
+      </ul>
+      <p>Les conventions internes ATS (Δ 0, Δ 100, Δ 1000) sont calculées directement à partir de l'époque ; leurs entrées indiquent <em>calculé depuis l'époque</em> au lieu de citer une source externe.</p>
+    </section>
+
     <div class="legend" aria-label="Légende des thèmes">
       <span class="item tag space"><span class="swatch" style="background:#8b5cf6;border-color:#8b5cf6"></span>Espace</span>
       <span class="item tag science"><span class="swatch" style="background:#4a6cff;border-color:#4a6cff"></span>Sciences</span>
@@ -140,103 +169,136 @@
         <div class="ats">T- Δ 23.3.9.6.00000</div>
         <span class="tag science">Sciences</span>
         <div class="label">Relativité restreinte (Einstein)</div>
+        <div class="src">Source : <a href="https://fr.wikipedia.org/wiki/Articles_de_l%27ann%C3%A9e_1905_d%27Einstein" rel="noopener">Articles de l'année 1905 d'Einstein — Wikipédia</a> (publication le 1905-09-26 dans <em>Annalen der Physik</em> ; date UTC normalisée à la réception 1905-06-30).</div>
       </div>
       <div class="tl-event">
         <div class="when">1945-08-06 — 08:15 UTC</div>
         <div class="ats">T- Δ 8.7.4.8.65625</div>
         <span class="tag politics">Politique</span>
         <div class="label">Hiroshima</div>
+        <div class="src">Source : <a href="https://fr.wikipedia.org/wiki/Bombardements_atomiques_d%27Hiroshima_et_de_Nagasaki" rel="noopener">Bombardements atomiques d'Hiroshima et de Nagasaki — Wikipédia</a>.</div>
       </div>
       <div class="tl-event">
         <div class="when">1953-04-25 — 00:00 UTC</div>
         <div class="ats">T- Δ 5.9.3.0.00000</div>
         <span class="tag science">Sciences</span>
         <div class="label">Découverte de la structure de l'ADN (Watson/Crick)</div>
+        <div class="src">Source : <a href="https://fr.wikipedia.org/wiki/Structure_mol%C3%A9culaire_des_acides_nucl%C3%A9iques_:_une_structure_pour_l%27acide_d%C3%A9soxyribonucl%C3%A9ique" rel="noopener">Watson &amp; Crick (1953), Nature 171 : 737–738 — Wikipédia</a>.</div>
       </div>
       <div class="tl-event">
         <div class="when">1957-10-04 — 19:28:34 UTC</div>
         <div class="ats">T- Δ 4.3.0.6.18849</div>
         <span class="tag space">Espace</span>
         <div class="label">Spoutnik 1 — premier satellite</div>
+        <div class="src">Source : <a href="https://fr.wikipedia.org/wiki/Spoutnik_1" rel="noopener">Spoutnik 1 — Wikipédia</a> (lancement 1957-10-04 19:28:34 UTC).</div>
       </div>
       <div class="tl-event">
         <div class="when">1961-04-12 — 06:07 UTC</div>
         <div class="ats">T- Δ 3.0.2.0.74513</div>
         <span class="tag space">Espace</span>
         <div class="label">Gagarine, premier humain en orbite</div>
+        <div class="src">Source : <a href="https://fr.wikipedia.org/wiki/Vostok_1" rel="noopener">Vostok 1 — Wikipédia</a> (lancement 1961-04-12 06:07 UTC).</div>
       </div>
       <div class="tl-event origin">
         <div class="when">1969-07-20 — 00:00:00 UTC</div>
         <div class="ats">T+ Δ 0.0.0.0.00000</div>
         <span class="tag origin">Origine</span>
         <div class="label">Origine ATS (Δ 0) — début du jour de l'alunissage</div>
+        <div class="src">Source : <a href="./manifeste.html#2-epoch-point-zero">manifeste §2 (époque)</a>. Calculé depuis la définition de l'époque (00:00 UTC du jour de l'alunissage).</div>
       </div>
       <div class="tl-event landmark">
         <div class="when">1969-07-20 — 20:17:40 UTC</div>
         <div class="ats">T+ Δ 0.0.0.0.84560 · Bloc 8 / Centi 4 / Deka 5 / Kin 6</div>
         <span class="tag space">Espace</span>
         <div class="label">Alunissage — Eagle s'est posé (à l'intérieur de Δ 0)</div>
+        <div class="src">Source : <a href="https://fr.wikipedia.org/wiki/Apollo_11" rel="noopener">Apollo 11 — Wikipédia</a> (touchdown Eagle 1969-07-20 20:17:40 UTC, log de vol NASA).</div>
       </div>
       <div class="tl-event convention">
         <div class="when">1969-10-28 — 00:00 UTC</div>
         <div class="ats">T+ Δ 0.1.0.0.00000</div>
         <span class="tag convention">Convention</span>
         <div class="label">Hecto-fête (Δ 100) — centième jour après l'origine</div>
+        <div class="src computed">Calculé depuis l'époque + 100 jours (cf. <a href="./conventions.html">conventions §1.2</a>).</div>
       </div>
       <div class="tl-event">
         <div class="when">1969-10-29 — 22:30 UTC</div>
         <div class="ats">T+ Δ 0.1.0.1.93750</div>
         <span class="tag tech">Tech</span>
         <div class="label">Premier message ARPANET (« lo » entre UCLA et SRI)</div>
+        <div class="src">Source : <a href="https://fr.wikipedia.org/wiki/ARPANET" rel="noopener">ARPANET — Wikipédia</a> (première transmission host-to-host 1969-10-29 22:30 PT ≈ UTC, log du laboratoire Kleinrock).</div>
       </div>
       <div class="tl-event convention">
         <div class="when">1972-04-15 — 00:00 UTC</div>
         <div class="ats">T+ Δ 1.0.0.0.00000</div>
         <span class="tag convention">Convention</span>
         <div class="label">Kilo-versaire 1 (Δ 1000) — première chiliade</div>
+        <div class="src computed">Calculé depuis l'époque + 1000 jours (cf. <a href="./conventions.html">conventions §1.1</a>).</div>
       </div>
       <div class="tl-event">
         <div class="when">1989-11-09 — 18:53 UTC</div>
         <div class="ats">T+ Δ 7.4.1.7.78680</div>
         <span class="tag politics">Politique</span>
         <div class="label">Chute du mur de Berlin</div>
+        <div class="src">Source : <a href="https://fr.wikipedia.org/wiki/Chute_du_mur_de_Berlin" rel="noopener">Chute du mur de Berlin — Wikipédia</a> (conférence de presse Schabowski 18:53 UTC).</div>
       </div>
       <div class="tl-event">
         <div class="when">1991-08-06 — 14:00 UTC</div>
         <div class="ats">T+ Δ 8.0.5.2.58333</div>
         <span class="tag tech">Tech</span>
         <div class="label">World Wide Web rendu public</div>
+        <div class="src">Source : <a href="https://fr.wikipedia.org/wiki/Histoire_du_World_Wide_Web" rel="noopener">Histoire du World Wide Web — Wikipédia</a> (annonce du projet WWW de Berners-Lee sur alt.hypertext, 1991-08-06).</div>
       </div>
       <div class="tl-event">
         <div class="when">2001-09-11 — 12:46 UTC</div>
         <div class="ats">T+ Δ 11.7.4.1.53194</div>
         <span class="tag politics">Politique</span>
         <div class="label">11-Septembre</div>
+        <div class="src">Source : <a href="https://fr.wikipedia.org/wiki/Attentats_du_11_septembre_2001" rel="noopener">Attentats du 11 septembre 2001 — Wikipédia</a> (premier impact 08:46 EDT = 12:46 UTC).</div>
       </div>
       <div class="tl-event">
         <div class="when">2007-06-29 — 00:00 UTC</div>
         <div class="ats">T+ Δ 13.8.5.8.00000</div>
         <span class="tag tech">Tech</span>
         <div class="label">Sortie de l'iPhone</div>
+        <div class="src">Source : <a href="https://fr.wikipedia.org/wiki/IPhone_(1re_g%C3%A9n%C3%A9ration)" rel="noopener">iPhone (1ʳᵉ génération) — Wikipédia</a> (lancement US retail 2007-06-29).</div>
       </div>
       <div class="tl-event">
         <div class="when">2012-07-04 — 00:00 UTC</div>
         <div class="ats">T+ Δ 15.6.9.0.00000</div>
         <span class="tag science">Sciences</span>
         <div class="label">Découverte du boson de Higgs (CERN)</div>
+        <div class="src">Source : <a href="https://fr.wikipedia.org/wiki/Boson_de_Higgs" rel="noopener">Boson de Higgs — Wikipédia</a> (annonce ATLAS &amp; CMS 2012-07-04, CERN).</div>
       </div>
       <div class="tl-event">
         <div class="when">2020-03-11 — 00:00 UTC</div>
         <div class="ats">T+ Δ 18.4.9.7.00000</div>
         <span class="tag politics">Politique</span>
         <div class="label">COVID-19 déclaré pandémie (OMS)</div>
+        <div class="src">Source : <a href="https://fr.wikipedia.org/wiki/Pand%C3%A9mie_de_Covid-19" rel="noopener">Pandémie de Covid-19 — Wikipédia</a> (briefing média du Directeur général de l'OMS, 2020-03-11).</div>
       </div>
       <div class="tl-event">
         <div class="when">2022-11-30 — 00:00 UTC</div>
         <div class="ats">T+ Δ 19.4.9.1.00000</div>
         <span class="tag tech">Tech</span>
         <div class="label">ChatGPT rendu public</div>
+        <div class="src">Source : <a href="https://fr.wikipedia.org/wiki/ChatGPT" rel="noopener">ChatGPT — Wikipédia</a> (preview publique OpenAI 2022-11-30).</div>
       </div>
+    </section>
+
+    <section class="disclosure" aria-label="Disclosure des sous-représentations">
+      <h2>Ce que cette frise ne couvre pas bien</h2>
+      <p>
+        La sélection ci-dessus est consciemment orientée vers des événements du XXᵉ siècle largement reconnus par les médias occidentaux. Les éditeurs reconnaissent les lacunes suivantes, en cohérence avec la posture non-normative documentée dans <a href="./philosophie.html#1-against-anchoring-history-on-a-religion">philosophie §1</a> et <a href="./comparaison.html">comparaison.fr.md</a> :
+      </p>
+      <ul>
+        <li><strong>Histoire asiatique</strong> sous-représentée : aucune entrée pour la fondation de la RPC en 1949, la dissolution de l'URSS en 1991 (impact russe/centre-asiatique), l'indépendance du Bangladesh en 1971, la rétrocession de Hong Kong en 1997, le séisme de Tōhoku en 2011 ou la montée des conglomérats sud-coréens.</li>
+        <li><strong>Histoire africaine</strong> sous-représentée : aucune entrée pour l'« Année de l'Afrique » 1960 (17 indépendances), la fin de l'apartheid en 1994, le génocide rwandais en 1994 ou l'indépendance du Soudan du Sud en 2011.</li>
+        <li><strong>Événements post-1990</strong> peu denses comparés à la période 1945–1989 — il y a plus de signal civilisationnel récent que cette frise ne le reflète.</li>
+        <li><strong>Événements anti-civilisationnels</strong> (Bhopal 1984, Tchernobyl 1986, Fukushima 2011, désastres climatiques attribués) majoritairement absents.</li>
+      </ul>
+      <p>
+        Les PR ajoutant des entrées sourcées sont bienvenues (cf. <a href="../../CONTRIBUTING.md">CONTRIBUTING.md</a>). Les critères de sélection ci-dessus s'appliquent.
+      </p>
     </section>
 
     <p class="muted" style="margin-top:1.5rem;">
