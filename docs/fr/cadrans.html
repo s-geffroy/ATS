@@ -87,6 +87,20 @@
       Sur chaque cadran, la zone <strong>entre 12 h et l'aiguille</strong> est ce qui est déjà passé.
     </p>
 
+    <section style="margin:1rem 0;padding:0.75rem 1rem;border-left:3px solid var(--accent);background:color-mix(in oklab, var(--accent) 5%, transparent);border-radius:0 6px 6px 0;font-size:0.92rem;">
+      <h2 style="margin-top:0;font-size:1rem;">Pourquoi les regarder côte à côte ?</h2>
+      <p style="margin:0.4rem 0;">
+        Deux questions deviennent visibles seulement quand les deux cadrans sont présents :
+      </p>
+      <ul style="margin:0.4rem 0 0.2rem 1rem;padding:0;">
+        <li><strong>Combien de la journée reste-t-il ?</strong> Lisez l'arc vide, pas les chiffres. Sur un cadran 10 Blocs, « moitié restante » = diamètre — instantanément lisible. Sur un cadran 24 h, il faut soustraire les heures de 24.</li>
+        <li><strong>Quelle proportion de la journée une tâche a-t-elle consommée ?</strong> ATS rend cela un pourcentage par construction (1 Centi = 1 % du jour). Le cadran 24 h demande de l'arithmétique.</li>
+      </ul>
+      <p style="margin:0.4rem 0 0;">
+        Détails : <a href="./philosophie.html#2-3-the-day-percentage-shift">philosophie §2.3</a>. Les deux systèmes sont équivalents en information ; ils diffèrent par la charge cognitive nécessaire pour extraire les questions du quotidien.
+      </p>
+    </section>
+
     <section class="dials">
       <div class="dial-card">
         <div class="title">Grégorien — 24 heures</div>
@@ -116,6 +130,38 @@
     <p class="muted" style="margin-top:1.5rem;">
       Un Bloc dure ≈ 2 h 24 min. Le cadran de droite tourne donc plus vite à l'œil que celui de gauche
       (10 tours d'unité par jour vs 24).
+    </p>
+
+    <section style="margin-top:2rem;">
+      <h2>Guide de lecture</h2>
+      <table class="markdown">
+        <thead><tr><th>Question</th><th>Cadran 24 heures</th><th>Cadran 10 Blocs</th></tr></thead>
+        <tbody>
+          <tr><td>Quelle heure est-il ?</td><td>Lire heures + minutes (deux nombres, base 60).</td><td>Lire le Bloc (un nombre) et le Centi après le point (pourcentage du jour).</td></tr>
+          <tr><td>Combien reste-t-il de la journée ?</td><td>24 moins l'heure courante ; estimer les minutes.</td><td>10 moins la lecture du Bloc ; l'arc vide le montre visuellement.</td></tr>
+          <tr><td>« La moitié du jour est passée »</td><td>Aiguilles à 12:00 — facile.</td><td>Bloc 5 — exactement 12:00 UTC. Tout aussi facile car le cadran a 10 graduations.</td></tr>
+          <tr><td>« Quel pourcentage du jour ai-je passé sur X ? »</td><td>(minutes passées) / (24 × 60) — arithmétique.</td><td>Delta de Centi — lecture directe.</td></tr>
+          <tr><td>« Il est temps de manger / dormir / arrêter »</td><td>Ancres culturelles (12:00, 18:00, 22:00) — norme locale.</td><td>La culture locale s'aligne sur des fractions de Bloc (cf. <a href="./cities.html">page Cités</a>).</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section style="margin-top:2rem;">
+      <h2>Petite histoire du temps décimal</h2>
+      <p>
+        ATS n'est pas la première tentative de journée décimale. Deux prédécesseurs notables :
+      </p>
+      <ul>
+        <li><strong>Temps décimal républicain français</strong> (1793–1795). 10 heures par jour, chacune subdivisée en 100 minutes de 100 secondes. Imposé par décret, abandonné en 17 mois car déphasé avec les horloges mécaniques et les habitudes. Détaillé dans <a href="./philosophie.html#4-1-french-republican-decimal-time-1793">philosophie §4.1</a>.</li>
+        <li><strong>Swatch Internet Time / @-beats</strong> (1998). 1000 « .beats » par jour ancrés sur Biel Mean Time (UTC+1, pas de DST). Un artefact marketing qui a néanmoins fait passer un point structurel : un seul nombre par jour suffit à la coordination asynchrone en ligne. Détaillé dans <a href="./comparaison.html#4-1-swatch-internet-time-beats">comparaison §4.1</a>.</li>
+      </ul>
+      <p>
+        ATS diffère des deux sur le périmètre (c'est aussi un calendrier via <code>Kilo.Hecto.Deka.Kin</code>, pas seulement une horloge), sur l'époque (le début du jour de l'alunissage, fixe, et non une Mean liée à un fuseau suisse), et sur les engagements de stabilité (une <a href="./versioning.html">spec versionnée</a> avec freeze post-v1.0).
+      </p>
+    </section>
+
+    <p class="muted" style="margin-top:1.5rem;">
+      Rationale de conception du composant : <a href="./analog-clock.html">analog-clock</a> (annexe). L'horloge complète à 5 aiguilles (Bloc / Centi / Milli / Beat / Blink) est sur la <a href="./">page d'accueil</a>.
     </p>
   </main>
 

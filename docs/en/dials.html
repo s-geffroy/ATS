@@ -72,6 +72,20 @@
       Everything between the hand and 12 o'clock is <strong>already gone</strong>.
     </p>
 
+    <section style="margin:1rem 0;padding:0.75rem 1rem;border-left:3px solid var(--accent);background:color-mix(in oklab, var(--accent) 5%, transparent);border-radius:0 6px 6px 0;font-size:0.92rem;">
+      <h2 style="margin-top:0;font-size:1rem;">Why look at both side by side?</h2>
+      <p style="margin:0.4rem 0;">
+        Two questions become visible only with both dials present:
+      </p>
+      <ul style="margin:0.4rem 0 0.2rem 1rem;padding:0;">
+        <li><strong>How much of the day is left?</strong> Read the empty arc, not the digits. On a 10-Bloc dial, "half left" is the diameter — instantly legible. On a 24-h dial, it takes a beat to subtract hours from 24.</li>
+        <li><strong>What proportion of the day has a given task consumed?</strong> ATS makes this a percentage by construction (1 Centi = 1 % of a day). The 24-h dial requires arithmetic.</li>
+      </ul>
+      <p style="margin:0.4rem 0 0;">
+        Detailed rationale: <a href="./philosophy.html#2-3-the-day-percentage-shift">philosophy §2.3</a>. The two systems are equivalent in information; they differ in the cognitive load needed to extract everyday questions.
+      </p>
+    </section>
+
     <section class="dials">
       <div class="dial-card">
         <div class="title">Gregorian — 24 hours</div>
@@ -101,6 +115,38 @@
     <p class="muted" style="margin-top:1.5rem;">
       One Bloc lasts ≈ 2 h 24 min. The right dial therefore appears to spin faster than the left one
       (10 turns per day vs 24).
+    </p>
+
+    <section style="margin-top:2rem;">
+      <h2>Reading guide</h2>
+      <table class="markdown">
+        <thead><tr><th>Question</th><th>24-hour dial</th><th>10-Bloc dial</th></tr></thead>
+        <tbody>
+          <tr><td>What time is it?</td><td>Read hours + minutes (two numbers, base-60).</td><td>Read the Bloc (one number) and the Centi after the dot (percent of the day).</td></tr>
+          <tr><td>How much of the day is left?</td><td>24 minus the current hour; estimate minutes.</td><td>10 minus the Bloc reading; the empty arc shows it visually.</td></tr>
+          <tr><td>"Half the day is over"</td><td>Hands at 12:00 — easy.</td><td>Bloc 5 — exactly 12:00 UTC. Equally easy because the dial has 10 ticks.</td></tr>
+          <tr><td>"What percent of the day have I spent on X?"</td><td>(minutes spent) / (24 × 60) — arithmetic.</td><td>Centi delta — direct read.</td></tr>
+          <tr><td>"It's time to eat / sleep / stop"</td><td>Cultural anchors (12:00, 18:00, 22:00) — local norm.</td><td>Local culture maps to Bloc fractions (cf. <a href="./cities.html">Cities page</a>).</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section style="margin-top:2rem;">
+      <h2>A short history of decimal time</h2>
+      <p>
+        ATS is not the first attempt at a decimal day. Two notable predecessors:
+      </p>
+      <ul>
+        <li><strong>French Republican decimal time</strong> (1793–1795). 10 hours per day, each subdivided into 100 minutes of 100 seconds. Mandated by decree, abandoned within 17 months for being out of phase with mechanical clocks and habit. Detailed in <a href="./philosophy.html#4-1-french-republican-decimal-time-1793">philosophy §4.1</a>.</li>
+        <li><strong>Swatch Internet Time / @-beats</strong> (1998). 1000 ".beats" per day anchored to Biel Mean Time (UTC+1, no DST). A marketing artefact that nonetheless made one structural point: a single number per day is enough for asynchronous online coordination. Detailed in <a href="./comparison.html#4-1-swatch-internet-time-beats">comparison §4.1</a>.</li>
+      </ul>
+      <p>
+        ATS differs from both in scope (it is also a calendar via <code>Kilo.Hecto.Deka.Kin</code>, not just a clock), in epoch (the start of the lunar-landing day, fixed, not a tied-to-a-Swiss-timezone Mean), and in stability commitments (a <a href="./versioning.html">versioned spec</a> with a post-v1.0 freeze).
+      </p>
+    </section>
+
+    <p class="muted" style="margin-top:1.5rem;">
+      Component design rationale: <a href="./analog-clock.html">analog-clock</a> (annex). The full clock with 5 hands (Bloc / Centi / Milli / Beat / Blink) lives on the <a href="./">home page</a>.
     </p>
   </main>
 
