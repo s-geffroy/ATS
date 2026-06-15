@@ -145,26 +145,35 @@
   }
 
   function applyAtsToDom(ats, dateForDisplay) {
-    shortEl.textContent  = ATS.toShort(ats);
-    utcEl.textContent    = fmtUTC(dateForDisplay);
-    canonEl.textContent  = ATS.toCanonical(ats);
-    utcFull.textContent  = dateForDisplay.toISOString();
-    localEl.textContent  = dateForDisplay.toString();
-    uKiloEl.textContent  = ats.kilo;
-    uHectoEl.textContent = ats.hecto;
-    uDekaEl.textContent  = ats.deka;
-    uKinEl.textContent   = ats.kin;
-    const totalDays = ats.kilo * 1000 + ats.hecto * 100 + ats.deka * 10 + ats.kin;
-    uTotalEl.textContent = totalDays.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-US') +
-      (lang === 'fr' ? ' j' : ' d');
-    // Micro units share the same digits as the analog readout
-    const fr = ats.frac;
-    if (uBlocEl)  uBlocEl.textContent  = Math.floor(fr / 10000);
-    if (uCentiEl) uCentiEl.textContent = Math.floor(fr / 1000) % 10;
-    if (uMilliEl) uMilliEl.textContent = Math.floor(fr / 100)  % 10;
-    if (uBeatEl)  uBeatEl.textContent  = Math.floor(fr / 10)   % 10;
-    if (uBlinkEl) uBlinkEl.textContent = fr % 10;
-    updateAnalog(ats, dateForDisplay);
+    // Gate per-face DOM updates by visibility. The tick fires at 10 Hz, and
+    // each face has ~10-15 element writes; updating the hidden face costs
+    // ~10 ms per tick on Moto G4 emulation for no visible benefit, which
+    // pushes Lighthouse mobile TBT well above the 200 ms gate. The active
+    // face still updates every tick; the inactive one resumes on selectFace.
+    if (!faceNumeric || !faceNumeric.hidden) {
+      shortEl.textContent  = ATS.toShort(ats);
+      utcEl.textContent    = fmtUTC(dateForDisplay);
+      canonEl.textContent  = ATS.toCanonical(ats);
+      utcFull.textContent  = dateForDisplay.toISOString();
+      localEl.textContent  = dateForDisplay.toString();
+      uKiloEl.textContent  = ats.kilo;
+      uHectoEl.textContent = ats.hecto;
+      uDekaEl.textContent  = ats.deka;
+      uKinEl.textContent   = ats.kin;
+      const totalDays = ats.kilo * 1000 + ats.hecto * 100 + ats.deka * 10 + ats.kin;
+      uTotalEl.textContent = totalDays.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-US') +
+        (lang === 'fr' ? ' j' : ' d');
+      // Micro units share the same digits as the analog readout
+      const fr = ats.frac;
+      if (uBlocEl)  uBlocEl.textContent  = Math.floor(fr / 10000);
+      if (uCentiEl) uCentiEl.textContent = Math.floor(fr / 1000) % 10;
+      if (uMilliEl) uMilliEl.textContent = Math.floor(fr / 100)  % 10;
+      if (uBeatEl)  uBeatEl.textContent  = Math.floor(fr / 10)   % 10;
+      if (uBlinkEl) uBlinkEl.textContent = fr % 10;
+    }
+    if (!faceAnalog || !faceAnalog.hidden) {
+      updateAnalog(ats, dateForDisplay);
+    }
   }
 
   // -------- Analog face --------
@@ -592,8 +601,25 @@
     }
   }
 
-  if (tabNumeric) tabNumeric.addEventListener('click', function () { selectFace('numeric'); });
-  if (tabAnalog)  tabAnalog.addEventListener('click', function () { selectFace('analog'); });
+  // Re-render the now-visible face with the current instant after a tab
+  // switch. applyAtsToDom gates writes by .hidden, so without this call the
+  // freshly-shown face would display whatever it last rendered (possibly the
+  // initial "—" placeholder if it was never the active face since boot).
+  // Safe: this helper is only invoked from user-triggered handlers, which
+  // fire well after frozenAtMs is declared.
+  function refreshVisibleFace() {
+    const ms = frozenAtMs != null ? frozenAtMs : Date.now();
+    applyAtsToDom(ATS.atsFromMs(ms), new Date(ms));
+  }
+
+  if (tabNumeric) tabNumeric.addEventListener('click', function () {
+    selectFace('numeric');
+    refreshVisibleFace();
+  });
+  if (tabAnalog)  tabAnalog.addEventListener('click', function () {
+    selectFace('analog');
+    refreshVisibleFace();
+  });
 
   if (faceToggleEl) {
     faceToggleEl.addEventListener('keydown', function (e) {
@@ -601,6 +627,7 @@
         e.preventDefault();
         const next = currentFace === 'numeric' ? 'analog' : 'numeric';
         selectFace(next);
+        refreshVisibleFace();
         (next === 'numeric' ? tabNumeric : tabAnalog).focus();
       }
     });

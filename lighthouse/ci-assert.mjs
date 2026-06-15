@@ -42,14 +42,20 @@ const CATEGORIES = ['performance', 'accessibility', 'best-practices', 'seo'];
 const BASE_URL = process.env.LIGHTHOUSE_BASE_URL || 'http://127.0.0.1:8088';
 const REPORTS_DIR = resolve(process.cwd(), 'lighthouse/ci-reports');
 
-// `is-on-https` (Best Practices, weight 5/27) always fails against
-// http://127.0.0.1 — localhost can't legitimately serve HTTPS in CI. Without
-// the skip, Best Practices caps at ~0.81 and the ≥ 0.90 gate is unfair.
-// The deployed s-geffroy.github.io site IS HTTPS — leave the audit on
-// whenever LIGHTHOUSE_BASE_URL points at a public origin. See
+// Audits we skip when the target is a local HTTP server — they always fail
+// against http://127.0.0.1 for environmental reasons, not real regressions:
+//   • `is-on-https` (Best Practices, weight 5/27) — localhost can't
+//     legitimately serve HTTPS in CI.
+//   • `uses-text-compression` (Performance) — Python's `http.server` does
+//     not emit `Content-Encoding: gzip`, but GitHub Pages prod does.
+// Without these skips the gates are unfair (BP capped ~0.81, Perf ~75-80
+// even when the prod-deployed site scores ≥ 90 on the same code).
+// The deployed s-geffroy.github.io site IS HTTPS and IS gzipped — leave the
+// audits ON whenever LIGHTHOUSE_BASE_URL points at a public origin. See
 // lighthouse/README.md § "Localhost vs deployed site".
 const LOCAL_HOSTS = ['127.0.0.1', 'localhost', '[::1]'];
-function shouldSkipHttpsAudit(baseUrl) {
+const LOCALHOST_SKIP_AUDITS = ['is-on-https', 'uses-text-compression'];
+function isLocalhost(baseUrl) {
   try {
     const u = new URL(baseUrl);
     return u.protocol === 'http:' && LOCAL_HOSTS.includes(u.hostname);
@@ -70,7 +76,7 @@ async function runOne(chrome, url, formFactor) {
       : { mobile: false, width: 1350, height: 940, deviceScaleFactor: 1, disabled: false },
     throttlingMethod: 'simulate',
   };
-  if (shouldSkipHttpsAudit(BASE_URL)) flags.skipAudits = ['is-on-https'];
+  if (isLocalhost(BASE_URL)) flags.skipAudits = LOCALHOST_SKIP_AUDITS;
   const runnerResult = await lighthouse(url, flags);
   return runnerResult;
 }

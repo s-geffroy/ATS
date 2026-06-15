@@ -26,11 +26,18 @@ We measure two things:
 
 The qualitative file is enough to demonstrate the §1.1 gain (removal of CDN `marked` + `dompurify`, removal of runtime `.md` fetch). The full Lighthouse run gives the standard scores when the host can run the Docker image natively.
 
-## Localhost vs deployed site — `is-on-https` quirk
+## Localhost vs deployed site — measurement artifacts
 
-Both the CI gate and the local Docker harness exercise pages served from `http://127.0.0.1:8088`. Lighthouse's `is-on-https` audit (Best Practices, weight 5/27) returns score 0 in that setup since localhost can't legitimately serve HTTPS, which would cap the Best Practices score at ~0.81 — well under the ≥ 0.90 gate. To keep the gate fair, `ci-assert.mjs` passes `skipAudits: ['is-on-https']` whenever the target URL points at a local HTTP host. The deployed site at <https://s-geffroy.github.io/ATS/> is HTTPS, so the audit MUST stay on when measuring there; drop the skip if `LIGHTHOUSE_BASE_URL` ever points at a public origin.
+Both the CI gate and the local Docker harness exercise pages served from `http://127.0.0.1:8088` via Python's `http.server`. Two Lighthouse audits always fail against that target for environmental reasons unrelated to the code under review:
 
-Local diagnostic scripts (`run-lighthouse.sh`, `capture-baseline.sh`) do **not** apply this skip; the resulting JSON files therefore show `is-on-https` score 0 and Best Practices ~0.81. That is a known measurement artifact, not a real regression — compare with CI scores or with a manual run against the deployed origin to validate.
+| Audit | Category | Why it fails on localhost | Why it passes in prod |
+|---|---|---|---|
+| `is-on-https` | Best Practices (weight 5/27) | localhost can't legitimately serve HTTPS | <https://s-geffroy.github.io/ATS/> is HTTPS |
+| `uses-text-compression` | Performance | `python3 -m http.server` does not emit `Content-Encoding: gzip` | GitHub Pages CDN gzips transparently |
+
+Without skipping these audits, the gates are unfair: BP caps at ~0.81 and Performance caps at ~0.75-0.80 even when the prod-deployed site scores ≥ 0.90 on the same code. `ci-assert.mjs` therefore passes `skipAudits: ['is-on-https', 'uses-text-compression']` whenever the target URL points at a local HTTP host (`127.0.0.1`, `localhost`, `[::1]`). If `LIGHTHOUSE_BASE_URL` ever points at a public origin, the skip turns off automatically and both audits run as normal.
+
+Local diagnostic scripts (`run-lighthouse.sh`, `capture-baseline.sh`) do **not** apply these skips; the resulting JSON files therefore show `is-on-https` score 0 and `uses-text-compression` reporting 70-105 KiB of savings. Those are known measurement artifacts, not real regressions — compare with CI scores or with a manual run against the deployed origin to validate.
 
 ## Platform note (Apple Silicon)
 
