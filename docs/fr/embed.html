@@ -52,10 +52,13 @@
   <main class="container">
     <h1>Intégrer l'ATS dans votre site</h1>
     <p>
-      Ajoutez l'horloge Δ n'importe où avec un seul <code>&lt;script&gt;</code> et un élément.
+      Ajoutez l'horloge Δ n'importe où avec un seul <code>&lt;script&gt;</code> et un élément. Cette page est un guide d'intégration autonome pour les sites tiers — aucune connaissance de la spec requise.
+    </p>
+    <p>
+      <strong>Renvois :</strong> rationale du composant dans <a href="./analog-clock.html">analog-clock</a> (annexe), contrat de conformité dans <a href="./manifeste.html#16-5-conformance">manifeste §16.5</a>, politique d'intégrité dans <a href="../../SECURITY.md">SECURITY.md §5</a>.
     </p>
 
-    <h2>One-liner</h2>
+    <h2 id="one-liner">1. One-liner</h2>
     <pre><code>&lt;script src="https://s-geffroy.github.io/ATS/assets/js/ats-clock.js" defer&gt;&lt;/script&gt;
 &lt;ats-clock lang="fr"&gt;&lt;/ats-clock&gt;</code></pre>
 
@@ -64,17 +67,89 @@
       <ats-clock format="short" lang="fr"></ats-clock>
     </div>
 
-    <h2>Attributs</h2>
+    <h2 id="attributes">2. Attributs configurables</h2>
     <table class="markdown">
-      <thead><tr><th>Attribut</th><th>Valeurs</th><th>Défaut</th></tr></thead>
+      <thead><tr><th>Attribut</th><th>Valeurs</th><th>Défaut</th><th>Notes</th></tr></thead>
       <tbody>
-        <tr><td><code>format</code></td><td><code>short</code>, <code>canonical</code>, <code>both</code></td><td><code>short</code></td></tr>
-        <tr><td><code>lang</code></td><td><code>en</code>, <code>fr</code></td><td><code>en</code></td></tr>
-        <tr><td><code>updates-per-second</code></td><td>1–20</td><td>10</td></tr>
+        <tr><td><code>format</code></td><td><code>short</code>, <code>canonical</code>, <code>both</code></td><td><code>short</code></td><td>Forme UI (précision Milli) vs fraction canonique 5 chiffres. Cf. <a href="./manifeste.html#4-canonical-representation">manifeste §4 / §5</a>.</td></tr>
+        <tr><td><code>lang</code></td><td><code>en</code>, <code>fr</code></td><td><code>en</code></td><td>Affecte uniquement le préfixe « T+ » et le groupement des chiffres (les deux langues parsent à l'identique).</td></tr>
+        <tr><td><code>updates-per-second</code></td><td>1–20 (clampé)</td><td>10</td><td>Plus haut = lecture du Blink plus fluide, plus de batterie ; plus bas = compatible affichage statique. Cf. <a href="./analog-clock.html">analog-clock §7</a>.</td></tr>
       </tbody>
     </table>
+    <p>L'élément observe les changements d'attributs et se re-rend à la volée ; <code>updates-per-second</code> est clampé à l'exécution.</p>
 
-    <h2>Variantes</h2>
+    <h2 id="csp">3. Recommandation CSP (stricte)</h2>
+    <p>
+      Le composant fonctionne entièrement dans la page (aucun trafic réseau à l'exécution). Les sites embarqueurs <strong>DEVRAIENT</strong> le servir sous une Content Security Policy stricte. La politique minimale qui permet à <code>&lt;ats-clock&gt;</code> de fonctionner sans <code>'unsafe-inline'</code> est :
+    </p>
+    <pre><code>Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' https://s-geffroy.github.io;
+  style-src 'self';
+  img-src 'self' data:;
+  connect-src 'self';
+  object-src 'none';
+  base-uri 'self';</code></pre>
+    <p>
+      <strong>Ce que cela vous coûte :</strong> plus de <code>&lt;script&gt;</code> inline sur la même page, plus d'attributs <code>style="..."</code> inline sur l'élément intégré (le composant utilise Shadow DOM, ses styles internes ne sont pas affectés). Si vous ne pouvez pas éviter l'inline, hébergez <code>ats-clock.js</code> sur votre propre origine (cf. <a href="#selfhost">§5</a>) et durcissez <code>script-src</code> à <code>'self'</code>.
+    </p>
+    <p>
+      <strong>Subresource Integrity (SRI) :</strong> le contenu du script peut changer entre versions (nous suivons SemVer). Soit vous épinglez une URL à un SHA spécifique, soit vous self-hostez (<a href="#selfhost">§5</a>) et calculez le SRI au build.
+    </p>
+
+    <h2 id="a11y">4. Accessibilité</h2>
+    <p>
+      <code>&lt;ats-clock&gt;</code> expose sa valeur courante via <code>aria-live="polite"</code> sur le readout interne, pour que les lecteurs d'écran annoncent les mises à jour sans interrompre l'utilisateur. L'élément n'est pas focusable au clavier. Les embarqueurs <strong>DEVRAIENT</strong> :
+    </p>
+    <ul>
+      <li>Placer l'horloge dans une région avec un titre explicite (<code>&lt;h2&gt;</code> ou <code>aria-labelledby</code>) pour qu'elle ait du contexte.</li>
+      <li>Éviter de l'envelopper dans un <code>&lt;button&gt;</code> ou de l'inclure dans un flux de tabulation — elle n'a aucune action utilisateur.</li>
+      <li>Utiliser <code>updates-per-second="1"</code> pour un affichage ambiant (moins de chatter pour les lecteurs d'écran ; ceux qui veulent la granularité Blink peuvent surcharger).</li>
+    </ul>
+
+    <h2 id="selfhost">5. Self-hosting et endpoint alternatif</h2>
+    <p>
+      Pour la CSP la plus stricte et pour supprimer la dépendance tierce, copiez <code>ats-clock.js</code> (et éventuellement <code>ats.js</code> pour les routines de conversion brutes) dans votre origine :
+    </p>
+    <pre><code>curl -O https://raw.githubusercontent.com/s-geffroy/ATS/main/docs/assets/js/ats-clock.js
+curl -O https://raw.githubusercontent.com/s-geffroy/ATS/main/docs/assets/js/ats.js</code></pre>
+    <p>
+      Votre <code>script-src</code> peut alors être réduit à <code>'self'</code>. Cf. <a href="../../SECURITY.md">SECURITY.md §5</a> pour les arbitrages self-host vs CDN.
+    </p>
+    <p>
+      <strong>Alternative côté serveur.</strong> Si vous ne pouvez pas exécuter JavaScript côté client, récupérez le snapshot horaire à <code>/api/now.json</code> (régénéré par un cron GitHub Actions, le champ <code>spec_version</code> permet de détecter une dérive) :
+    </p>
+    <pre><code>curl -s https://s-geffroy.github.io/ATS/api/now.json
+# {
+#   "utc": "2026-06-15T11:00:00Z",
+#   "ats_canonical": "T+ Δ 20.7.8.4.45833",
+#   "ats_display": "Δ20.7.8.4-45.8",
+#   "spec_version": "0.7",
+#   "cadence_minutes": 60
+# }</code></pre>
+    <p>Ce n'est <strong>pas</strong> un endpoint live — il est rafraîchi toutes les heures. Pour une précision sous-minute, faites la conversion localement avec <code>ats.js</code> ou <code>code/ats.py</code>.</p>
+
+    <h2 id="examples">6. Trois exemples concrets</h2>
+
+    <h3>Blog thème clair</h3>
+    <pre><code>&lt;article&gt;
+  &lt;h2&gt;Publié&lt;/h2&gt;
+  &lt;ats-clock format="short" lang="fr" updates-per-second="1"&gt;&lt;/ats-clock&gt;
+&lt;/article&gt;</code></pre>
+
+    <h3>Tuile dashboard thème sombre</h3>
+    <pre><code>&lt;section style="background:#0b0f17;color:#e8eef7;padding:1rem;border-radius:8px"&gt;
+  &lt;h2 style="margin:0 0 .5rem"&gt;ATS maintenant&lt;/h2&gt;
+  &lt;ats-clock format="both" lang="fr" updates-per-second="10"&gt;&lt;/ats-clock&gt;
+&lt;/section&gt;</code></pre>
+
+    <h3>Badge dans un README Markdown</h3>
+    <p>
+      <img src="../assets/badge.svg" alt="I run on Δ ATS" width="160" height="28" />
+    </p>
+    <pre><code>[![I run on Δ ATS](https://s-geffroy.github.io/ATS/assets/badge.svg)](https://s-geffroy.github.io/ATS/)</code></pre>
+
+    <h2 id="variants">7. Variantes en direct</h2>
     <div class="clock-card" style="text-align:center;">
       <ats-clock format="canonical" lang="fr"></ats-clock>
     </div>
@@ -82,16 +157,21 @@
       <ats-clock format="both" lang="fr"></ats-clock>
     </div>
 
-    <h2>I run on Δ ATS</h2>
-    <p>Affichez que votre projet mesure le temps en ATS :</p>
-    <p>
-      <img src="../assets/badge.svg" alt="I run on Δ ATS" width="160" height="28" />
-    </p>
-    <pre><code>[![I run on Δ ATS](https://s-geffroy.github.io/ATS/assets/badge.svg)](https://s-geffroy.github.io/ATS/)</code></pre>
+    <h2 id="troubleshooting">8. Dépannage</h2>
+    <table class="markdown">
+      <thead><tr><th>Symptôme</th><th>Cause</th><th>Correction</th></tr></thead>
+      <tbody>
+        <tr><td>L'élément reste vide</td><td>Script chargé avec <code>defer</code> mais bloqué par la CSP</td><td>Vérifier que <code>script-src</code> inclut <code>https://s-geffroy.github.io</code> (ou l'origine de self-host)</td></tr>
+        <tr><td>Heure figée</td><td>L'onglet est en arrière-plan, throttlé par le navigateur</td><td>Comportement attendu — les timers passent à 1 Hz en arrière-plan, le prochain tick au premier plan re-synchronise</td></tr>
+        <tr><td>Erreur CORS dans la console</td><td>Fetch de <code>now.json</code> depuis une origine non autorisée</td><td>L'endpoint sert <code>Access-Control-Allow-Origin: *</code> ; vérifier que votre reverse-proxy ne le filtre pas</td></tr>
+        <tr><td>Police différente du reste du site</td><td>Le composant n'hérite pas de vos <code>@font-face</code> à travers Shadow DOM</td><td>Posez <code>font-family</code> sur l'hôte : <code>ats-clock { font-family: inherit; }</code></td></tr>
+        <tr><td>Contraste de thème incorrect</td><td>Couleurs système non exposées</td><td>Le composant utilise <code>currentColor</code> pour les chiffres ; posez <code>color</code> sur l'hôte ou un ancêtre</td></tr>
+      </tbody>
+    </table>
 
-    <h2>npm (aperçu)</h2>
+    <h2 id="npm">9. npm (planifié, v1.0)</h2>
     <p>
-      Les routines JS de référence sont structurées en package (non encore publié) :
+      Les routines JS de référence sont structurées en package (non encore publié — cf. <a href="../../ROADMAP.md">ROADMAP V1.0-H</a> et <a href="./versioning.html#7-2">versioning §7.2 (4)</a>) :
     </p>
     <pre><code>// import { atsFromMs, toCanonical, toShort } from '@s-geffroy/ats';
 // import '@s-geffroy/ats/web-component'; // enregistre &lt;ats-clock&gt;</code></pre>
