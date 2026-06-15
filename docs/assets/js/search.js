@@ -23,6 +23,20 @@
     return (segments[0] === 'ATS' ? '/ATS/' : '/') + '_pagefind/pagefind.js';
   }
 
+  // Defense-in-depth: Pagefind index data is built from sanitized markdown,
+  // but escaping the plain-text fields (url, title) before injecting into
+  // innerHTML keeps an XSS bug in an upstream Pagefind release from landing
+  // here. it.excerpt stays raw — it intentionally carries Pagefind's <mark>.
+  function escText(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+  function escAttr(s) {
+    return escText(s).replace(/"/g, '&quot;');
+  }
+
   function ensureStyles() {
     if (document.getElementById('ats-search-style')) return;
     const css = `
@@ -128,12 +142,18 @@
       if (!items.length) {
         results.innerHTML = `<div class="empty">${L.empty}</div>`;
       } else {
-        results.innerHTML = items.map((it) => `
-          <a href="${it.url}">
-            <span class="title">${it.meta.title || it.url}</span>
+        // it.excerpt is intentionally HTML (Pagefind injects <mark> for
+        // hit highlighting); it.url and it.meta.title are plain text from
+        // the static index — escape them defense-in-depth.
+        results.innerHTML = items.map((it) => {
+          const title = it.meta.title || it.url;
+          return `
+          <a href="${escAttr(it.url)}">
+            <span class="title">${escText(title)}</span>
             <span>${it.excerpt}</span>
           </a>
-        `).join('');
+        `;
+        }).join('');
       }
       results.classList.add('visible');
     }

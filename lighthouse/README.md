@@ -26,6 +26,12 @@ We measure two things:
 
 The qualitative file is enough to demonstrate the §1.1 gain (removal of CDN `marked` + `dompurify`, removal of runtime `.md` fetch). The full Lighthouse run gives the standard scores when the host can run the Docker image natively.
 
+## Localhost vs deployed site — `is-on-https` quirk
+
+Both the CI gate and the local Docker harness exercise pages served from `http://127.0.0.1:8088`. Lighthouse's `is-on-https` audit (Best Practices, weight 5/27) returns score 0 in that setup since localhost can't legitimately serve HTTPS, which would cap the Best Practices score at ~0.81 — well under the ≥ 0.90 gate. To keep the gate fair, `ci-assert.mjs` passes `skipAudits: ['is-on-https']` whenever the target URL points at a local HTTP host. The deployed site at <https://s-geffroy.github.io/ATS/> is HTTPS, so the audit MUST stay on when measuring there; drop the skip if `LIGHTHOUSE_BASE_URL` ever points at a public origin.
+
+Local diagnostic scripts (`run-lighthouse.sh`, `capture-baseline.sh`) do **not** apply this skip; the resulting JSON files therefore show `is-on-https` score 0 and Best Practices ~0.81. That is a known measurement artifact, not a real regression — compare with CI scores or with a manual run against the deployed origin to validate.
+
 ## Platform note (Apple Silicon)
 
 `femtopixel/google-lighthouse` is a `linux/amd64`-only image. On Apple Silicon it runs under emulation and headless Chrome crashes inside the tab ("Browser tab has unexpectedly crashed"). This is a Docker/Chromium emulation defect, not a Lighthouse defect. Workarounds:

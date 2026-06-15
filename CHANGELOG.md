@@ -6,6 +6,26 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — vers v1.0
 
+### Audit systematic-debugging — release process + parité JS↔Python
+
+Application de la méthode systematic-debugging au repo entier (Docker éphémère, zéro install locale conformément à CLAUDE.md). 45 tests Python + 27 tests JS passent au baseline ; campagne pour fermer les 2 BLOCKERs + 4 SHOULD-FIX identifiés sans toucher la spec normative ni les conformance vectors.
+
+- **`package.json` v0.6.0 → v0.7.0 (BLOCKER)** : oublié lors du commit `7fc663c chore(release): v0.7.0 — versions alignées partout`. Le `CHANGELOG [0.7.0]` annonçait l'alignement mais `package.json` était resté en 0.6.0, ce qui bloquait `versioning.en.md §7.2 (4)` (artefacts publiés). Aligné avec `pyproject.toml`, README et footers HTML.
+- **`docs/sw.js` CACHE_NAME → `ats-v0.7.0` (BLOCKER)** : le service worker hardcodait `ats-v0.6.0` ; la stratégie cache-first pour `/assets/` aurait laissé les utilisateurs PWA sur les bundles JS v0.6 après déploiement v0.7. Commentaire d'en-tête durci avec règle « CACHE_NAME MUST track the project version », pour que le prochain bump soit propagé.
+- **`docs/assets/js/search.js` escape Pagefind url+title (SHOULD-FIX)** : defense-in-depth XSS sur `results.innerHTML = items.map(...)`. `it.excerpt` reste brut (Pagefind y injecte `<mark>` pour highlight, comportement attendu), mais `it.url` et `it.meta.title` sont des champs texte brut qui passent désormais par `escAttr()` / `escText()`. Aucun XSS connu, fermeture de surface en amont.
+- **`lighthouse/ci-assert.mjs` skipAudits is-on-https sur localhost (SHOULD-FIX)** : l'audit `is-on-https` (poids 5/27 de Best Practices) score 0 contre `http://127.0.0.1:8088`, capant le score à ~0.81 et rendant le gate ≥ 0.90 injuste. `ci-assert.mjs` détecte maintenant les hôtes locaux (`127.0.0.1`, `localhost`, `[::1]` en HTTP) et y passe `skipAudits: ['is-on-https']`. Le site déployé HTTPS continue d'être audité normalement. `lighthouse/README.md` documente la mécanique sous « Localhost vs deployed site — `is-on-https` quirk » ; les baselines locales (`run-lighthouse.sh`, `capture-baseline.sh`) sont reconnues comme produisant un BP ~0.81 attendu (artefact de mesure, pas une régression).
+- **`docs/assets/js/ats.js` short-form decoder `shortToMs` (SHOULD-FIX)** : parité avec Python `ats_to_gregorian(allow_short=True)`. Regex stricte `/^Δ(\d+)\.(\d)\.(\d)\.(\d)-(\d{2})\.(\d)$/` (zéro espace, `-` entre Kin et BC, `.` avant Milli, legacy `/cc` refusée). Sign assumé `T+`, digits inférieurs (Beat/Blink) padés zéro — lossy intentionnel par spec §5.
+- **`docs/assets/js/ats.js` annexe multi-planétaire (SHOULD-FIX)** : portage de `code/ats_multi_planetary.py` vers JS. Singletons `EARTH`/`MARS`/`MOON` (épochs et `day_seconds` identiques au Python), helpers `utcMsToBody`, `bodyToUtcMs`, `bodyToCanonical`, `bodyToShort`, `bodyCanonicalToUtcMs` (registre avec bare Δ → Earth rétrocompat v0.6). Garde-fous `bodyAdd`/`bodySub` levant `TypeError` sur arithmétique cross-body (spec §5). Conformance v0.7 désormais portable côté JS sans ambiguïté.
+- **`tests/test_multi_planetary.mjs` nouveau runner JS (SHOULD-FIX)** : valide les 10 vecteurs Mars + 10 vecteurs Moon (`test-vectors-multi-planetary-{mars,moon}.json`) + 5 extras (épochs land sur `0.0.0.0.00000`, cross-body sub lève, round-trip canonical, bare Δ parse comme Earth). Pattern `node:vm` (mêmes conventions que `test_arithmetic.mjs`) — `ats.js` chargé tel qu'expédié, pas une copie.
+
+### Investigation systematic-debugging — findings négatifs documentés
+
+Quelques alertes initiales ont été **invalidées** par vérification de seconde main et sont documentées ici pour ne pas réémerger :
+
+- **FR↔EN multi-planetary parité** : grep strict avec word boundaries confirme EN=32 / FR=32 RFC keywords (DOIT/DOIVENT/PEUT/PEUVENT/DEVRAIT/DEVRAIENT/NE … PAS / RECOMMANDÉ / OPTIONNEL). Fichiers à 595 lignes identiques. Aucune action requise.
+- **Manifesto FR RFC density** : EN=79 / FR=73 keywords stricts. Gap de 6 (~7%), essentiellement d'effet de pluralité (1 EN « MUST » ↔ 1 FR « DOIT » ou « DOIVENT »). Non bloquant pour v1.0.
+- **3 JSON `lighthouse/v0.7-blindage-*.json` untracked** : conservés en untracked pour le moment (baseline locale du dernier blindage, ~1.9 MB cumul) ; à .gitignore lors du prochain housekeeping si décidé.
+
 ### Blindage final v0.7 — docs racine et pages autonomes
 
 Campagne de blindage documentaire complétant celle de la spec (manifesto, versioning, multi-planetary, philosophy, comparison, conventions, analog-clock, faq + test-vectors.html déjà blindés). Aucune modification de la spec normative ni des conformance vectors.

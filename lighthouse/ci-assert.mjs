@@ -42,6 +42,20 @@ const CATEGORIES = ['performance', 'accessibility', 'best-practices', 'seo'];
 const BASE_URL = process.env.LIGHTHOUSE_BASE_URL || 'http://127.0.0.1:8088';
 const REPORTS_DIR = resolve(process.cwd(), 'lighthouse/ci-reports');
 
+// `is-on-https` (Best Practices, weight 5/27) always fails against
+// http://127.0.0.1 — localhost can't legitimately serve HTTPS in CI. Without
+// the skip, Best Practices caps at ~0.81 and the ≥ 0.90 gate is unfair.
+// The deployed s-geffroy.github.io site IS HTTPS — leave the audit on
+// whenever LIGHTHOUSE_BASE_URL points at a public origin. See
+// lighthouse/README.md § "Localhost vs deployed site".
+const LOCAL_HOSTS = ['127.0.0.1', 'localhost', '[::1]'];
+function shouldSkipHttpsAudit(baseUrl) {
+  try {
+    const u = new URL(baseUrl);
+    return u.protocol === 'http:' && LOCAL_HOSTS.includes(u.hostname);
+  } catch { return false; }
+}
+
 async function runOne(chrome, url, formFactor) {
   // throttling=devtools mirrors Chrome DevTools' "Lighthouse" tab so local
   // and CI numbers align; 'mobile' applies the standard Moto G4 emulation.
@@ -56,6 +70,7 @@ async function runOne(chrome, url, formFactor) {
       : { mobile: false, width: 1350, height: 940, deviceScaleFactor: 1, disabled: false },
     throttlingMethod: 'simulate',
   };
+  if (shouldSkipHttpsAudit(BASE_URL)) flags.skipAudits = ['is-on-https'];
   const runnerResult = await lighthouse(url, flags);
   return runnerResult;
 }

@@ -74,6 +74,25 @@
     return ATS_EPOCH_MS + deltaMs;
   }
 
+  // Short form ΔK.H.D.Kin-BC.M (spec §5). Sign is assumed T+, lower fractional
+  // digits (Beat/Blink) are padded with zeros — intentionally lossy. Strict
+  // parser: no whitespace, `-` between Kin and BC, `.` before Milli; legacy
+  // /cc form is rejected. Mirrors Python `ats_to_gregorian(allow_short=True)`.
+  const ATS_SHORT_RE = /^Δ(\d+)\.(\d)\.(\d)\.(\d)-(\d{2})\.(\d)$/;
+  function shortToMs(str) {
+    const m = ATS_SHORT_RE.exec(str);
+    if (!m) return null;
+    const kilo = parseInt(m[1], 10);
+    const hecto = parseInt(m[2], 10);
+    const deka = parseInt(m[3], 10);
+    const kin = parseInt(m[4], 10);
+    const bc = parseInt(m[5], 10);
+    const milli = parseInt(m[6], 10);
+    const frac = bc * Math.pow(10, ATS_DECIMALS - 2) + milli * Math.pow(10, ATS_DECIMALS - 3);
+    const days = kilo * 1000 + hecto * 100 + deka * 10 + kin + frac / ATS_SCALE;
+    return ATS_EPOCH_MS + days * MS_PER_DAY; // T+ assumed
+  }
+
   // -- v0.6 arithmetic (spec §11.4) -------------------------------------
 
   function signedDays(ats) {
@@ -177,6 +196,128 @@
   function gt(a, b) { return cmp(a, b) >  0; }
   function ge(a, b) { return cmp(a, b) >= 0; }
 
+  // -- v0.7 multi-planetary annex (spec: docs/spec/multi-planetary.en.md) --
+  //
+  // Generalises the Earth counter (manifesto §1-15) to other celestial
+  // bodies. A Body carries an ASCII suffix, a Unicode symbol, the UTC
+  // epoch, and the local day length in SI seconds. The K.H.D.Kin.fffff
+  // grammar applies unchanged per body. Cross-body arithmetic and
+  // comparison raise TypeError per §5.
+
+  function makeBody(suffix, symbol, epochMs, daySeconds) {
+    if (!(daySeconds > 0)) throw new TypeError('day_seconds must be positive');
+    return Object.freeze({
+      suffix, symbol, epochMs, daySeconds,
+      ascii: suffix ? 'Δ' + suffix : 'Δ',
+      displaySymbol: symbol ? 'Δ' + symbol : 'Δ',
+    });
+  }
+
+  const EARTH = makeBody('_Earth', '⊕', Date.parse('1969-07-20T00:00:00Z'), 86400);
+  const MARS  = makeBody('_Mars',  '♂', Date.parse('1997-07-04T16:56:55Z'), 88775.244147);
+  const MOON  = makeBody('_Moon',  '☾', Date.parse('1969-07-20T00:00:00Z'), 2551442.8128);
+
+  function isBodyAts(x) {
+    return x && typeof x === 'object' && x.body && typeof x.kilo === 'number';
+  }
+
+  function bodyFromSignedDays(body, signed) {
+    const sign = signed >= 0 ? 'T+' : 'T-';
+    const abs = Math.abs(signed);
+    const intDays = Math.floor(abs);
+    const frac = Math.floor((abs - intDays) * ATS_SCALE);
+    const kilo = Math.floor(intDays / 1000);
+    let rem = intDays % 1000;
+    const hecto = Math.floor(rem / 100);
+    rem = rem % 100;
+    const deka = Math.floor(rem / 10);
+    const kin = rem % 10;
+    return Object.freeze({ body, sign, kilo, hecto, deka, kin, frac });
+  }
+
+  function bodySignedDays(b) {
+    const d = b.kilo * 1000 + b.hecto * 100 + b.deka * 10 + b.kin + b.frac / ATS_SCALE;
+    return b.sign === 'T-' ? -d : d;
+  }
+
+  function utcMsToBody(ms, body) {
+    if (!body || typeof body.daySeconds !== 'number') {
+      throw new TypeError('utcMsToBody: body must be a registered Body');
+    }
+    const deltaSeconds = (ms - body.epochMs) / 1000;
+    return bodyFromSignedDays(body, deltaSeconds / body.daySeconds);
+  }
+
+  function bodyToUtcMs(b) {
+    if (!isBodyAts(b)) throw new TypeError('bodyToUtcMs: expected a body-typed ATS');
+    return b.body.epochMs + bodySignedDays(b) * b.body.daySeconds * 1000;
+  }
+
+  function bodyToCanonical(b) {
+    if (!isBodyAts(b)) throw new TypeError('bodyToCanonical: expected a body-typed ATS');
+    return `${b.sign} ${b.body.ascii} ${b.kilo}.${b.hecto}.${b.deka}.${b.kin}.${pad(b.frac, ATS_DECIMALS)}`;
+  }
+
+  function bodyToShort(b) {
+    if (!isBodyAts(b)) throw new TypeError('bodyToShort: expected a body-typed ATS');
+    const bc = Math.floor(b.frac / Math.pow(10, ATS_DECIMALS - 2));
+    const milli = Math.floor(b.frac / Math.pow(10, ATS_DECIMALS - 3)) % 10;
+    return `${b.body.ascii}${b.kilo}.${b.hecto}.${b.deka}.${b.kin}-${pad(bc, 2)}.${milli}`;
+  }
+
+  const DEFAULT_BODY_REGISTRY = Object.freeze({
+    '': EARTH, '_Earth': EARTH, '_Mars': MARS, '_Moon': MOON,
+  });
+
+  // Canonical multi-planetary: "T+ Δ_Mars K.H.D.Kin.fffff".
+  // Bare Δ resolves to Earth (manifesto §0.3 backward-compat).
+  const BODY_CANON_RE = /^\s*(T[+-])\s*Δ(_?[A-Za-z]+)?\s+(\d+)\.(\d)\.(\d)\.(\d)\.(\d+)\s*$/;
+
+  function bodyCanonicalToUtcMs(str, registry) {
+    const m = BODY_CANON_RE.exec(str);
+    if (!m) throw new Error(`Invalid multi-planetary canonical: ${str}`);
+    const sign = m[1];
+    const suffix = (m[2] || '').trim();
+    const table = registry || DEFAULT_BODY_REGISTRY;
+    let body = table[suffix];
+    if (!body && suffix && !suffix.startsWith('_') && table['_' + suffix]) {
+      body = table['_' + suffix];
+    }
+    if (!body) throw new Error(`Unknown body suffix: ${suffix}`);
+    const fracStr = m[7].slice(0, ATS_DECIMALS).padEnd(ATS_DECIMALS, '0');
+    const frac = parseInt(fracStr, 10);
+    const intDays = parseInt(m[3], 10) * 1000 + parseInt(m[4], 10) * 100
+                  + parseInt(m[5], 10) * 10 + parseInt(m[6], 10);
+    const signed = (sign === 'T-' ? -1 : 1) * (intDays + frac / ATS_SCALE);
+    return body.epochMs + signed * body.daySeconds * 1000;
+  }
+
+  function utcMsToMars(ms)  { return utcMsToBody(ms, MARS); }
+  function utcMsToMoon(ms)  { return utcMsToBody(ms, MOON); }
+  function utcMsToEarth(ms) { return utcMsToBody(ms, EARTH); }
+
+  // Δ_X + Δd → Δ_X; Δ_X − Δ_X → Δd; Δ_X − Δd → Δ_X.
+  // Cross-body arithmetic raises TypeError per spec §5.
+  function bodyAdd(a, d) {
+    if (!isBodyAts(a) || !isDur(d)) {
+      throw new TypeError('bodyAdd: expected (Δ_X, Δd)');
+    }
+    return bodyFromSignedDays(a.body, bodySignedDays(a) + d.signedDays);
+  }
+
+  function bodySub(a, b) {
+    if (isBodyAts(a) && isBodyAts(b)) {
+      if (a.body !== b.body) {
+        throw new TypeError('Cross-body subtraction is undefined — convert to UTC first.');
+      }
+      return dur(bodySignedDays(a) - bodySignedDays(b));
+    }
+    if (isBodyAts(a) && isDur(b)) {
+      return bodyFromSignedDays(a.body, bodySignedDays(a) - b.signedDays);
+    }
+    throw new TypeError('bodySub: unsupported operands');
+  }
+
   global.ATS = {
     EPOCH_MS: ATS_EPOCH_MS,
     EPOCH_ISO: '1969-07-20T00:00:00Z',
@@ -185,6 +326,7 @@
     toCanonical,
     toShort,
     canonicalToMs,
+    shortToMs,
     // v0.6 — Δ/Δd algebra (spec §11.4)
     signedDays,
     fromSignedDays,
@@ -199,5 +341,19 @@
     abs: absDur,
     cmp,
     lt, le, eq, gt, ge,
+    // v0.7 — multi-planetary annex (spec: docs/spec/multi-planetary.en.md)
+    bodies: { EARTH, MARS, MOON },
+    EARTH, MARS, MOON,
+    makeBody,
+    utcMsToBody,
+    utcMsToEarth,
+    utcMsToMars,
+    utcMsToMoon,
+    bodyToUtcMs,
+    bodyToCanonical,
+    bodyToShort,
+    bodyCanonicalToUtcMs,
+    bodyAdd,
+    bodySub,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

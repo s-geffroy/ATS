@@ -10,11 +10,15 @@
  *       - pass-through everything else
  *   • Activate sweeps old caches.
  *
- * v0.6.0 Kilo-versaire background sync hook lives in registerSync().
+ * v0.7.0 Kilo-versaire background sync hook lives in registerSync().
  * See §5.6 CHANGELOG entry for the best-effort limits documentation.
+ *
+ * CACHE_NAME MUST track the project version (package.json / pyproject.toml).
+ * Bumping it triggers the activate handler's sweep of older `ats-*` caches,
+ * preventing stale asset bundles from sticking on returning visitors.
  */
 
-const CACHE_NAME = 'ats-v0.6.0';
+const CACHE_NAME = 'ats-v0.7.0';
 const SHELL_BASE = self.registration ? new URL(self.registration.scope).pathname : '/ATS/';
 
 const SHELL = [
