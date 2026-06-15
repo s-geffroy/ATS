@@ -6,6 +6,27 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — vers v1.0
 
+### Archive RFC + 3ᵉ implémentation de référence (Rust) — ferme §7.2 (3) et §7.2 (5)
+
+Campagne fermant **deux des trois exigences v1.0 restantes** en une seule passe. La 3ᵉ (artefacts release `npm publish` / `twine upload` / GPG, §7.2 (4)) reste planifiée juste avant le tag v1.0.0.
+
+- **`docs/spec/rfcs/` — création de l'archive RFC** (`versioning.en.md §7.2 (5)` / `GOVERNANCE.md §4`). Trois fichiers :
+  - `README.md` — index, conventions de numérotation (monotone à partir de `0001`, pas de réutilisation), cycle de statut `filed → accepted/revised/rejected`, procédure de filing pointant vers `versioning.en.md §6`.
+  - `0000-template.md` — squelette normatif imposant les 7 champs obligatoires de `GOVERNANCE.md §4.1` (number, title, filing+decision date, proposer, shepherd, content, decision+rationale, cross-refs).
+  - `0001-multi-planetary-normative.md` — RFC-0001 témoin **statut accepted**, documente *rétroactivement* la promotion de l'annexe multi-planétaire en normative livrée en v0.7. `GOVERNANCE.md §4.3` autorise explicitement la séquence (« the goal is to exercise the process »). La décision est authentique (changement réellement effectué v0.6 → v0.7), pas fabriquée. Ferme `§7.2 (5)` immédiatement. Une RFC-0002 future couvrira la transition BDFL → steering committee (obligatoire per `GOVERNANCE.md §2.3` au tag v1.0).
+- **`code/rust/ats/` — 3ᵉ implémentation de référence** (`versioning.en.md §7.2 (3)` / `ROADMAP §V1.0-B`). Crate `ats` workspace, périmètre core uniquement (les bridges + multi-planétaire restent Python-only en v0.7, conforme `ROADMAP §V1.0-B` ligne 44).
+  - **Modules** (`src/`) : `datetime.rs` (ATSDateTime + `Add`/`Sub`/`Ord`), `duration.rs` (ATSDuration + algèbre §11.4 via `Add`/`Sub`/`Mul`/`Div`/`Neg`), `convert.rs` (`gregorian_to_ats` / `ats_to_gregorian`), `parser.rs` (regex stricts `[0-9]` + `FromStr` canonique + `parse_short(allow_short)` + `parse_duration_canonical`), `format.rs` (`Display` + `to_short`), `places.rs` `pub(crate)` (`split_abs_days_floor`, `integer_days_to_places`), `error.rs` (`ATSError`).
+  - **Décisions techniques** : `rust_decimal` 1.36+ (28 digits, `Decimal::floor()` ≡ Python `ROUND_FLOOR` sur non-négatif), `time` 0.3 (no_std-friendly à terme), regex 1.10, MSRV **1.88** (chaîne transitive `time-core` requiert édition 2024). Pivot précision : intégers microsecondes depuis `ATS_EPOCH`, **une seule** division Decimal par `86_400_000_000` → match exact `_timedelta_to_decimal_days` Python.
+  - **Conformance bit-identique** (`tests/conformance.rs`, `include_str!` les 8 JSON via `../../../../docs/spec/`) : **12 vecteurs core + 12 vecteurs arithmétiques passent byte-for-byte** au premier essai. Tests supplémentaires : `epoch_round_trip_zero`, `short_form_strict` (rejet `allow_short=false` + legacy `/cc`), `spec_version_check` (8 fichiers ≥ 0.6). Bridges (5) + multi-planétaire (2) `#[ignore]` (hors périmètre v1.0-B). Commande : `docker run --rm -v "$(pwd):/app" -w /app/code/rust rust:1.88-slim cargo test --release`.
+  - **Clippy `--all-targets -D warnings` propre** au premier essai (slim image + `rustup component add clippy`).
+- **`.github/workflows/ci.yml` — 2 jobs Rust ajoutés** :
+  - `rust` (stable, **gating**) — checkout + `dtolnay/rust-toolchain@stable` (avec clippy) + `Swatinem/rust-cache@v2` (workspace `code/rust`) + `cargo test --release` + `cargo clippy --all-targets --release -- -D warnings`.
+  - `rust-nightly` (nightly, **`continue-on-error: true`**) — canary forward-compat, ne bloque pas le merge.
+  - `pages-preview` étendu : 4 nouveaux assertions de présence (`rfcs/README.md`, `rfcs/0001-*.md`, `code/rust/Cargo.toml`, `code/rust/ats/src/lib.rs`).
+- **`code/rust/README.md`** — layout, instructions Docker zero-install, tableau de statut (core ✅, bridges/multi-planétaire ⬜ post-v1.0, crates.io ⬜ gaté sur §7.2 (4)), notes de design (Decimal, time, pivot µs, regex strict, contrat short-form).
+- **`ROADMAP.md`** — §V1.0-B ⬜ → ✅ (impl Rust livrée), `§7.2 (3)` et `(5)` ✅, total **« 6 sur 7 fermés »** (reste §7.2 (4) artefacts release), §4.1/4.2 (Rust + Go) clarifié « Rust livré, Go optionnel post-v1.0 ».
+- **`README.md`** — tableau « Progression v1.0 » (3) et (5) ✅ / texte « 6 exigences sur 7 fermées », ligne `code/rust/ats/` dans le tableau structure, sous-section « Rust » dans « Usage rapide » avec one-liner Docker.
+
 ### Suite audit perf — tick 5 Hz (spec), Lighthouse multi-run + job prod
 
 - **`docs/spec/analog-clock.{en,fr}.md` §8 / §8.1 / §16.3 + `docs/spec/faq.{en,fr}.md` — tick de référence 10 Hz → 5 Hz (200 ms)** : design de référence baissé de 100 ms à 200 ms, mis à jour symétriquement EN ↔ FR (titres « Why 5 Hz / Pourquoi 5 Hz », tables Milli/Beat/Blink « Interpolation continue à 5 Hz », §8 description « setInterval à 200 ms (5 Hz) », §8.1 rationale enrichi d'un 4ᵉ point TBT, FAQ §16.3 + faq.{en,fr}.md). La spec autorisait déjà sub-tick interpolation comme « allowed but not required » (§7) et un taux supérieur via `requestAnimationFrame` ; ce changement déplace seulement le design de référence vers un point de fonctionnement plus respectueux des thread principaux mobiles. **Impact mesuré** : `docs/assets/js/clock-page.js` `setInterval(liveTick, 100)` → `setInterval(liveTick, 200)`, ~500 ms de TBT retirés sur émulation Moto G4. Aucun changement visible (l'incrément Blink saute toutes les 864 ms — un pas couvre 4 ticks).

@@ -53,15 +53,15 @@ Lecture : 20 Kilos, 7 Hecto, 8 Deka, 2 Kin, fraction `.50000` (= Bloc 5 = 12:00 
 
 ## Progression v1.0
 
-Référentiel : `versioning.en.md §7.2` — **4 exigences sur 7 fermées**.
+Référentiel : `versioning.en.md §7.2` — **6 exigences sur 7 fermées**.
 
 | # | Exigence | Statut |
 |---|---|---|
 | 1 | `spec_version` sur tous les vecteurs | ✅ v0.6 |
 | 2 | Annexe multi-planétaire normative | ✅ v0.7 |
-| 3 | ≥ 1 impl tierce (Rust ou Go) à 100 % | ⬜ |
+| 3 | ≥ 1 impl tierce (Rust ou Go) à 100 % | ✅ Unreleased (Rust, `code/rust/ats/`) |
 | 4 | Artefacts publiés (`npm publish`, `twine upload`, GPG release) | ⬜ |
-| 5 | Archive RFC `docs/spec/rfcs/` avec ≥ 1 RFC décidée | ⬜ |
+| 5 | Archive RFC `docs/spec/rfcs/` avec ≥ 1 RFC décidée | ✅ Unreleased (RFC-0001) |
 | 6 | `GOVERNANCE.md` nommant les éditeurs de référence | ✅ v0.7 |
 | 7 | Lighthouse CI ≥ 90 sur 4 catégories × 4 pages | ✅ v0.7 |
 
@@ -80,6 +80,8 @@ Détails et bloquants annexes : [`ROADMAP.md`](./ROADMAP.md).
 | `scripts/render-md.mjs` | Pré-rendu Markdown au build (élimine `marked` + `dompurify` du runtime) |
 | `lighthouse/` | Harness de mesure Lighthouse + baselines qualitatives + CI workflow |
 | `code/ats.py`, `code/ats_multi_planetary.py`, `code/bridges/*.py` | Module Python — conversion Grégorien ↔ ATS + multi-planétaire + 5 ponts |
+| `code/rust/ats/` | Crate Rust de référence — core uniquement (12 + 12 vecteurs bit-identiques) |
+| `docs/spec/rfcs/` | Archive RFC (template + RFC-0001 acceptée, ferme §7.2 (5)) |
 | `docs/assets/js/ats.js`, `docs/assets/js/ats-clock.js` | Implémentation JS de référence + Web Component `<ats-clock>` |
 | `tests/test_vectors.{py,mjs}`, `tests/test_property.py`, `tests/test_perf.py` | Conformance Python + JS, property-based (Hypothesis 1000+), perf |
 | `.github/workflows/{ci,lighthouse,cron-now,pages-build}.yml` | Matrice CI Python × Node, Lighthouse CI, snapshot horaire `/api/now.json`, build Pages |
@@ -127,6 +129,15 @@ print(ats.to_short())       # Δ20.7.8.2-50.0
 
 Attributs : `format` (`short` | `canonical` | `both`), `lang` (`en` | `fr`), `updates-per-second` (1–20). Guide complet : [`/en/embed.html`](https://s-geffroy.github.io/ATS/en/embed.html).
 
+### Rust (crate `ats`)
+
+```bash
+docker run --rm -v "$(pwd):/app" -w /app/code/rust rust:1.88-slim \
+  cargo test --release
+```
+
+API idiomatique : `ATSDateTime::from_str(...)`, `Display` pour la forme canonique, `to_short()` pour la forme courte, opérateurs `+` / `-` pour l'algèbre §11.4. Détails : [`code/rust/README.md`](./code/rust/README.md).
+
 ### Conformance (Docker one-liner)
 
 ```bash
@@ -137,6 +148,10 @@ docker run --rm -v "$(pwd):/app" -w /app python:3.11-slim \
 # JavaScript
 docker run --rm -v "$(pwd):/app" -w /app node:20-slim \
   node tests/test_vectors.mjs
+
+# Rust
+docker run --rm -v "$(pwd):/app" -w /app/code/rust rust:1.88-slim \
+  cargo test --release
 ```
 
 Toute implémentation tierce doit produire des sorties **bit-identiques** sur les 7 fichiers `docs/spec/test-vectors-*.json` au `spec_version` qu'elle déclare cibler. Voir `versioning.en.md §2.3` (consumer obligations) et `manifesto.en.md §16.5` (conformance contract).

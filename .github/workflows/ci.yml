@@ -66,6 +66,39 @@ jobs:
           node tests/test_vectors.mjs
           node tests/test_arithmetic.mjs
 
+  rust:
+    name: Rust (stable)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: code/rust
+      - name: Conformance tests (12 core + 12 arithmetic vectors, bit-identical)
+        working-directory: code/rust
+        run: cargo test --release
+      - name: Lint (clippy --all-targets -D warnings)
+        working-directory: code/rust
+        run: cargo clippy --all-targets --release -- -D warnings
+
+  rust-nightly:
+    name: Rust (nightly, advisory)
+    runs-on: ubuntu-latest
+    # Forward-compatibility canary: failures here are diagnostic, not gating.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: code/rust
+      - name: Conformance tests
+        working-directory: code/rust
+        run: cargo test --release
+
   pages-preview:
     name: Pages structure check
     runs-on: ubuntu-latest
@@ -82,4 +115,8 @@ jobs:
           test -f docs/spec/test-vectors-arithmetic.json
           test -f docs/assets/css/style.css
           test -f docs/assets/js/ats.js
+          test -f docs/spec/rfcs/README.md
+          test -f docs/spec/rfcs/0001-multi-planetary-normative.md
+          test -f code/rust/Cargo.toml
+          test -f code/rust/ats/src/lib.rs
           echo "Pages tree looks healthy."

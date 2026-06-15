@@ -1,0 +1,19 @@
+[package]
+name = "ats"
+version = "0.7.0"
+edition = "2021"
+license = "MIT"
+description = "Apollonian Time System — reference Rust implementation (bit-identical to Python / JavaScript reference impls)."
+repository = "https://github.com/s-geffroy/ATS"
+readme = "../README.md"
+keywords = ["time", "calendar", "decimal", "ats", "apollonian"]
+categories = ["date-and-time"]
+rust-version = "1.88"
+
+[dependencies]
+rust_decimal = "1.36"
+time = { version = "0.3", features = ["parsing", "formatting", "macros"] }
+regex = "1.10"
+
+[dev-dependencies]
+serde_json = "1.0"

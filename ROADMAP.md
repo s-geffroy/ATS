@@ -31,17 +31,15 @@ Plan de travail consolidé pour les versions à venir. Les items sont indépenda
 | **Lighthouse CI GitHub Actions** (4 pages × 4 catégories ≥ 90) | V1.0-D | S | ✅ v0.7 |
 | **Audit complet** (versions harmonisées, CSP, a11y, theme-aware, tz-utils) | — | M | ✅ v0.7 |
 | **Typographie hero `h1`** uniforme (`clamp 2–4rem`) sur 28 pages | — | XS | ✅ v0.7 |
+| **Archive RFC `docs/spec/rfcs/` (template + RFC-0001 acceptée)** | V1.0-§7.2(5) | S | ✅ Unreleased |
+| **Implémentation Rust de référence (`code/rust/ats/`, crate `ats`)** | V1.0-B | L | ✅ Unreleased |
 
 ---
 
 ## Reste pour v1.0 — bloquants identifiés
 
-### V1.0-B · 3ᵉ implémentation de référence (Rust **ou** Go) · **L** · ⬜
-Sans une implémentation hors Python + JS, l'argument « standard universel » ne tient pas. À choisir :
-- **Rust** (`ats` crate sur crates.io) — argumentaire systèmes / IoT / embedded, `no_std`-friendly.
-- **Go** (module `github.com/s-geffroy/ats`) — argumentaire serveurs / CLI / infra cloud.
-
-Périmètre minimal : core `gregorian_to_ats` / `ats_to_gregorian` + algèbre §11.4 + parseurs canonique/court. Bridges calendaires optionnels. **CI matrix étendue** (Rust stable/nightly ou Go 1.21+). Les 12+10+10+10+10 vecteurs Earth/Mars/Moon/Hebrew/Islamic doivent passer.
+### V1.0-B · 3ᵉ implémentation de référence (Rust **ou** Go) · **L** · ✅
+Livré (Unreleased) : crate `ats` à `code/rust/ats/`, périmètre core uniquement (`gregorian_to_ats` / `ats_to_gregorian`, algèbre §11.4, parseurs canonique + court strict). **12 vecteurs core + 12 vecteurs arithmétiques bit-identiques** aux JSON `docs/spec/test-vectors{,-arithmetic}.json`. CI : 2 jobs ajoutés à `.github/workflows/ci.yml` (`rust` stable gating + `rust-nightly` advisory). Décisions techniques : `rust_decimal` 1.36+, `time` 0.3, MSRV 1.88 (édition 2024 requise par la chaîne transitive). Bridges (Hebrew/Islamic/Chinese/Hindu/Maya) et multi-planétaire (Mars/Moon) **post-v1.0** : vecteurs chargés en `#[ignore]` pour stabilité de schéma, portage différé conformément au périmètre v1.0-B. Publication crates.io gatée sur §7.2 (4). **Go reste optionnel** post-v1.0 (cf. Vague 4.1 / 4.2).
 
 ### V1.0-C · UI converter calendaire en JS · **M** · ⬜
 Les 5 ponts (Hebrew, Islamic, Chinese, Hindu, Maya) sont Python-only. La promesse « universel » côté site n'est pas tenue. Porter Hebrew + Islamic + Maya (algorithmes courts, ~50–100 LoC chacun) en JS, ajouter dropdown calendar-source dans `clock-page.js`. Chinese (tables HKO 1900–2100) + Hindu (panchanga régional) restent Python-only — documenté.
@@ -88,7 +86,10 @@ Le site utilise déjà `Canvas` / `CanvasText` + `color-mix(in oklab, …)` part
 
 ## Vague 4 — implémentations larges restantes
 
-### 4.1 / 4.2 Rust + Go — voir V1.0-B ⬜
+### 4.1 Rust — voir V1.0-B ✅ (livré Unreleased, `code/rust/ats/`)
+
+### 4.2 Go · **L** · ⬜ (optionnel post-v1.0)
+`§7.2 (3)` exige Rust **ou** Go, pas les deux. Rust ayant été retenu pour la « plus haute valeur signal time/std » (cf. priorité §3 ci-dessous), un portage Go reste opportun mais non-bloquant. Périmètre identique au Rust (core + algèbre + parseurs) ; module candidate `github.com/s-geffroy/ats`. À déclencher si demande d'adoption serveur/cloud explicite.
 
 ### 4.4 Implémentations supplémentaires (optionnelles) · **L chacune** · ⬜
 - Kotlin (JVM + Android), Swift (iOS), Elixir.
@@ -105,7 +106,7 @@ Le site utilise déjà `Canvas` / `CanvasText` + `color-mix(in oklab, …)` part
 | Themes alternatifs (terminal / aquarelle / néon) explicites | M | ⬜ | bikeshedding, low ROI — déjà compatible via `prefers-color-scheme` system |
 | Mini-horloges Mars/Lune sur la page d'accueil | S | ⬜ | extension UI naturelle de V1.0-A |
 | Carte des fuseaux ATS sur la page Cités (vs. carte d'activités) | M | ⬜ | si le visiteur veut « quel Bloc à Tokyo maintenant ? » |
-| Page « Code » étendue avec onglets Rust / Go (après V1.0-B) | XS | ⬜ | quand V1.0-B est livré |
+| Page « Code » étendue avec onglet Rust (post-livraison Rust) | XS | ⬜ | maintenant débloqué : Rust livré (Unreleased) |
 
 ---
 
@@ -113,10 +114,10 @@ Le site utilise déjà `Canvas` / `CanvasText` + `color-mix(in oklab, …)` part
 
 1. **V1.0-D Lighthouse CI** ✅ livré v0.7 — la ceinture de sécurité protège tout ce qui suit.
 2. **V1.0-F Tests durcis** ✅ livré v0.7 — Hypothesis a déjà attrapé un bug d'invariant dans son écriture.
-3. **V1.0-B Rust ou Go** — la crédibilité « standard » bascule à partir de la 3ᵉ impl. Reco : **Rust** (plus haute valeur signal pour la communauté time/std).
+3. **V1.0-B Rust de référence** ✅ livré Unreleased — crate `ats` à `code/rust/ats/`, 24 vecteurs bit-identiques, CI étendue.
 4. **V1.0-C UI converter calendaire JS** — finit de fermer la promesse « universel » côté browser, ~½ journée.
 
-Après V1.0-B et V1.0-C, on est à un cheveu de la v1.0 — il reste V1.0-E (i18n minimal), V1.0-G (décision background sync), V1.0-H (branding/release artifacts), V1.0-I (adoption externe).
+Après V1.0-C, il reste pour v1.0 : V1.0-E (i18n minimal), V1.0-G (décision background sync), **V1.0-H (branding/release artifacts)** — la dernière exigence §7.2 ouverte —, V1.0-I (adoption externe).
 
 ---
 
@@ -128,13 +129,13 @@ Référentiel normatif : `docs/spec/versioning.en.md §7.2` — 7 exigences.
 |---|---|---|
 | (1) | `spec_version` sur tous les vecteurs | ✅ v0.6 |
 | (2) | Annexe multi-planétaire normative | ✅ v0.7 |
-| (3) | ≥ 1 impl tierce (Rust ou Go) à 100 % | ⬜ (cf. V1.0-B) |
+| (3) | ≥ 1 impl tierce (Rust ou Go) à 100 % | ✅ Unreleased (Rust, cf. V1.0-B) |
 | (4) | Artefacts publiés (`npm publish`, `twine upload`, GPG release) | ⬜ (cf. V1.0-H) |
-| (5) | Archive RFC dans `docs/spec/rfcs/` avec ≥ 1 RFC décidée | ⬜ |
+| (5) | Archive RFC dans `docs/spec/rfcs/` avec ≥ 1 RFC décidée | ✅ Unreleased (RFC-0001) |
 | (6) | `GOVERNANCE.md` nommant les éditeurs de référence | ✅ v0.7 (blindage final) |
 | (7) | Lighthouse CI ≥ 90 sur 4 catégories × 4 pages | ✅ v0.7 |
 
-**4 sur 7 fermés.** Restent : impl tierce (Rust/Go), artefacts release, archive RFC avec ≥ 1 décidée.
+**6 sur 7 fermés.** Reste : artefacts release (§7.2 (4), cf. V1.0-H).
 
 ### Bloquants annexes (non-§7.2, mais pré-requis pour le « standard universel »)
 
