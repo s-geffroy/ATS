@@ -415,56 +415,15 @@ a:hover { text-decoration: underline; }
   margin-top: 0.5rem;
 }
 
-/* CLS prevention — search.js (faq + manifesto) used to inject its full
-   stylesheet via <style id="ats-search-style"> only after JS evaluated,
-   then insert <input>/results inside <div id="ats-search">. Both events
-   landed AFTER first paint and shifted the bulk of <main> by ~80 px.
-   The HTML on those pages now declares <div id="ats-search"></div>
-   explicitly; inlining the full styles here (rather than letting search.js
-   inject them) means the placeholder reaches its final dimensions at
-   first paint. search.js still inserts the <input> child, but the input
-   slots into the already-reserved height. */
-.ats-search,
+/* CLS prevention — reserve space for the search input that search.js inserts
+   at the top of <main> on faq/manifesto pages. The HTML on those pages now
+   declares <div id="ats-search"></div> explicitly with this min-height, so
+   search.js finds the placeholder, skips the DOM insertion, and the bulk of
+   <main> doesn't shift down by ~60px after first paint. The placeholder is
+   also valid on pages that don't load search.js (it's just an empty div). */
 #ats-search {
-  position: relative;
-  margin: 0.75rem 0 1.5rem;
   min-height: 60px;
 }
-.ats-search input {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg);
-  color: var(--fg);
-  font-family: inherit;
-  font-size: 0.95rem;
-}
-.ats-search-results {
-  position: absolute;
-  top: 100%; left: 0; right: 0;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  margin-top: 4px;
-  max-height: 360px;
-  overflow-y: auto;
-  z-index: 1500;
-  display: none;
-}
-.ats-search-results.visible { display: block; }
-.ats-search-results a {
-  display: block;
-  padding: 0.5rem 0.75rem;
-  text-decoration: none;
-  color: var(--fg);
-  border-bottom: 1px solid var(--border);
-  font-size: 0.9rem;
-}
-.ats-search-results a:hover { background: var(--bg); }
-.ats-search-results .title { font-weight: 600; color: var(--accent); display: block; }
-.ats-search-results mark { background: color-mix(in oklab, var(--accent) 30%, transparent); color: inherit; }
-.ats-search-results .empty { padding: 0.6rem; color: var(--muted); }
 
 /* Pedagogical ATS readout (Bloc · Centi · …) under the dial. */
 .ats-readout {
@@ -599,12 +558,13 @@ a:hover { text-decoration: underline; }
 /* CLS prevention (Lighthouse desktop). <section id="cities-root"> is empty
    in the static HTML — cities-page.js fetches /assets/data/cities.json +
    world-land.geo.json and renders intro + legend + map SVG inside it. Without
-   a reserved min-height, that content lands AFTER first paint and shifts the
-   footer up by hundreds of pixels. Measured natural rendered height on
-   desktop = 951px (per Lighthouse boundingRect); reserve slightly more so
-   future content additions don't re-introduce a shift. */
+   a reserved min-height, that ~700-900px of content lands AFTER first paint
+   and shifts the footer up by that amount, crashing CLS to 0.69 on desktop
+   (mobile is fine — the section happens to size correctly there). The
+   min-height matches the natural rendered size; oversize is harmless because
+   the section's final content is taller than the minimum. */
 #cities-root {
-  min-height: 1000px;
+  min-height: 720px;
 }
 .cities-ocean { fill: color-mix(in oklab, CanvasText 6%, Canvas); }
 .cities-land path {
