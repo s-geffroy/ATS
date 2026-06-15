@@ -415,6 +415,16 @@ a:hover { text-decoration: underline; }
   margin-top: 0.5rem;
 }
 
+/* CLS prevention — reserve space for the search input that search.js inserts
+   at the top of <main> on faq/manifesto pages. The HTML on those pages now
+   declares <div id="ats-search"></div> explicitly with this min-height, so
+   search.js finds the placeholder, skips the DOM insertion, and the bulk of
+   <main> doesn't shift down by ~60px after first paint. The placeholder is
+   also valid on pages that don't load search.js (it's just an empty div). */
+#ats-search {
+  min-height: 60px;
+}
+
 /* Pedagogical ATS readout (Bloc · Centi · …) under the dial. */
 .ats-readout {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -544,6 +554,18 @@ a:hover { text-decoration: underline; }
   background: color-mix(in oklab, CanvasText 4%, transparent);
 }
 .cities-map-svg { display: block; width: 100%; height: auto; }
+
+/* CLS prevention (Lighthouse desktop). <section id="cities-root"> is empty
+   in the static HTML — cities-page.js fetches /assets/data/cities.json +
+   world-land.geo.json and renders intro + legend + map SVG inside it. Without
+   a reserved min-height, that ~700-900px of content lands AFTER first paint
+   and shifts the footer up by that amount, crashing CLS to 0.69 on desktop
+   (mobile is fine — the section happens to size correctly there). The
+   min-height matches the natural rendered size; oversize is harmless because
+   the section's final content is taller than the minimum. */
+#cities-root {
+  min-height: 720px;
+}
 .cities-ocean { fill: color-mix(in oklab, CanvasText 6%, Canvas); }
 .cities-land path {
   fill: color-mix(in oklab, CanvasText 18%, Canvas);
