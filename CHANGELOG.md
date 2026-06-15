@@ -6,6 +6,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — vers v1.0
 
+### `RELEASE-SETUP.md` — walkthrough one-time setup des secrets release
+
+- **Création** (~170 lignes) : version opérationnelle pas-à-pas de [`RELEASE.md §3`](./RELEASE.md#3-one-time-setup-do-this-once-before-the-first-release), avec commandes exactes (gpg, gh CLI, pbcopy) et écrans UI précis (PyPI, npm, GitHub Settings). 10 étapes chronologiques + récap-checklist final. Compté ~30 min.
+- **Anchor depuis `RELEASE.md §3`** : note explicite pointant vers `RELEASE-SETUP.md` pour le walkthrough opérationnel, `RELEASE.md` restant la référence normative (scopes, rationale, cross-refs).
+- **`README.md`** structure : fusion `RELEASE.md` + `RELEASE-SETUP.md` dans la ligne process maintainer.
+
 ### Workflow release (npm + PyPI + GPG + crates.io) — automatisation de §7.2 (4)
 
 Dernière exigence v1.0 §7.2 automatisée. Le **code est complet** ; le **déclenchement reste gaté** sur un `git push origin vX.Y.Z` volontaire de l'éditeur, après le premier setup one-time des secrets (cf. `RELEASE.md §3`).

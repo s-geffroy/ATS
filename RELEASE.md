@@ -105,6 +105,8 @@ The `gpg --verify` line **MUST** print `Good signature from "Sylvain Geffroy <�
 
 ## 3. One-time setup (do this once, before the first release)
 
+> For a **concrete step-by-step walkthrough** with exact commands and expected UI screens, see [`RELEASE-SETUP.md`](./RELEASE-SETUP.md). The subsections below are the normative reference; the walkthrough is the operational pas-à-pas.
+
 ### 3.1 PyPI — trusted publishing (no token)
 
 Modern PyPI supports **trusted publishing** via OIDC. The release workflow uses this; no API token is stored in GitHub Secrets.

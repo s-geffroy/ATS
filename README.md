@@ -85,7 +85,7 @@ Détails et bloquants annexes : [`ROADMAP.md`](./ROADMAP.md).
 | `docs/assets/js/ats.js`, `docs/assets/js/ats-clock.js` | Implémentation JS de référence + Web Component `<ats-clock>` |
 | `tests/test_vectors.{py,mjs}`, `tests/test_property.py`, `tests/test_perf.py` | Conformance Python + JS, property-based (Hypothesis 1000+), perf |
 | `.github/workflows/{ci,lighthouse,cron-now,pages-build,release}.yml` | Matrice CI Python × Node × Rust, Lighthouse CI, snapshot horaire `/api/now.json`, build Pages, pipeline release (npm + PyPI + GPG + crates.io) |
-| [`RELEASE.md`](./RELEASE.md) | Process maintainer (versions, tag GPG, secrets, recovery) — ferme §7.2 (4) |
+| [`RELEASE.md`](./RELEASE.md) + [`RELEASE-SETUP.md`](./RELEASE-SETUP.md) | Process maintainer (versions, tag GPG, secrets, recovery) + walkthrough one-time setup — ferme §7.2 (4) |
 | `archive/source/` | Snapshot historique du contenu d'origine |
 
 ---
