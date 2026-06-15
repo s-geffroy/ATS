@@ -6,7 +6,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — vers v1.0
 
-_(rien encore — la prochaine entrée passera ici)_
+### Blindage final v0.7 — docs racine et pages autonomes
+
+Campagne de blindage documentaire complétant celle de la spec (manifesto, versioning, multi-planetary, philosophy, comparison, conventions, analog-clock, faq + test-vectors.html déjà blindés). Aucune modification de la spec normative ni des conformance vectors.
+
+- **`GOVERNANCE.md` refonte (~310 lignes)** : passage de BDFL simple à doc complet — RFC 2119, §1 Editors of record (nommés), §2 pre-v1.0 (BDFL) vs post-v1.0 (steering committee min 3, cap d'affiliation), §3 décision IETF rough consensus + veto backward-compat, §4 archive RFC `docs/spec/rfcs/`, §5 rotation des éditeurs sur critères implémenteur, §6 conflict-of-interest disclosure, §7 procédure de retrait, §8 trademark/licensing (MIT code / CC-BY-4.0 docs), §9 objections anticipées, §10 préséance normative. **Ferme `versioning.en.md §7.2 (6)`** — v1.0 progress 3/7 → **4/7**.
 
 ---
 

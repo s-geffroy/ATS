@@ -122,19 +122,29 @@ Après V1.0-B et V1.0-C, on est à un cheveu de la v1.0 — il reste V1.0-E (i18
 
 ## Route vers v1.0 — récapitulatif
 
+Référentiel normatif : `docs/spec/versioning.en.md §7.2` — 7 exigences.
+
+| # §7.2 | Exigence | Statut |
+|---|---|---|
+| (1) | `spec_version` sur tous les vecteurs | ✅ v0.6 |
+| (2) | Annexe multi-planétaire normative | ✅ v0.7 |
+| (3) | ≥ 1 impl tierce (Rust ou Go) à 100 % | ⬜ (cf. V1.0-B) |
+| (4) | Artefacts publiés (`npm publish`, `twine upload`, GPG release) | ⬜ (cf. V1.0-H) |
+| (5) | Archive RFC dans `docs/spec/rfcs/` avec ≥ 1 RFC décidée | ⬜ |
+| (6) | `GOVERNANCE.md` nommant les éditeurs de référence | ✅ v0.7 (blindage final) |
+| (7) | Lighthouse CI ≥ 90 sur 4 catégories × 4 pages | ✅ v0.7 |
+
+**4 sur 7 fermés.** Restent : impl tierce (Rust/Go), artefacts release, archive RFC avec ≥ 1 décidée.
+
+### Bloquants annexes (non-§7.2, mais pré-requis pour le « standard universel »)
+
 | Bloquant | Effort | Statut |
 |---|---|---|
-| V1.0-A · Spec multi-planétaire | M | ✅ |
-| V1.0-B · 3ᵉ impl (Rust ou Go) | L | ⬜ |
 | V1.0-C · UI converter calendaire JS | M | ⬜ |
-| V1.0-D · Lighthouse CI Linux | S | ✅ |
 | V1.0-E · i18n minimal (ES, DE, ZH, JA) | M | ⬜ |
-| V1.0-F · Tests durcis | S | 🟢 (partiel : Python ok, JS à faire) |
+| V1.0-F · Tests durcis (reste JS) | S | 🟢 (partiel : Python ok, JS à faire) |
 | V1.0-G · Background sync — décision | S | ⬜ |
-| V1.0-H · Branding & release artifacts | M | ⬜ |
 | V1.0-I · Adoption tierce (signal externe) | L | ⬜ |
-
-**3 sur 9 fermés.** Restent : 1 L technique (Rust/Go), 1 M technique (JS converter), 1 M éditorial (i18n), 1 S décision (background sync), 1 M release (branding), 1 L externe (adoption), 1 S complétion (JS property-based).
 
 ---
 
