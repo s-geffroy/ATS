@@ -56,6 +56,18 @@
       et votre situation dans les trois grandes Générations (Apprentissage / Construction / Transmission).
     </p>
 
+    <section aria-labelledby="privacy-h" style="margin:1rem 0;padding:0.75rem 1rem;border-left:3px solid var(--accent);background:color-mix(in oklab, var(--accent) 5%, transparent);border-radius:0 6px 6px 0;font-size:0.92rem;">
+      <h2 id="privacy-h" style="margin-top:0;font-size:1rem;">Avis de confidentialité</h2>
+      <ul style="margin:0.4rem 0 0.2rem 1rem;padding:0;">
+        <li><strong>Aucune donnée ne quitte votre navigateur.</strong> Le calcul se fait entièrement côté client avec le JavaScript de cette page.</li>
+        <li><strong>Pas d'analytics, pas de tracking, pas de cookies.</strong> Le site n'embarque aucune balise tierce et ne poste rien à un serveur.</li>
+        <li><strong>La persistance est opt-in.</strong> Le champ date de naissance n'est pas stocké automatiquement. Si vous le remplissez puis rechargez la page, la valeur disparaît — aucune écriture dans <code>localStorage</code> sur cette page.</li>
+        <li><strong>Le téléchargement <code>.ics</code> est local.</strong> Le fichier est construit en mémoire par votre navigateur et sauvegardé via le dialogue de téléchargement standard. Nous ne le voyons jamais.</li>
+        <li><strong>La CSP interdit l'exfiltration.</strong> <code>connect-src</code> est restreint (cf. la balise <code>&lt;meta&gt;</code> CSP en tête de page) — même si une régression future ajoutait un <code>fetch()</code>, le navigateur le bloquerait.</li>
+      </ul>
+      <p style="margin:0.4rem 0 0;">Source : cette page est entièrement publique — lisez-la sur <a href="https://github.com/s-geffroy/ATS/blob/main/docs/fr/age.html" rel="noopener">GitHub</a>. Signalement : <a href="../../SECURITY.md">SECURITY.md</a>.</p>
+    </section>
+
     <section class="clock-card">
       <div class="converter">
         <label>
@@ -80,6 +92,46 @@
         <button id="exportIcs" type="button">Exporter prochains Kilo-versaires (.ics)</button>
         <span id="status" class="status ok">—</span>
       </div>
+    </section>
+
+    <section aria-labelledby="formula-h" style="margin-top:1.5rem;">
+      <h2 id="formula-h">Comment l'âge ATS est calculé</h2>
+      <p>
+        Soit <code>Δ<sub>now</sub></code> le nombre de jours écoulés depuis l'époque ATS (1969-07-20T00:00:00Z) et <code>Δ<sub>self</sub></code> le nombre de jours écoulés depuis l'époque jusqu'à votre instant de naissance (signé : négatif pour les naissances antérieures à l'époque). Votre âge ATS est simplement la durée :
+      </p>
+      <p style="text-align:center;font-family:ui-monospace, monospace;font-size:1.15rem;">
+        Δd<sub>age</sub> &nbsp;=&nbsp; Δ<sub>now</sub> &nbsp;−&nbsp; Δ<sub>self</sub>
+      </p>
+      <p>
+        Le résultat est une <strong>durée</strong> (Δd), pas un instant (Δ). Cf. <a href="./conventions.html">conventions §4.1</a> pour la distinction entre Δ (instant) et Δd (durée) et <a href="./manifeste.html#11-durations-%CE%94d">manifeste §11</a> pour l'algèbre.
+      </p>
+      <p>
+        La partie entière est le nombre de jours pleins vécus. La partie décimale est la fraction du jour courant, avec la même précision 5 chiffres que la forme canonique ATS (cf. <a href="./manifeste.html#4-canonical-representation">manifeste §4</a>).
+      </p>
+    </section>
+
+    <section aria-labelledby="ics-h" style="margin-top:1.5rem;">
+      <h2 id="ics-h">Format d'export <code>.ics</code></h2>
+      <p>
+        Le téléchargement produit un VCALENDAR standard <a href="https://datatracker.ietf.org/doc/html/rfc5545" rel="noopener">RFC 5545</a> avec un <code>VEVENT</code> par jalon à venir (<strong>5 Kilo-versaires + 10 Hecto-fêtes</strong>, cf. <a href="./conventions.html">conventions §1</a> pour les définitions). Résumé des champs :
+      </p>
+      <table class="markdown">
+        <thead><tr><th>Champ</th><th>Valeur</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>PRODID</code></td><td><code>-//ATS//Apollonian Time System//EN</code></td><td>Identifie le producteur.</td></tr>
+          <tr><td><code>VERSION</code></td><td><code>2.0</code></td><td>iCalendar 2.0 conforme RFC 5545.</td></tr>
+          <tr><td><code>CALSCALE</code></td><td><code>GREGORIAN</code></td><td>Requis par RFC 5545 ; les jalons ATS sont datés par leur jour calendaire grégorien pour la compatibilité avec les apps calendrier.</td></tr>
+          <tr><td><code>METHOD</code></td><td><code>PUBLISH</code></td><td>Publication statique, pas une invitation de réunion.</td></tr>
+          <tr><td><code>UID</code></td><td><code>ats-{kind}-{days}-{birthMs}@&lt;origine&gt;</code></td><td>Déterministe : même date → mêmes UID entre exports (les apps calendrier mettent à jour en place, pas de doublons).</td></tr>
+          <tr><td><code>DTSTAMP</code></td><td>maintenant (UTC)</td><td>L'instant de génération du fichier.</td></tr>
+          <tr><td><code>DTSTART</code> / <code>DTEND</code></td><td>Journée entière, <code>VALUE=DATE</code></td><td>Un jour UTC complet par jalon. Testé Apple Calendar, Google Calendar, Outlook, Thunderbird.</td></tr>
+          <tr><td><code>SUMMARY</code></td><td><code>Δ ATS — Kilo-versary (N days)</code> ou <code>Hecto-celebration</code></td><td>S'affiche comme titre de l'événement.</td></tr>
+          <tr><td><code>DESCRIPTION</code></td><td><code>N days since birth. ATS milestone.</code></td><td>Corps de texte pour les clients qui l'affichent.</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Compatible avec Apple Calendar (macOS / iOS), Google Calendar (import web), Outlook (Windows / Mac / Web) et Thunderbird Lightning. Pour ré-importer après une révision de la spec ATS, régénérez depuis cette page ; le <code>UID</code> déterministe assure la mise à jour en place.
+      </p>
     </section>
   </main>
 
