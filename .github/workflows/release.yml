@@ -1,0 +1,319 @@
+name: Release
+
+# Triggers
+# --------
+# - `push tags: v*` — the canonical path. The maintainer cuts a GPG-signed
+#   annotated tag (`git tag -s vX.Y.Z`), pushes it, and this workflow
+#   verifies, builds, signs, and publishes to GitHub Releases + PyPI + npm
+#   (+ crates.io if CARGO_REGISTRY_TOKEN is set).
+# - `workflow_dispatch` — manual smoke test. Default `dry_run=true` builds
+#   and (optionally) signs without publishing. Setting `dry_run=false` on a
+#   manual run is the "fix a botched tag" escape hatch and skips the GitHub
+#   Release step (the tag isn't there).
+#
+# Setup required (one-time, see RELEASE.md):
+#   - PyPI trusted publishing for `ats-time` (no token; OIDC via this workflow
+#     + environment name "pypi").
+#   - `NPM_TOKEN` secret (npm "Automation" token, scoped to @s-geffroy/ats).
+#   - `GPG_PRIVATE_KEY` + `GPG_PASSPHRASE` secrets (the editor of record's
+#     signing key — `GOVERNANCE.md §1.2`).
+#   - `CARGO_REGISTRY_TOKEN` secret (optional, for crates.io).
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Build + sign without publishing (smoke test).'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write    # for `gh release create`
+  id-token: write    # for PyPI trusted publishing + npm provenance attestation
+
+env:
+  IS_TAG_PUSH: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+
+jobs:
+  verify:
+    name: Verify versions + run core conformance
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.derive.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: derive
+        name: Derive target version
+        run: |
+          set -e
+          if [[ "${{ env.IS_TAG_PUSH }}" == "true" ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION=$(grep -m1 '^version = ' pyproject.toml | cut -d'"' -f2)
+          fi
+          echo "version=$VERSION" >>"$GITHUB_OUTPUT"
+          echo "Resolved release version: $VERSION"
+
+      - name: pyproject.toml ↔ tag version match
+        run: |
+          PV=$(grep -m1 '^version = ' pyproject.toml | cut -d'"' -f2)
+          [ "$PV" = "${{ steps.derive.outputs.version }}" ] || {
+            echo "::error::pyproject.toml says $PV but resolved version is ${{ steps.derive.outputs.version }}"
+            exit 1
+          }
+
+      - name: package.json ↔ tag version match
+        run: |
+          PV=$(node -p "require('./package.json').version")
+          [ "$PV" = "${{ steps.derive.outputs.version }}" ] || {
+            echo "::error::package.json says $PV but resolved version is ${{ steps.derive.outputs.version }}"
+            exit 1
+          }
+
+      - name: code/rust/ats/Cargo.toml ↔ tag version match
+        run: |
+          CV=$(grep -m1 '^version = ' code/rust/ats/Cargo.toml | cut -d'"' -f2)
+          [ "$CV" = "${{ steps.derive.outputs.version }}" ] || {
+            echo "::error::Cargo.toml says $CV but resolved version is ${{ steps.derive.outputs.version }}"
+            exit 1
+          }
+
+      - name: docs/sw.js CACHE_NAME tracks version
+        # Hardcoded in sw.js per CHANGELOG v0.7 audit: "CACHE_NAME MUST track the project version".
+        run: |
+          if ! grep -q "ats-v${{ steps.derive.outputs.version }}" docs/sw.js; then
+            echo "::error::docs/sw.js CACHE_NAME does not reference ats-v${{ steps.derive.outputs.version }}"
+            grep CACHE_NAME docs/sw.js || true
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: JavaScript conformance (zero install)
+        run: |
+          node tests/test_vectors.mjs
+          node tests/test_arithmetic.mjs
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: code/rust
+      - name: Rust conformance (12 core + 12 arithmetic, bit-identical)
+        working-directory: code/rust
+        run: cargo test --release
+
+  build-python:
+    name: Build sdist + wheel
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --upgrade pip build
+      - run: python -m build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist
+          path: dist/
+          retention-days: 14
+
+  build-npm:
+    name: Pack npm tarball
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+      - name: npm pack into ./dist-npm
+        run: |
+          mkdir -p dist-npm
+          npm pack --pack-destination dist-npm
+          ls -la dist-npm
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-tarball
+          path: dist-npm/
+          retention-days: 14
+
+  sign:
+    name: SHA256SUMS + GPG signature
+    needs: [verify, build-python, build-npm]
+    runs-on: ubuntu-latest
+    outputs:
+      signed: ${{ steps.sig.outputs.signed }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-dist
+          path: artefacts/
+      - uses: actions/download-artifact@v4
+        with:
+          name: npm-tarball
+          path: artefacts/
+
+      - name: Generate SHA256SUMS
+        working-directory: artefacts
+        run: |
+          sha256sum * > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Should we sign?
+        id: sign-decision
+        run: |
+          if [[ "${{ env.IS_TAG_PUSH }}" == "true" || "${{ inputs.dry_run }}" == "false" ]]; then
+            echo "should_sign=true" >>"$GITHUB_OUTPUT"
+          else
+            echo "should_sign=false" >>"$GITHUB_OUTPUT"
+            echo "::notice::Dry run — skipping GPG signature."
+          fi
+
+      - name: Import GPG private key (editor of record)
+        if: steps.sign-decision.outputs.should_sign == 'true'
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          if [ -z "$GPG_PRIVATE_KEY" ]; then
+            echo "::error::GPG_PRIVATE_KEY secret is not set. See RELEASE.md §3."
+            exit 1
+          fi
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+
+      - name: Sign SHA256SUMS (ASCII-armored detached)
+        id: sig
+        if: steps.sign-decision.outputs.should_sign == 'true'
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        working-directory: artefacts
+        run: |
+          echo "$GPG_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback \
+            --passphrase-fd 0 \
+            --armor --detach-sign --output SHA256SUMS.asc SHA256SUMS
+          gpg --verify SHA256SUMS.asc SHA256SUMS
+          echo "signed=true" >>"$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signed-bundle
+          path: artefacts/
+          retention-days: 14
+
+  github-release:
+    name: Create GitHub Release (signed)
+    needs: [verify, sign]
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: signed-bundle
+          path: artefacts/
+      - name: Compose release notes
+        env:
+          VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          cat >/tmp/release-notes.md <<EOF
+          ATS v${VERSION} — see [CHANGELOG.md](https://github.com/s-geffroy/ATS/blob/main/CHANGELOG.md) for the detailed entry.
+
+          ## Verification
+
+          \`\`\`
+          sha256sum -c SHA256SUMS
+          gpg --verify SHA256SUMS.asc SHA256SUMS
+          \`\`\`
+
+          The GPG fingerprint of the editor of record is published in [\`SECURITY.md §8.1\`](https://github.com/s-geffroy/ATS/blob/main/SECURITY.md#81-release-artefact-verification).
+
+          ## Distribution
+
+          - **PyPI** — \`pip install ats-time==${VERSION}\`
+          - **npm** — \`npm install @s-geffroy/ats@${VERSION}\` (signed with provenance)
+          - **crates.io** — \`cargo add ats@${VERSION}\` (if published; see \`code/rust/README.md\`)
+          EOF
+
+      - name: Create release with signed assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          # --verify-tag ensures gh refuses to publish if the tag was force-pushed since.
+          gh release create "v${VERSION}" \
+            --title "ATS v${VERSION}" \
+            --verify-tag \
+            --notes-file /tmp/release-notes.md \
+            artefacts/*
+
+  publish-pypi:
+    name: Publish to PyPI (trusted publisher)
+    needs: [verify, sign]
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/ats-time
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-dist
+          path: dist/
+      - name: Publish to PyPI (OIDC trusted publishing, no token)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          print-hash: true
+
+  publish-npm:
+    name: Publish to npm (--provenance)
+    needs: [verify, sign]
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Publish package
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-crates:
+    name: Publish to crates.io (optional)
+    needs: [verify, sign]
+    # Crates.io publication is opt-in: skipped if CARGO_REGISTRY_TOKEN is not configured.
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Skip if CARGO_REGISTRY_TOKEN absent
+        id: gate
+        run: |
+          if [ -z "${{ secrets.CARGO_REGISTRY_TOKEN }}" ]; then
+            echo "::notice::CARGO_REGISTRY_TOKEN absent — skipping crates.io publish (see RELEASE.md §3.4)."
+            echo "publish=false" >>"$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >>"$GITHUB_OUTPUT"
+          fi
+      - name: cargo publish
+        if: steps.gate.outputs.publish == 'true'
+        working-directory: code/rust/ats
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish --no-verify

@@ -6,6 +6,27 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — vers v1.0
 
+### Workflow release (npm + PyPI + GPG + crates.io) — automatisation de §7.2 (4)
+
+Dernière exigence v1.0 §7.2 automatisée. Le **code est complet** ; le **déclenchement reste gaté** sur un `git push origin vX.Y.Z` volontaire de l'éditeur, après le premier setup one-time des secrets (cf. `RELEASE.md §3`).
+
+- **`.github/workflows/release.yml`** — pipeline 8 jobs déclenché par `push tags: v*` :
+  - `verify` — cohérence triple `pyproject.toml` / `package.json` / `code/rust/ats/Cargo.toml` ↔ tag + `docs/sw.js CACHE_NAME` + conformance JS + conformance Rust (12 + 12 vecteurs bit-identiques re-vérifiés à la release).
+  - `build-python` — `python -m build` → sdist + wheel.
+  - `build-npm` — `npm pack --pack-destination dist-npm`.
+  - `sign` — `SHA256SUMS` agrégé puis `gpg --armor --detach-sign` (auto-vérifié par `gpg --verify` avant upload). Importe `GPG_PRIVATE_KEY` + `GPG_PASSPHRASE` depuis Secrets. Sur `workflow_dispatch` avec `dry_run=true` (défaut), signature skippée → smoke test sans secrets.
+  - `github-release` — `gh release create vX.Y.Z --verify-tag` avec sdist + wheel + npm tarball + SHA256SUMS + SHA256SUMS.asc en assets, note de release auto-composée pointant vers CHANGELOG + bloc verification + bloc distribution.
+  - `publish-pypi` — `pypa/gh-action-pypi-publish@release/v1` via **PyPI trusted publishing** (OIDC, environnement GitHub `pypi`, **aucun token long-vivant**). Ferme l'objection « token PyPI leak » au niveau de la posture sécurité (`SECURITY.md §8`).
+  - `publish-npm` — `npm publish --provenance --access public` (provenance attestation OIDC visible publiquement, lie le tarball au commit + workflow run).
+  - `publish-crates` — opt-in, `cargo publish` du crate `ats` à `code/rust/ats/`, gaté sur présence de `CARGO_REGISTRY_TOKEN`. `continue-on-error: true` pour ne pas bloquer le reste du pipeline si crates.io est temporairement indisponible ou que le nom n'a pas été claim.
+- **`workflow_dispatch` avec input `dry_run: bool` (défaut true)** — smoke test sans publication, utile pour valider le pipeline avant le premier vrai tag. La signature GPG est skippée en dry-run (les secrets restent inutilisés).
+- **`RELEASE.md` création (~280 lignes)** — process maintainer complet : §0 30-sec summary, §1 pré-flight 7 checks (versions × 3 fichiers + CACHE_NAME + CHANGELOG + CI + working tree + gpg --list-secret-keys), §2 séquence cut/sign-tag/push/watch/verify avec one-liners exacts, §3 setup one-time (PyPI trusted publishing avec « pending publisher » pour le premier publish, NPM_TOKEN Granular Access Token, GPG key génération + publication keyserver + export armored, CARGO_REGISTRY_TOKEN opt-in, GitHub Environment `pypi`), §4 failure recovery (verify failed → delete tag + re-tag, GitHub Release failed mais PyPI publié → manuel, GPG signature failed, mauvais contenu publié → yank PyPI), §5 key rotation (GPG transition signature, NPM_TOKEN rotation, steering committee post-v1.0 handoff), §6 conventions (SemVer, tag style, CHANGELOG, commit, tag message).
+- **`SECURITY.md §8.1` création** — section *Release artefact verification* publiquement-facing : commandes `sha256sum -c` + `gpg --verify` que les consommateurs peuvent exécuter, placeholder de fingerprint à publier au premier tag signé, cross-publication requise sur ≥ 2 canaux (keyserver, GitHub, Keybase), procédure « si fingerprint ne match pas → ne pas trust, ouvrir GHSA ». §8 lui-même mis à jour : provenance npm + PyPI trusted publishing décrits comme acquis du workflow.
+- **`ROADMAP.md`** — §V1.0-H ⬜ → 🟢 (workflow livré, déclenchement gaté), §7.2 tableau (4) 🟢, ligne « 6 sur 7 fermés côté code ; 7 sur 7 fermables dès le premier tag push », nouvelle ligne dans « Ce qui est livré » (V1.0-H | M | ✅ Unreleased).
+- **`README.md`** — tableau Progression v1.0 ligne (4) 🟢, tableau structure (+ `RELEASE.md`, `.github/workflows/release.yml`).
+
+**Setup secrets requis (one-time, hors-code)** : voir `RELEASE.md §3`. Le workflow échouera proprement avec un message explicite si un secret manque, sans publier d'artefact partiel.
+
 ### Archive RFC + 3ᵉ implémentation de référence (Rust) — ferme §7.2 (3) et §7.2 (5)
 
 Campagne fermant **deux des trois exigences v1.0 restantes** en une seule passe. La 3ᵉ (artefacts release `npm publish` / `twine upload` / GPG, §7.2 (4)) reste planifiée juste avant le tag v1.0.0.

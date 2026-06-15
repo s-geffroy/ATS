@@ -60,7 +60,7 @@ Référentiel : `versioning.en.md §7.2` — **6 exigences sur 7 fermées**.
 | 1 | `spec_version` sur tous les vecteurs | ✅ v0.6 |
 | 2 | Annexe multi-planétaire normative | ✅ v0.7 |
 | 3 | ≥ 1 impl tierce (Rust ou Go) à 100 % | ✅ Unreleased (Rust, `code/rust/ats/`) |
-| 4 | Artefacts publiés (`npm publish`, `twine upload`, GPG release) | ⬜ |
+| 4 | Artefacts publiés (`npm publish`, `twine upload`, GPG release) | 🟢 workflow `release.yml` livré, déclenché par `git push origin vX.Y.Z` |
 | 5 | Archive RFC `docs/spec/rfcs/` avec ≥ 1 RFC décidée | ✅ Unreleased (RFC-0001) |
 | 6 | `GOVERNANCE.md` nommant les éditeurs de référence | ✅ v0.7 |
 | 7 | Lighthouse CI ≥ 90 sur 4 catégories × 4 pages | ✅ v0.7 |
@@ -84,7 +84,8 @@ Détails et bloquants annexes : [`ROADMAP.md`](./ROADMAP.md).
 | `docs/spec/rfcs/` | Archive RFC (template + RFC-0001 acceptée, ferme §7.2 (5)) |
 | `docs/assets/js/ats.js`, `docs/assets/js/ats-clock.js` | Implémentation JS de référence + Web Component `<ats-clock>` |
 | `tests/test_vectors.{py,mjs}`, `tests/test_property.py`, `tests/test_perf.py` | Conformance Python + JS, property-based (Hypothesis 1000+), perf |
-| `.github/workflows/{ci,lighthouse,cron-now,pages-build}.yml` | Matrice CI Python × Node, Lighthouse CI, snapshot horaire `/api/now.json`, build Pages |
+| `.github/workflows/{ci,lighthouse,cron-now,pages-build,release}.yml` | Matrice CI Python × Node × Rust, Lighthouse CI, snapshot horaire `/api/now.json`, build Pages, pipeline release (npm + PyPI + GPG + crates.io) |
+| [`RELEASE.md`](./RELEASE.md) | Process maintainer (versions, tag GPG, secrets, recovery) — ferme §7.2 (4) |
 | `archive/source/` | Snapshot historique du contenu d'origine |
 
 ---

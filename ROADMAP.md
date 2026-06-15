@@ -33,6 +33,7 @@ Plan de travail consolidé pour les versions à venir. Les items sont indépenda
 | **Typographie hero `h1`** uniforme (`clamp 2–4rem`) sur 28 pages | — | XS | ✅ v0.7 |
 | **Archive RFC `docs/spec/rfcs/` (template + RFC-0001 acceptée)** | V1.0-§7.2(5) | S | ✅ Unreleased |
 | **Implémentation Rust de référence (`code/rust/ats/`, crate `ats`)** | V1.0-B | L | ✅ Unreleased |
+| **Workflow release.yml + RELEASE.md (auto npm/PyPI/GPG/crates.io)** | V1.0-H | M | ✅ Unreleased (déclenchement gaté tag push) |
 
 ---
 
@@ -53,10 +54,15 @@ Ce qui est livré (Periodic Background Sync) ne fonctionne que sur Chrome deskto
 - **Backend Web Push** (compte hébergement requis, ~5 €/mois).
 - **Conserver tel quel** avec bandeau d'avertissement explicite dans `age.html`.
 
-### V1.0-H · Branding & artefacts release · **M** · ⬜
-- **`npm publish`** de `@s-geffroy/ats` (entrée existe dans `package.json`, jamais poussée).
-- **`twine upload`** de `ats-time` sur PyPI (idem `pyproject.toml`).
-- **GitHub Releases signées GPG** avec `git tag -s v0.7.0`.
+### V1.0-H · Branding & artefacts release · **M** · 🟢 — workflow livré, déclenchement gaté
+**Automatisation livrée** (Unreleased) :
+- `.github/workflows/release.yml` — déclenché par `push tags: v*`, exécute `verify` (cohérence versions 3 fichiers + `sw.js CACHE_NAME` + conformance JS + Rust) → `build-python` (sdist + wheel) + `build-npm` (`npm pack`) → `sign` (`SHA256SUMS` + `SHA256SUMS.asc` GPG armored détaché) → `github-release` (`gh release create --verify-tag`) → `publish-pypi` (`pypa/gh-action-pypi-publish` via OIDC trusted publishing) + `publish-npm` (`npm publish --provenance --access public`) + `publish-crates` (opt-in via `CARGO_REGISTRY_TOKEN`).
+- `RELEASE.md` — process maintainer complet (§0 30-sec, §1 pré-flight 7 checks, §2 séquence cut/tag/push/watch/verify, §3 setup one-time secrets + PyPI trusted publisher + GH environment `pypi`, §4 recovery 4 modes, §5 key rotation GPG + NPM_TOKEN + steering committee post-v1.0, §6 conventions).
+- `SECURITY.md §8.1` — section *Release artefact verification* (sha256sum + gpg --verify), placeholder de fingerprint à publier au premier tag signé.
+
+**Reste à faire au moment du tag** (effort XS) : éditer les 4 fichiers versions, bumper `CACHE_NAME` `sw.js`, signer + pousser le tag (`git tag -s vX.Y.Z`). Le workflow ferme `§7.2 (4)` automatiquement au premier `vX.Y.Z` poussé.
+
+**Branding** (séparé du workflow, peut traîner) :
 - Jeu favicon complet : `favicon.ico` (16/32/48), `apple-touch-icon.png` 180×180, `mstile-*.png` Windows.
 - Page « Press kit » : logo SVG/PNG plusieurs résolutions, palette officielle (`#0b0f17 / #4a6cff / #e8eef7`), do/don't du symbole Δ.
 
@@ -130,12 +136,12 @@ Référentiel normatif : `docs/spec/versioning.en.md §7.2` — 7 exigences.
 | (1) | `spec_version` sur tous les vecteurs | ✅ v0.6 |
 | (2) | Annexe multi-planétaire normative | ✅ v0.7 |
 | (3) | ≥ 1 impl tierce (Rust ou Go) à 100 % | ✅ Unreleased (Rust, cf. V1.0-B) |
-| (4) | Artefacts publiés (`npm publish`, `twine upload`, GPG release) | ⬜ (cf. V1.0-H) |
+| (4) | Artefacts publiés (`npm publish`, `twine upload`, GPG release) | 🟢 workflow `release.yml` livré, déclenchement gaté sur premier `git push origin vX.Y.Z` (cf. V1.0-H) |
 | (5) | Archive RFC dans `docs/spec/rfcs/` avec ≥ 1 RFC décidée | ✅ Unreleased (RFC-0001) |
 | (6) | `GOVERNANCE.md` nommant les éditeurs de référence | ✅ v0.7 (blindage final) |
 | (7) | Lighthouse CI ≥ 90 sur 4 catégories × 4 pages | ✅ v0.7 |
 
-**6 sur 7 fermés.** Reste : artefacts release (§7.2 (4), cf. V1.0-H).
+**6 sur 7 fermés** côté code ; **7 sur 7 fermables** dès que le maintainer pousse `git tag -s vX.Y.Z && git push origin vX.Y.Z`. L'automatisation §7.2 (4) est complète, son déclenchement dépend d'un acte volontaire de l'éditeur (`RELEASE.md`).
 
 ### Bloquants annexes (non-§7.2, mais pré-requis pour le « standard universel »)
 

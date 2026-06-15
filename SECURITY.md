@@ -142,10 +142,44 @@ The editors of record **MUST** offer attribution to every accepted report unless
 - The core reference implementations have **zero runtime dependencies**. Calendar bridges declare optional dependencies explicitly (`convertdate`, `lunardate`).
 - Build-time and site-time dependencies are pinned and auditable in `scripts/package-lock.json` and `pyproject.toml`.
 - The published site sets a strict CSP via `<meta http-equiv="Content-Security-Policy">` (`default-src 'self'`).
-- `npm` and PyPI artefacts (`@s-geffroy/ats`, `ats-time`) **SHALL** be GPG-signed before v1.0 ships (`versioning.en.md §7.2 (4)`).
+- The `npm` package (`@s-geffroy/ats`) is published with [**provenance**](https://docs.npmjs.com/generating-provenance-statements) via GitHub Actions OIDC.
+- The PyPI package (`ats-time`) is published via PyPI **trusted publishing** (OIDC) — no long-lived token is stored in repository secrets.
 - The conformance vectors and `now.json` snapshots **MAY** be GPG-signed in a future release to detect tampering.
 
 Reports of CSP bypasses, dependency-pinning gaps, or signing-policy weaknesses are welcome under §5.
+
+### 8.1 Release artefact verification
+
+Every tagged release (`vX.Y.Z`) attaches the following to its [GitHub Release](https://github.com/s-geffroy/ATS/releases):
+
+- the Python sdist (`ats_time-X.Y.Z.tar.gz`) and wheel (`ats_time-X.Y.Z-py3-none-any.whl`),
+- the npm tarball (`s-geffroy-ats-X.Y.Z.tgz`),
+- a `SHA256SUMS` file listing the SHA-256 hash of each artefact,
+- a `SHA256SUMS.asc` detached ASCII-armored GPG signature over `SHA256SUMS`.
+
+A consumer who downloads `SHA256SUMS` + `SHA256SUMS.asc` + any artefact **MAY** verify integrity end-to-end with:
+
+```bash
+gh release download vX.Y.Z              # or use the web UI
+sha256sum -c SHA256SUMS                  # checks the artefact hashes
+gpg --verify SHA256SUMS.asc SHA256SUMS   # checks the editor of record's signature
+```
+
+The PGP public key fingerprint of the editor of record (`GOVERNANCE.md §1.1`) is:
+
+> **Fingerprint:** _to be published when the first signed release ships; see `keys.openpgp.org` and `RELEASE.md §3.3`._
+
+The key **MUST** be cross-published on at least two of:
+
+- a keyserver (`hkps://keys.openpgp.org`),
+- the editor's GitHub profile (Profile → Settings → SSH and GPG keys),
+- the editor's <https://keybase.io/sgeffroy> profile.
+
+If the fingerprint above does not match the key returned by your verification, **DO NOT** trust the artefact — open a GitHub Security Advisory per §2.1.
+
+The git tag itself is also GPG-signed (`git tag -s`); `git tag -v vX.Y.Z` against a cloned repository **MUST** print `Good signature` from the same key.
+
+Release process details for maintainers live in [`RELEASE.md`](./RELEASE.md).
 
 ---
 
