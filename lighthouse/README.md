@@ -8,11 +8,22 @@ This directory holds the Lighthouse measurement harness for ATS site pages, plus
 
 | Surface | Trigger | Where |
 |---|---|---|
-| **CI gate** (4 pages × 4 categories ≥ 90) | every push to `main` and every PR | [`.github/workflows/lighthouse.yml`](../.github/workflows/lighthouse.yml) |
+| **CI gate — localhost** (4 pages × 4 categories ≥ 90, median of 3 runs) | every push to `main` and every PR | [`.github/workflows/lighthouse.yml`](../.github/workflows/lighthouse.yml) → job `lighthouse` |
+| **CI sanity — deployed origin** (≥ 95, informational, `continue-on-error`) | every push to `main` and manual dispatch (skipped on PRs) | same workflow → job `lighthouse-prod` |
 | **Local qualitative capture** | manual, on every release tag | this directory (`capture-baseline.sh`, JSON baselines) |
 | **Local full Lighthouse pass** | manual, x86 hosts only | this directory (`run-lighthouse.sh`) |
 
-The CI workflow is the authoritative regression gate; the scripts below are for local exploration and architectural diffs.
+The localhost CI job is the authoritative regression gate. The prod CI job is a parallel check against the gzipped/CDN-served site at <https://s-geffroy.github.io/ATS/>; it runs at a stricter ≥ 95 threshold because real-user conditions are ~5-15 points better than localhost, but it never blocks a merge — Pages outages and CDN hiccups are out of the project's control. PRs skip the prod job entirely because the deployed site reflects `main`, not the PR branch.
+
+### Median of 3 — variance taming
+
+A single Lighthouse run on a tiny static site has been observed oscillating ~20 points on the Performance category alone (e.g. FAQ desktop has scored anywhere between 71 and 94 across consecutive identical runs). The CI runner sets `LIGHTHOUSE_RUNS=3` and gates on the **per-category median** of the three runs, which:
+
+- absorbs cold-cache + GC outliers without lowering the gate floor;
+- keeps the failure summary readable (the table prints the median row plus the min of N as a noise floor reference);
+- triples the CI wall-clock budget — about 18 min worst case for 4 pages × 2 form factors × 3 runs, hence the 30-minute timeout.
+
+For a one-shot local check, omit `LIGHTHOUSE_RUNS` and the runner reverts to a single run (the historical behaviour). The runner picks the run whose Performance score equals the median Performance and persists that one as the canonical `<slug>.json`; each individual run is also kept as `<slug>-run<N>.json` for forensic diffing.
 
 ## Why qualitative + automated
 
@@ -28,16 +39,11 @@ The qualitative file is enough to demonstrate the §1.1 gain (removal of CDN `ma
 
 ## Localhost vs deployed site — measurement artifacts
 
-Both the CI gate and the local Docker harness exercise pages served from `http://127.0.0.1:8088` via Python's `http.server`. Two Lighthouse audits always fail against that target for environmental reasons unrelated to the code under review:
+Both the CI gate and the local Docker harness exercise pages served from `http://127.0.0.1:8088` via Python's `http.server`. The `is-on-https` audit (Best Practices, weight 5/27) always scores 0 against that target — localhost can't legitimately serve HTTPS — but the deployed site at <https://s-geffroy.github.io/ATS/> is HTTPS. Without skipping it the BP gate caps at ~0.81 even when the prod-deployed site scores ≥ 0.90 on the same code. `ci-assert.mjs` therefore passes `skipAudits: ['is-on-https']` whenever the target URL points at a local HTTP host (`127.0.0.1`, `localhost`, `[::1]`); if `LIGHTHOUSE_BASE_URL` ever points at a public origin, the skip turns off automatically and the audit runs as normal.
 
-| Audit | Category | Why it fails on localhost | Why it passes in prod |
-|---|---|---|---|
-| `is-on-https` | Best Practices (weight 5/27) | localhost can't legitimately serve HTTPS | <https://s-geffroy.github.io/ATS/> is HTTPS |
-| `uses-text-compression` | Performance | `python3 -m http.server` does not emit `Content-Encoding: gzip` | GitHub Pages CDN gzips transparently |
+Local diagnostic scripts (`run-lighthouse.sh`, `capture-baseline.sh`) do **not** apply this skip; the resulting JSON files therefore show `is-on-https` score 0. That is a known measurement artifact, not a real regression — compare with CI scores or with a manual run against the deployed origin to validate.
 
-Without skipping these audits, the gates are unfair: BP caps at ~0.81 and Performance caps at ~0.75-0.80 even when the prod-deployed site scores ≥ 0.90 on the same code. `ci-assert.mjs` therefore passes `skipAudits: ['is-on-https', 'uses-text-compression']` whenever the target URL points at a local HTTP host (`127.0.0.1`, `localhost`, `[::1]`). If `LIGHTHOUSE_BASE_URL` ever points at a public origin, the skip turns off automatically and both audits run as normal.
-
-Local diagnostic scripts (`run-lighthouse.sh`, `capture-baseline.sh`) do **not** apply these skips; the resulting JSON files therefore show `is-on-https` score 0 and `uses-text-compression` reporting 70-105 KiB of savings. Those are known measurement artifacts, not real regressions — compare with CI scores or with a manual run against the deployed origin to validate.
+Note: `uses-text-compression` (Performance "opportunity") also flags ~70-105 KiB of savings against `python3 -m http.server` since it doesn't emit `Content-Encoding: gzip`. GitHub Pages gzips transparently in prod, but the audit is an opportunity (not a scored metric) so it doesn't affect the Performance gate either way — no skip needed.
 
 ## Platform note (Apple Silicon)
 

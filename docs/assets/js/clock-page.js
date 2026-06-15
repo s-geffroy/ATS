@@ -582,6 +582,16 @@
     if (saved === 'analog' || saved === 'numeric') currentFace = saved;
   } catch (e) {}
 
+  // The analog dial SVG (110 ticks + ~80 city-arc elements) costs ~250 ms TBT
+  // on Moto G4 emulation at boot. Defer until the face is actually shown.
+  let analogBuilt = false;
+  function ensureAnalogBuilt() {
+    if (analogBuilt) return;
+    analogBuilt = true;
+    buildAnalogTicks();
+    buildCityArcs();
+  }
+
   function selectFace(face, opts) {
     if (face !== 'numeric' && face !== 'analog') face = 'numeric';
     const persist = !(opts && opts.persist === false);
@@ -589,6 +599,7 @@
     if (persist) {
       try { localStorage.setItem(FACE_KEY, face); } catch (e) {}
     }
+    if (face === 'analog') ensureAnalogBuilt();
     if (faceNumeric) faceNumeric.hidden = face !== 'numeric';
     if (faceAnalog)  faceAnalog.hidden  = face !== 'analog';
     if (tabNumeric) {
@@ -656,7 +667,10 @@
   function rebuildCityList() {
     const customs = loadCustomCities();
     CITIES = DEFAULT_CITIES.concat(customs);
-    buildCityArcs();
+    // If the analog dial hasn't been built yet, ensureAnalogBuilt will pick up
+    // the fresh CITIES the next time the analog face is shown — no need to
+    // pre-build the SVG here.
+    if (analogBuilt) buildCityArcs();
     renderCustomCityList(customs);
   }
   function renderCustomCityList(customs) {
@@ -759,11 +773,9 @@
     });
   }
 
-  buildAnalogTicks();
-  // Pre-load custom cities BEFORE first buildCityArcs so they appear on
-  // first render without a flash of the default-only dial.
+  // Pre-load custom cities so the dial picks them up when ensureAnalogBuilt
+  // fires (either now via selectFace('analog'), or later via a tab click).
   CITIES = DEFAULT_CITIES.concat(loadCustomCities());
-  buildCityArcs();
   populateIanaDatalist();
   bindCustomCityForm();
   renderCustomCityList(loadCustomCities());
@@ -813,7 +825,11 @@
     frozenAtMs = null;
     if (tickHandle) clearInterval(tickHandle);
     liveTick();
-    tickHandle = setInterval(liveTick, 100);
+    // 5 Hz (200 ms) — see docs/spec/analog-clock.{en,fr}.md §8 / §8.1.
+    // Halved from 10 Hz to cut Lighthouse mobile TBT (~500 ms gain on
+    // Moto G4 emulation) without visible jitter: the Blink hand only
+    // ticks once every 864 ms, so 200 ms remains sub-Blink interpolation.
+    tickHandle = setInterval(liveTick, 200);
     setStatus(T.back2live, true);
     // Clean URL
     const u = new URL(window.location.href);

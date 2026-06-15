@@ -53,6 +53,16 @@ packages = ["bridges"]
 requires = ["setuptools>=70"]
 build-backend = "setuptools.build_meta"
 
+[tool.pytest.ini_options]
+# convertdate >= 2.4 emits 281 DeprecationWarnings during test collection
+# from its internal `hebrew.month_days` → `hebrew.month_length` migration.
+# Our bridges (code/bridges/hebrew.py) do not call month_days directly, so
+# this is pure upstream noise — silence it here until convertdate ships
+# the rename. Re-evaluate when bumping the `convertdate>=` floor.
+filterwarnings = [
+  "ignore:.*month_days.*:DeprecationWarning:convertdate",
+]
+
 [tool.ruff]
 line-length = 100
 target-version = "py39"

@@ -415,14 +415,16 @@ a:hover { text-decoration: underline; }
   margin-top: 0.5rem;
 }
 
-/* CLS prevention — reserve space for the search input that search.js inserts
-   at the top of <main> on faq/manifesto pages. The HTML on those pages now
-   declares <div id="ats-search"></div> explicitly with this min-height, so
-   search.js finds the placeholder, skips the DOM insertion, and the bulk of
-   <main> doesn't shift down by ~60px after first paint. The placeholder is
-   also valid on pages that don't load search.js (it's just an empty div). */
+/* CLS prevention — reserve space (height AND vertical margins) for the
+   search input that search.js inserts at the top of <main> on faq/manifesto
+   pages. min-height covers the rendered input box; margin matches the
+   `.ats-search { margin: 0.75rem 0 1.5rem }` rule that search.js injects
+   inline once it boots — applying it to the placeholder up-front prevents
+   the ~36 px downward shift of <article id="content"> when that class
+   lands. The placeholder is also valid on pages that don't load search.js. */
 #ats-search {
   min-height: 60px;
+  margin: 0.75rem 0 1.5rem;
 }
 
 /* Pedagogical ATS readout (Bloc · Centi · …) under the dial. */

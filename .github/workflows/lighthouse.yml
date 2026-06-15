@@ -18,9 +18,11 @@ permissions:
 
 jobs:
   lighthouse:
-    name: Lighthouse mobile + desktop, 4 pages × 4 categories ≥ 90
+    name: Lighthouse mobile + desktop, 4 pages × 4 categories ≥ 90 (median of 3)
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # 4 pages × 2 form factors × 3 runs ≈ 18 min worst case on ubuntu-latest;
+    # gate has a generous floor to ride out a slow runner without flaking.
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v4
@@ -42,13 +44,60 @@ jobs:
             sleep 0.5
           done
 
-      - name: Run Lighthouse and assert ≥ 90 on every category
+      - name: Run Lighthouse (median of 3) and assert ≥ 90 on every category
+        env:
+          # 3 runs per (page, form), median per category gates. Lighthouse
+          # exhibits ~20-point single-run variance on a small static site
+          # (FAQ desktop has been observed oscillating 71-94 with no code
+          # change); a 3-run median is the cheapest reliable signal.
+          LIGHTHOUSE_RUNS: '3'
         run: node lighthouse/ci-assert.mjs
 
       - name: Upload full Lighthouse JSON reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: lighthouse-reports
+          name: lighthouse-reports-localhost
+          path: lighthouse/ci-reports/
+          retention-days: 14
+
+  lighthouse-prod:
+    # Non-blocking sanity check against the deployed origin. The deployed
+    # site at s-geffroy.github.io/ATS/ is HTTPS + gzipped + CDN-cached, so
+    # real-user scores run consistently above what the localhost gate
+    # above measures. We gate ≥ 95 here to surface any regression at the
+    # prod boundary — but `continue-on-error` keeps Pages outages and CDN
+    # hiccups from blocking PR merges. The localhost job is the canonical
+    # gate; this job is informational.
+    name: Lighthouse vs deployed origin ≥ 95 (informational)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    # Skip on PRs — the deployed site reflects main, not PR branches, so a
+    # PR run would measure stale code. Push to main + manual dispatch only.
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Lighthouse + chrome-launcher
+        run: npm install --no-save lighthouse@12 chrome-launcher@1
+
+      - name: Run Lighthouse against deployed site
+        env:
+          LIGHTHOUSE_BASE_URL: 'https://s-geffroy.github.io/ATS'
+          LIGHTHOUSE_RUNS: '3'
+          LIGHTHOUSE_MIN_SCORE: '0.95'
+        run: node lighthouse/ci-assert.mjs
+
+      - name: Upload prod Lighthouse JSON reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports-prod
           path: lighthouse/ci-reports/
           retention-days: 14

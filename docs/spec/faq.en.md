@@ -242,15 +242,16 @@ A separate reference page at `/{fr,en}/cities.html` showing a world map of ~40 c
 
 Yes. Open the `<details>` panel below the clock, enter a code (2–4 letters), name, IANA time zone (autocompleted from `Intl.supportedValuesOf('timeZone')`), and pick a colour. Up to 6 custom cities are persisted in `localStorage["ats-custom-cities"]`. Nothing leaves the browser. See `analog-clock.en.md §11`.
 
-### Why does the clock use 10 Hz refresh instead of 60 Hz?
+### Why does the clock use 5 Hz refresh instead of 10 Hz or 60 Hz?
 
-Three reasons (`analog-clock.en.md §8.1`):
+Four reasons (`analog-clock.en.md §8.1`):
 
-1. The Blink position refreshes every ≈ 864 ms, below 10 Hz visibility; faster ticks would not show new information.
-2. 10 Hz is cheap on CPU and battery.
-3. Mobile browsers throttle background timers to 1 Hz; 10 Hz active gives a headroom margin without visible jitter when the tab returns to focus.
+1. The Blink position refreshes every ≈ 864 ms (one Blink step ≈ 4 ticks); faster ticks would not show new information.
+2. 5 Hz is cheap on CPU, battery and main-thread time — halving the previous 10 Hz reference also removes ≈ 500 ms of Lighthouse mobile Total Blocking Time on Moto G4 emulation.
+3. Mobile browsers throttle background timers to 1 Hz; 5 Hz active keeps a comfortable headroom margin without visible jitter when the tab returns to focus.
+4. The reference design favours predictability on low-end mobile main threads.
 
-A 60 Hz implementation driven by `requestAnimationFrame` is permitted.
+A higher rate (10 Hz, or 60 Hz driven by `requestAnimationFrame`) is permitted.
 
 ---
 

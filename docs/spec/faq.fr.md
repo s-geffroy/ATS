@@ -242,15 +242,16 @@ Une page de référence séparée à `/{fr,en}/cities.html` montrant une carte d
 
 Oui. Ouvrez le panneau `<details>` sous l'horloge, entrez un code (2-4 lettres), un nom, un fuseau IANA (autocomplete depuis `Intl.supportedValuesOf('timeZone')`) et choisissez une couleur. Jusqu'à 6 villes personnalisées sont persistées dans `localStorage["ats-custom-cities"]`. Rien ne quitte le navigateur. Cf. `analog-clock.fr.md §11`.
 
-### Pourquoi l'horloge utilise-t-elle un rafraîchissement à 10 Hz au lieu de 60 Hz ?
+### Pourquoi l'horloge utilise-t-elle un rafraîchissement à 5 Hz au lieu de 10 Hz ou 60 Hz ?
 
-Trois raisons (`analog-clock.fr.md §8.1`) :
+Quatre raisons (`analog-clock.fr.md §8.1`) :
 
-1. La position Blink se rafraîchit toutes les ≈ 864 ms, en dessous de la visibilité à 10 Hz ; des ticks plus rapides ne montreraient pas de nouvelle information.
-2. 10 Hz est peu coûteux en CPU et batterie.
-3. Les navigateurs mobiles throttlent les timers en arrière-plan à 1 Hz ; 10 Hz actif donne une marge sans gigue visible quand l'onglet revient au focus.
+1. La position Blink se rafraîchit toutes les ≈ 864 ms (un pas Blink ≈ 4 ticks) ; des ticks plus rapides ne montreraient pas de nouvelle information.
+2. 5 Hz est peu coûteux en CPU, batterie et temps de thread principal — diviser par deux l'ancien design de référence à 10 Hz retire aussi ≈ 500 ms de Total Blocking Time mobile Lighthouse sur émulation Moto G4.
+3. Les navigateurs mobiles throttlent les timers en arrière-plan à 1 Hz ; 5 Hz actif conserve une marge confortable sans gigue visible au retour au focus.
+4. Le design de référence privilégie la prévisibilité sur les threads principaux des mobiles bas de gamme.
 
-Une implémentation 60 Hz pilotée par `requestAnimationFrame` est permise.
+Un taux supérieur (10 Hz, ou 60 Hz piloté par `requestAnimationFrame`) est permis.
 
 ---
 

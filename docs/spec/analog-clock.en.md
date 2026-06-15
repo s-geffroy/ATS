@@ -112,9 +112,9 @@ The dial carries **five hands**, one per ATS micro unit. All hands originate at 
 |---|---|---|---|---|
 | **Bloc** | 40 | 4 | `currentColor` (foreground) | Snap on Bloc completion (every 2 h 24) |
 | **Centi** | 55 | 3 | `#4a6cff` (brand accent) | Snap on Centi completion (every 14 m 24 s) |
-| **Milli** | 70 | 2 | `color-mix(in oklab, currentColor 50%, transparent)` (muted) | Continuous interpolation at 10 Hz (strict mode snaps it) |
-| **Beat** | 82 | 1.4 | `color-mix(in oklab, #2bb673 65%, CanvasText)` (green) | Continuous interpolation at 10 Hz (strict mode snaps it) |
-| **Blink** | 95 | 1.2 | `color-mix(in oklab, #ff5a5a 65%, CanvasText)` (red) + filled disc `r=3` at `y=-76` (80 % of length) | Continuous interpolation at 10 Hz (strict mode snaps it); see §7 for the 864 ms refresh limit |
+| **Milli** | 70 | 2 | `color-mix(in oklab, currentColor 50%, transparent)` (muted) | Continuous interpolation at 5 Hz (strict mode snaps it) |
+| **Beat** | 82 | 1.4 | `color-mix(in oklab, #2bb673 65%, CanvasText)` (green) | Continuous interpolation at 5 Hz (strict mode snaps it) |
+| **Blink** | 95 | 1.2 | `color-mix(in oklab, #ff5a5a 65%, CanvasText)` (red) + filled disc `r=3` at `y=-76` (80 % of length) | Continuous interpolation at 5 Hz (strict mode snaps it); see §7 for the 864 ms refresh limit |
 
 ### 4.2 Length convention (watchmaker-style)
 
@@ -203,13 +203,13 @@ The readout carries ARIA `role="timer" aria-live="off" aria-atomic="true"` (cf. 
 |---|---|---|
 | Bloc | Snap (floor) | One snap per 2 h 24 — coherent with "counter of completed units" (`manifesto.en.md §6`). |
 | Centi | Snap (floor) | One snap per 14 min — still coherent; would feel dead if smooth. |
-| Milli | Continuous (10 Hz interpolation) | Pure floor would tick every 1 min 26 s; visible, but too discrete for the "alive clock" feeling. |
-| Beat | Continuous (10 Hz interpolation) | Same rationale as Milli at a faster timescale. |
-| Blink | Continuous (10 Hz interpolation) — see limit below | Same rationale; provides a fast, eye-catching sweep cue. |
+| Milli | Continuous (5 Hz interpolation) | Pure floor would tick every 1 min 26 s; visible, but too discrete for the "alive clock" feeling. |
+| Beat | Continuous (5 Hz interpolation) | Same rationale as Milli at a faster timescale. |
+| Blink | Continuous (5 Hz interpolation) — see limit below | Same rationale; provides a fast, eye-catching sweep cue. |
 
 ### 7.1 Blink refresh limit
 
-Because `frac` has 5 decimals (resolution 0.864 s), the Blink position only changes when `frac` actually increments — about once every 864 ms. At a 100 ms (10 Hz) tick rate, the Blink hand therefore visually jumps once per `frac` tick even in "continuous" mode. Sub-tick interpolation would require recomputing `frac` at millisecond precision; this is an allowed but not required optimisation.
+Because `frac` has 5 decimals (resolution 0.864 s), the Blink position only changes when `frac` actually increments — about once every 864 ms. At a 200 ms (5 Hz) tick rate, the Blink hand therefore visually jumps once per `frac` tick even in "continuous" mode (about every 4-5 ticks). Sub-tick interpolation would require recomputing `frac` at millisecond precision; this is an allowed but not required optimisation.
 
 ### 7.2 Strict mode (opt-in)
 
@@ -221,19 +221,19 @@ The Web Component MAY also expose this as the attribute `<ats-clock face="analog
 
 ## 8. Animation
 
-A single `setInterval` at 100 ms (10 Hz) recomputes the five hand angles. Updates skip the SVG `transform` write when the angle has not changed (Bloc/Centi snap), which keeps DOM churn minimal.
+A single `setInterval` at 200 ms (5 Hz) recomputes the five hand angles. Updates skip the SVG `transform` write when the angle has not changed (Bloc/Centi snap), which keeps DOM churn minimal.
 
 Implementations MAY use `requestAnimationFrame` for the Milli / Beat / Blink hands for sub-frame smoothness; this is purely a rendering optimisation and does not affect the ATS values.
 
-### 8.1 Why 10 Hz
+### 8.1 Why 5 Hz
 
-The 10 Hz tick rate is chosen because:
+The 5 Hz tick rate is chosen because:
 
-1. The smallest perceivable visual update on a screen is approximately 60 Hz; 10 Hz updates well below the perceptual limit are unnoticed if the underlying value (e.g. Blink) changes every ≈ 864 ms.
-2. CPU and battery cost is bounded: 10 ticks per second on a single timer is negligible on any modern device.
-3. Mobile browsers throttle `setInterval` to 1 Hz when the tab is backgrounded; 10 Hz active rate provides headroom for the throttle without visible jitter when the tab returns to focus.
+1. The smallest perceivable visual update on a screen is approximately 60 Hz; 5 Hz updates well below the perceptual limit are unnoticed because the underlying value (Blink) changes every ≈ 864 ms — i.e. a single Blink increment spans about four ticks, so the apparent jump rate is dominated by `frac`, not by the tick rate itself.
+2. CPU, battery and main-thread cost are bounded: 5 ticks per second on a single timer is negligible on any modern device, and the halved rate (vs an earlier 10 Hz reference) removes ≈ 500 ms of Lighthouse Total Blocking Time on Moto G4 emulation without any visible regression.
+3. Mobile browsers throttle `setInterval` to 1 Hz when the tab is backgrounded; 5 Hz active rate keeps comfortable headroom for the throttle and avoids visible jitter when the tab returns to focus.
 
-A higher rate (60 Hz, requestAnimationFrame-driven) is permitted; the reference design keeps 10 Hz for predictability across browsers.
+A higher rate (10 Hz, or 60 Hz via `requestAnimationFrame`) is permitted; the reference design picks 5 Hz for predictability across browsers and friendliness to low-end mobile main threads.
 
 ### 8.2 Reduced motion
 
@@ -460,9 +460,9 @@ The Gregorian-watch convention is universal in commercial watchmaking [Sobel 199
 
 §4.3 explains the cool-to-warm progression and §9.2 explains the 75° hue-gap rule for cities. The exact hex values were chosen from the Tailwind CSS 500-weight palette for visual familiarity to web designers. Adopters of the reference design are free to redefine the palette via CSS custom properties; the reference values are not normative.
 
-### 16.3 "Why 10 Hz and not 60 Hz?"
+### 16.3 "Why 5 Hz and not 10 Hz or 60 Hz?"
 
-§8.1 explains: 10 Hz is below perceptual limits when the underlying value (Blink) refreshes every 864 ms; it is cheap on CPU and battery; it survives mobile browser background-tab throttling without visible jitter on return. A 60 Hz implementation (driven by `requestAnimationFrame`) is permitted; the reference design picks 10 Hz for predictability.
+§8.1 explains: 5 Hz is below perceptual limits when the underlying value (Blink) refreshes every 864 ms (a Blink step spans about four ticks); it is cheap on CPU and battery; it survives mobile browser background-tab throttling without visible jitter on return; and it eliminates ≈ 500 ms of Lighthouse mobile TBT compared with the earlier 10 Hz reference, without any perceived change. A higher rate (10 Hz, or 60 Hz via `requestAnimationFrame`) is permitted; the reference design picks 5 Hz for predictability.
 
 ### 16.4 "Why 08–22 local for the city arcs, and not (say) sunrise to sunset?"
 

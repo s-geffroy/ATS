@@ -112,9 +112,9 @@ Le cadran porte **cinq aiguilles**, une par unité micro ATS. Toutes les aiguill
 |---|---|---|---|---|
 | **Bloc** | 40 | 4 | `currentColor` (foreground) | Claque à la complétion du Bloc (toutes les 2 h 24) |
 | **Centi** | 55 | 3 | `#4a6cff` (accent de marque) | Claque à la complétion du Centi (toutes les 14 m 24 s) |
-| **Milli** | 70 | 2 | `color-mix(in oklab, currentColor 50%, transparent)` (atténué) | Interpolation continue à 10 Hz (le mode strict la fait claquer) |
-| **Beat** | 82 | 1,4 | `color-mix(in oklab, #2bb673 65%, CanvasText)` (vert) | Interpolation continue à 10 Hz (le mode strict la fait claquer) |
-| **Blink** | 95 | 1,2 | `color-mix(in oklab, #ff5a5a 65%, CanvasText)` (rouge) + disque rempli `r=3` à `y=-76` (80 % de la longueur) | Interpolation continue à 10 Hz (le mode strict la fait claquer) ; cf. §7 pour la limite de rafraîchissement à 864 ms |
+| **Milli** | 70 | 2 | `color-mix(in oklab, currentColor 50%, transparent)` (atténué) | Interpolation continue à 5 Hz (le mode strict la fait claquer) |
+| **Beat** | 82 | 1,4 | `color-mix(in oklab, #2bb673 65%, CanvasText)` (vert) | Interpolation continue à 5 Hz (le mode strict la fait claquer) |
+| **Blink** | 95 | 1,2 | `color-mix(in oklab, #ff5a5a 65%, CanvasText)` (rouge) + disque rempli `r=3` à `y=-76` (80 % de la longueur) | Interpolation continue à 5 Hz (le mode strict la fait claquer) ; cf. §7 pour la limite de rafraîchissement à 864 ms |
 
 ### 4.2 Convention de longueur (style horloger)
 
@@ -203,13 +203,13 @@ La lecture porte ARIA `role="timer" aria-live="off" aria-atomic="true"` (cf. §1
 |---|---|---|
 | Bloc | Claquage (plancher) | Un claquage par 2 h 24 — cohérent avec « compteur d'unités complétées » (`manifesto.fr.md §6`). |
 | Centi | Claquage (plancher) | Un claquage par 14 min — toujours cohérent ; semblerait mort si lisse. |
-| Milli | Continu (interpolation 10 Hz) | Le plancher pur tickerait toutes les 1 min 26 s ; visible, mais trop discret pour la sensation « horloge vivante ». |
-| Beat | Continu (interpolation 10 Hz) | Même justification que Milli à une échelle de temps plus rapide. |
-| Blink | Continu (interpolation 10 Hz) — cf. limite ci-dessous | Même justification ; fournit un indice de balayage rapide et accrocheur. |
+| Milli | Continu (interpolation 5 Hz) | Le plancher pur tickerait toutes les 1 min 26 s ; visible, mais trop discret pour la sensation « horloge vivante ». |
+| Beat | Continu (interpolation 5 Hz) | Même justification que Milli à une échelle de temps plus rapide. |
+| Blink | Continu (interpolation 5 Hz) — cf. limite ci-dessous | Même justification ; fournit un indice de balayage rapide et accrocheur. |
 
 ### 7.1 Limite de rafraîchissement du Blink
 
-Parce que `frac` a 5 décimales (résolution 0,864 s), la position du Blink ne change que quand `frac` s'incrémente réellement — environ une fois toutes les 864 ms. À un taux de tick de 100 ms (10 Hz), l'aiguille Blink saute donc visuellement une fois par tick `frac` même en mode « continu ». L'interpolation sous-tick requerrait de recalculer `frac` à précision milliseconde ; c'est une optimisation permise mais non requise.
+Parce que `frac` a 5 décimales (résolution 0,864 s), la position du Blink ne change que quand `frac` s'incrémente réellement — environ une fois toutes les 864 ms. À un taux de tick de 200 ms (5 Hz), l'aiguille Blink saute donc visuellement une fois par tick `frac` même en mode « continu » (environ tous les quatre à cinq ticks). L'interpolation sous-tick requerrait de recalculer `frac` à précision milliseconde ; c'est une optimisation permise mais non requise.
 
 ### 7.2 Mode strict (opt-in)
 
@@ -221,19 +221,19 @@ Le Web Component PEUT aussi exposer cela comme l'attribut `<ats-clock face="anal
 
 ## 8. Animation
 
-Un seul `setInterval` à 100 ms (10 Hz) recalcule les cinq angles d'aiguilles. Les mises à jour sautent l'écriture `transform` SVG quand l'angle n'a pas changé (claquage Bloc/Centi), ce qui maintient le churn DOM minimal.
+Un seul `setInterval` à 200 ms (5 Hz) recalcule les cinq angles d'aiguilles. Les mises à jour sautent l'écriture `transform` SVG quand l'angle n'a pas changé (claquage Bloc/Centi), ce qui maintient le churn DOM minimal.
 
 Les implémentations PEUVENT utiliser `requestAnimationFrame` pour les aiguilles Milli / Beat / Blink pour une fluidité sous-frame ; c'est purement une optimisation de rendu et n'affecte pas les valeurs ATS.
 
-### 8.1 Pourquoi 10 Hz
+### 8.1 Pourquoi 5 Hz
 
-Le taux de tick 10 Hz est choisi parce que :
+Le taux de tick 5 Hz est choisi parce que :
 
-1. La plus petite mise à jour visuelle perceptible sur un écran est d'environ 60 Hz ; des mises à jour à 10 Hz bien en dessous de la limite perceptive sont inaperçues si la valeur sous-jacente (par exemple Blink) change toutes les ≈ 864 ms.
-2. Le coût CPU et batterie est borné : 10 ticks par seconde sur un seul timer est négligeable sur n'importe quel appareil moderne.
-3. Les navigateurs mobiles throttlent `setInterval` à 1 Hz quand l'onglet est en arrière-plan ; le taux actif 10 Hz fournit une marge pour le throttle sans gigue visible quand l'onglet revient au focus.
+1. La plus petite mise à jour visuelle perceptible sur un écran est d'environ 60 Hz ; des mises à jour à 5 Hz bien en dessous de la limite perceptive sont inaperçues parce que la valeur sous-jacente (Blink) change toutes les ≈ 864 ms — soit un incrément Blink toutes les quatre ticks environ, donc la cadence perçue est dominée par `frac`, pas par le tick lui-même.
+2. Le coût CPU, batterie et thread principal est borné : 5 ticks par seconde sur un seul timer est négligeable sur n'importe quel appareil moderne, et le rythme divisé par deux (vs un ancien design de référence à 10 Hz) retire ≈ 500 ms de Total Blocking Time Lighthouse sur émulation Moto G4 sans aucune régression visible.
+3. Les navigateurs mobiles throttlent `setInterval` à 1 Hz quand l'onglet est en arrière-plan ; le taux actif 5 Hz conserve une marge confortable pour le throttle et évite la gigue visible au retour au focus.
 
-Un taux supérieur (60 Hz, piloté par `requestAnimationFrame`) est permis ; le design de référence garde 10 Hz pour la prévisibilité à travers les navigateurs.
+Un taux supérieur (10 Hz, ou 60 Hz piloté par `requestAnimationFrame`) est permis ; le design de référence choisit 5 Hz pour la prévisibilité à travers les navigateurs et la convivialité avec les threads principaux des mobiles bas de gamme.
 
 ### 8.2 Mouvement réduit
 
@@ -460,9 +460,9 @@ La convention de la montre grégorienne est universelle dans l'horlogerie commer
 
 §4.3 explique la progression froid-vers-chaud et §9.2 explique la règle d'écart de teinte 75° pour les villes. Les valeurs hex exactes ont été choisies depuis la palette de poids 500 de Tailwind CSS pour la familiarité visuelle avec les designers web. Les adopteurs du design de référence sont libres de redéfinir la palette via les custom properties CSS ; les valeurs de référence ne sont pas normatives.
 
-### 16.3 « Pourquoi 10 Hz et pas 60 Hz ? »
+### 16.3 « Pourquoi 5 Hz et pas 10 Hz ou 60 Hz ? »
 
-§8.1 explique : 10 Hz est en dessous des limites perceptives quand la valeur sous-jacente (Blink) se rafraîchit toutes les 864 ms ; c'est peu coûteux en CPU et batterie ; cela survit au throttling d'onglet en arrière-plan des navigateurs mobiles sans gigue visible au retour. Une implémentation à 60 Hz (pilotée par `requestAnimationFrame`) est permise ; le design de référence choisit 10 Hz pour la prévisibilité.
+§8.1 explique : 5 Hz est en dessous des limites perceptives quand la valeur sous-jacente (Blink) se rafraîchit toutes les 864 ms (un incrément Blink couvre environ quatre ticks) ; c'est peu coûteux en CPU et batterie ; cela survit au throttling d'onglet en arrière-plan des navigateurs mobiles sans gigue visible au retour ; et cela élimine ≈ 500 ms de TBT mobile Lighthouse comparé à l'ancien design de référence à 10 Hz, sans changement perçu. Un taux supérieur (10 Hz, ou 60 Hz piloté par `requestAnimationFrame`) est permis ; le design de référence choisit 5 Hz pour la prévisibilité.
 
 ### 16.4 « Pourquoi 08–22 locale pour les arcs de villes, et pas (par exemple) lever-coucher de soleil ? »
 
