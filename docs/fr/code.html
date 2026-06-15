@@ -51,37 +51,102 @@
   </header>
 
   <main class="container">
-    <h1>Implémentation Python de référence</h1>
+    <h1>Implémentations de référence</h1>
     <p>
-      Module <code>ats.py</code> : conversion bidirectionnelle Grégorien ↔ ATS,
-      troncature stricte (floor), alignement POSIX (leap seconds absorbées).
-      Compatible Python ≥ 3.9.
+      ATS livre <strong>deux implémentations de référence</strong> : Python (<code>code/ats.py</code>) et JavaScript (<code>docs/assets/js/ats.js</code>). Les deux round-trip à l'identique sur tous les fichiers <code>test-vectors-*.json</code>. Rust et Go sont planifiés pour la v1.0 (cf. <a href="../../ROADMAP.md">ROADMAP V1.0-B</a> et <a href="./versioning.html#7-2">versioning §7.2 (3)</a>) ; les implémentations tierces dans n'importe quel langage sont bienvenues sous le contrat de conformité (<a href="./manifeste.html#16-5-conformance">manifeste §16.5</a>).
+    </p>
+    <p>
+      <strong>Licence :</strong> MIT (cf. <a href="../../GOVERNANCE.md#8-trademark-and-licensing-posture">GOVERNANCE.md §8</a>). <strong>Source autoritaire :</strong> le manifeste (<a href="./manifeste.html">manifeste.fr.md</a>) et les vecteurs de conformance. Le code montré ci-dessous est une implémentation conforme, pas la spec.
     </p>
 
+    <h2 id="install">1. Installation (planifiée, v1.0)</h2>
+    <p>Les artefacts installables ne sont pas encore publiés — cf. <a href="./versioning.html#7-2">versioning §7.2 (4)</a> pour l'engagement de release v1.0. En attendant, vendorer le fichier directement :</p>
+    <pre><code class="language-bash"># Python — vendorer le fichier (pas d'install requise)
+curl -O https://raw.githubusercontent.com/s-geffroy/ATS/main/code/ats.py
+
+# JavaScript — vendorer le fichier
+curl -O https://raw.githubusercontent.com/s-geffroy/ATS/main/docs/assets/js/ats.js
+
+# Planifié (v1.0) :
+# pip install ats-time
+# npm install @s-geffroy/ats</code></pre>
+
     <p>
-      <a href="https://raw.githubusercontent.com/s-geffroy/ATS/main/code/ats.py" download>
-        Télécharger <code>ats.py</code>
-      </a>
+      <a href="https://raw.githubusercontent.com/s-geffroy/ATS/main/code/ats.py" download>Télécharger <code>ats.py</code></a>
       ·
-      <a href="https://github.com/s-geffroy/ATS/blob/main/code/ats.py" rel="noopener">
-        Voir sur GitHub
-      </a>
+      <a href="https://raw.githubusercontent.com/s-geffroy/ATS/main/docs/assets/js/ats.js" download>Télécharger <code>ats.js</code></a>
+      ·
+      <a href="https://github.com/s-geffroy/ATS/tree/main/code" rel="noopener">Parcourir sur GitHub</a>
     </p>
 
-    <h2>Usage rapide</h2>
+    <h2 id="quick">2. Usage rapide</h2>
+
+    <h3>Python</h3>
     <pre><code class="language-python">from datetime import datetime, timezone
 from ats import gregorian_to_ats, ats_to_gregorian
 
 now = datetime.now(timezone.utc)
 ats = gregorian_to_ats(now)
-print(ats.to_canonical())   # T+ Δ 20.7.8.2.50000
-print(ats.to_short())       # Δ20.7.8.2-50.0
+print(ats.to_canonical())   # T+ Δ 20.7.8.4.50000
+print(ats.to_short())       # Δ20.7.8.4-50.0
 
 back = ats_to_gregorian(ats.to_canonical())
-print(back.isoformat())     # 2026-06-13T12:00:00+00:00 (±432 ms)
+print(back.isoformat())     # 2026-06-15T12:00:00+00:00 (±432 ms)
 </code></pre>
 
-    <h2>Source complet</h2>
+    <h3>JavaScript (navigateur ou Node)</h3>
+    <pre><code class="language-javascript">import { atsFromMs, toCanonical, toShort, atsToMs } from './ats.js';
+
+const v = atsFromMs(Date.now());
+console.log(toCanonical(v));   // T+ Δ 20.7.8.4.50000
+console.log(toShort(v));       // Δ20.7.8.4-50.0
+
+const back = atsToMs(toCanonical(v));
+console.log(new Date(back).toISOString());  // round-trip ±432 ms
+</code></pre>
+
+    <h2 id="conformance">3. Conformité — one-liner (Docker)</h2>
+    <p>
+      Toute implémentation tierce <strong>DOIT</strong> round-trip chaque fichier <code>test-vectors-*.json</code> à l'identique au <code>spec_version</code> qu'elle déclare cibler (cf. <a href="./versioning.html#2-the-spec_version-field">versioning §2</a>). Lancer les suites de référence sans rien installer localement :
+    </p>
+    <pre><code class="language-bash"># Python — 12 vecteurs core + arithmétique + 5 ponts calendaires + 2 multi-planétaires
+docker run --rm -v "$(pwd):/app" -w /app python:3.11-slim \
+  python -m unittest discover tests
+
+# JavaScript — 12 vecteurs core
+docker run --rm -v "$(pwd):/app" -w /app node:20-slim \
+  node tests/test_vectors.mjs
+
+# Combiné + property-based (Hypothesis 1000+ instants)
+docker run --rm -v "$(pwd):/app" -w /app python:3.11-slim \
+  sh -c 'pip install -q hypothesis && python -m unittest discover tests'</code></pre>
+    <p>Les trois commandes <strong>DOIVENT</strong> sortir en code 0. Tout exit non-nul est un échec de conformité.</p>
+
+    <h2 id="structure">4. Structure des modules</h2>
+    <table class="markdown">
+      <thead><tr><th>Fichier</th><th>Rôle</th><th>Référence spec</th></tr></thead>
+      <tbody>
+        <tr><td><code>code/ats.py</code></td><td>Cœur : Grégorien ↔ ATS, formats canonique/court, algèbre §11.4</td><td><a href="./manifeste.html#9-conversion-definition">manifeste §9–§11</a></td></tr>
+        <tr><td><code>code/ats_multi_planetary.py</code></td><td>Extension multi-planétaire : Terre, Mars, Lune</td><td><a href="./multi-planetary.html">multi-planetary.fr.md</a></td></tr>
+        <tr><td><code>code/bridges/hebrew.py</code></td><td>Pont calendrier hébraïque (`convertdate`)</td><td><a href="./manifeste.html#14-annexes">manifeste §14</a></td></tr>
+        <tr><td><code>code/bridges/islamic.py</code></td><td>Pont calendrier islamique (`convertdate`)</td><td>idem</td></tr>
+        <tr><td><code>code/bridges/chinese.py</code></td><td>Pont calendrier chinois (`lunardate`, tables HKO 1900–2100)</td><td>idem</td></tr>
+        <tr><td><code>code/bridges/hindu.py</code></td><td>Pont calendrier hindou (approximation panchanga régionale)</td><td>idem</td></tr>
+        <tr><td><code>code/bridges/maya.py</code></td><td>Pont Long Count maya</td><td>idem</td></tr>
+        <tr><td><code>docs/assets/js/ats.js</code></td><td>Cœur JavaScript (navigateur + Node, ES modules)</td><td>idem <code>ats.py</code></td></tr>
+        <tr><td><code>docs/assets/js/ats-clock.js</code></td><td>Web Component <code>&lt;ats-clock&gt;</code></td><td><a href="./analog-clock.html">analog-clock.fr.md</a></td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="status">5. Statut des autres langages</h2>
+    <ul>
+      <li><strong>Rust</strong> — planifié pour v1.0 (cf. <a href="../../ROADMAP.md">ROADMAP V1.0-B</a>) ; cible crate <code>ats</code> sur crates.io, compatible <code>no_std</code>, cœur + algèbre + parseurs canonique/court, ponts optionnels.</li>
+      <li><strong>Go</strong> — alternative à Rust pour v1.0 (cf. <a href="../../ROADMAP.md">ROADMAP V1.0-B</a>) ; cible module <code>github.com/s-geffroy/ats</code>, audience serveur / CLI / infra cloud.</li>
+      <li><strong>Kotlin, Swift, Elixir</strong> — pas sur le chemin critique v1.0 ; bienvenus en tant qu'implémentations tierces sous le contrat de conformité.</li>
+    </ul>
+
+    <h2 id="full-source">6. Source Python complet</h2>
+    <p>Inliné en direct depuis GitHub raw avec fallback local. Licence : MIT (<a href="../../GOVERNANCE.md#8-trademark-and-licensing-posture">GOVERNANCE.md §8.1</a>).</p>
     <pre><code id="src" class="language-python">Chargement…</code></pre>
   </main>
 
