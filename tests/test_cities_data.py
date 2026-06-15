@@ -99,8 +99,16 @@ class TestCitiesData(unittest.TestCase):
     def test_states_keys_referenced_by_machine(self):
         """The 10 state keys consumed by cities-page.js must all be present."""
         expected = {
-            "sleep", "wake", "breakfast", "commute", "school",
-            "work", "lunch", "evening", "dinner", "leisure",
+            "sleep",
+            "wake",
+            "breakfast",
+            "commute",
+            "school",
+            "work",
+            "lunch",
+            "evening",
+            "dinner",
+            "leisure",
         }
         present = {s["key"] for s in self.payload["states"]}
         self.assertEqual(present, expected)

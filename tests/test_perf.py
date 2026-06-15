@@ -25,7 +25,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "code"))
 
 from ats import gregorian_to_ats  # noqa: E402
 
-
 EPOCH = datetime(1969, 7, 20, tzinfo=timezone.utc)
 SAMPLES = int(os.environ.get("ATS_PERF_SAMPLES", "10000"))
 BUDGET_US = float(os.environ.get("ATS_PERF_BUDGET_US", "100.0"))

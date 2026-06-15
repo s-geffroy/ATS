@@ -28,12 +28,12 @@ from datetime import datetime, timedelta, timezone
 from decimal import ROUND_FLOOR, Decimal
 
 from ats import (
+    _US_PER_DAY,
     ATS_DECIMALS,
     ATS_SCALE,
     ATSDuration,
     _integer_days_to_places,
     _split_abs_days_floor,
-    _US_PER_DAY,
 )
 
 # -- Body registry -------------------------------------------------------
@@ -147,9 +147,11 @@ class BodyATSDateTime:
         )
 
     def to_short(self) -> str:
-        bc = self.frac // (10 ** (ATS_DECIMALS - 2))           # Bloc·Centi
-        m = (self.frac // (10 ** (ATS_DECIMALS - 3))) % 10     # Milli
-        return f"{self.body.ascii_symbol}{self.kilo}.{self.hecto}.{self.deka}.{self.kin}-{bc:02d}.{m}"
+        bc = self.frac // (10 ** (ATS_DECIMALS - 2))  # Bloc·Centi
+        m = (self.frac // (10 ** (ATS_DECIMALS - 3))) % 10  # Milli
+        return (
+            f"{self.body.ascii_symbol}{self.kilo}.{self.hecto}.{self.deka}.{self.kin}-{bc:02d}.{m}"
+        )
 
     def to_utc(self) -> datetime:
         """Project this body-anchored instant back onto UTC."""
@@ -181,9 +183,7 @@ class BodyATSDateTime:
                 )
             return ATSDuration(self._signed_decimal_days() - other._signed_decimal_days())
         if isinstance(other, ATSDuration):
-            return _from_signed_days(
-                self.body, self._signed_decimal_days() - other.signed_days
-            )
+            return _from_signed_days(self.body, self._signed_decimal_days() - other.signed_days)
         return NotImplemented
 
     def __eq__(self, other: object) -> bool:
@@ -196,10 +196,7 @@ class BodyATSDateTime:
     def __lt__(self, other: object) -> bool:
         if isinstance(other, BodyATSDateTime):
             if other.body is not self.body and other.body != self.body:
-                raise TypeError(
-                    "Cross-body comparison is undefined. "
-                    "Convert to UTC first."
-                )
+                raise TypeError("Cross-body comparison is undefined. Convert to UTC first.")
             return self._signed_decimal_days() < other._signed_decimal_days()
         return NotImplemented
 
@@ -242,9 +239,7 @@ def utc_to_body(utc: datetime, body: Body) -> BodyATSDateTime:
     return _from_signed_days(body, signed_days)
 
 
-_CANON_RE = re.compile(
-    r"^\s*(T[+-])\s*Δ(_?[A-Za-z]+)?\s+(\d+)\.(\d)\.(\d)\.(\d)\.(\d+)\s*$"
-)
+_CANON_RE = re.compile(r"^\s*(T[+-])\s*Δ(_?[A-Za-z]+)?\s+(\d+)\.(\d)\.(\d)\.(\d)\.(\d+)\s*$")
 
 
 def body_canonical_to_utc(canonical: str, body_registry: dict | None = None) -> datetime:

@@ -25,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "code"))
 try:
     from hypothesis import HealthCheck, given, settings
     from hypothesis import strategies as st
+
     HAS_HYPOTHESIS = True
 except ImportError:
     HAS_HYPOTHESIS = False
@@ -52,7 +53,9 @@ class TestRoundTripProperty(unittest.TestCase):
         deadline=None,
         suppress_health_check=[HealthCheck.too_slow],
     )
-    @given(st.datetimes(min_value=MIN_DT.replace(tzinfo=None), max_value=MAX_DT.replace(tzinfo=None)))
+    @given(
+        st.datetimes(min_value=MIN_DT.replace(tzinfo=None), max_value=MAX_DT.replace(tzinfo=None))
+    )
     def test_canonical_roundtrip_within_drift(self, naive_dt):
         dt = naive_dt.replace(tzinfo=timezone.utc)
         ats = gregorian_to_ats(dt)

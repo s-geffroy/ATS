@@ -74,6 +74,7 @@ class TestShortFormat(unittest.TestCase):
     def test_round_trip_within_milli_resolution(self) -> None:
         # Milli unit = 0.001 day ≈ 86.4 s. Round-trip drift must be < 90 s.
         from datetime import datetime, timezone
+
         moments = [
             datetime(2026, 6, 13, 12, 0, 0, tzinfo=timezone.utc),
             datetime(1969, 7, 20, 20, 17, 40, tzinfo=timezone.utc),

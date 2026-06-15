@@ -49,7 +49,7 @@ from zoneinfo import ZoneInfo
 
 ATS_SYMBOL = "Δ"
 ATS_DECIMALS = 5
-ATS_SCALE = 10 ** ATS_DECIMALS
+ATS_SCALE = 10**ATS_DECIMALS
 ATS_EPOCH = datetime(1969, 7, 20, 0, 0, 0, tzinfo=timezone.utc)
 
 _US_PER_DAY = 86_400_000_000
@@ -119,8 +119,8 @@ class ATSDateTime:
         `.M` is the single Milli digit, always emitted even when 0.
         No spaces.
         """
-        bc = self.frac // (10 ** (ATS_DECIMALS - 2))           # Bloc·Centi
-        m = (self.frac // (10 ** (ATS_DECIMALS - 3))) % 10     # Milli
+        bc = self.frac // (10 ** (ATS_DECIMALS - 2))  # Bloc·Centi
+        m = (self.frac // (10 ** (ATS_DECIMALS - 3))) % 10  # Milli
         return f"{ATS_SYMBOL}{self.kilo}.{self.hecto}.{self.deka}.{self.kin}-{bc:02d}.{m}"
 
     def __str__(self) -> str:
@@ -343,13 +343,9 @@ def gregorian_to_ats(dt: datetime, *, assume_tz: str = "UTC") -> ATSDateTime:
     return ATSDateTime(sign=sign, kilo=kilo, hecto=hecto, deka=deka, kin=kin, frac=frac_int)
 
 
-_ATS_CANON_RE = re.compile(
-    r"^\s*(T[+-])\s*Δ\s*(\d+)\.(\d)\.(\d)\.(\d)\.(\d{1,})\s*$"
-)
+_ATS_CANON_RE = re.compile(r"^\s*(T[+-])\s*Δ\s*(\d+)\.(\d)\.(\d)\.(\d)\.(\d{1,})\s*$")
 
-_ATS_SHORT_RE = re.compile(
-    r"^Δ(\d+)\.(\d)\.(\d)\.(\d)-(\d{2})\.(\d)$"
-)
+_ATS_SHORT_RE = re.compile(r"^Δ(\d+)\.(\d)\.(\d)\.(\d)-(\d{2})\.(\d)$")
 
 
 def ats_to_gregorian(ats: str, *, out_tz: str = "UTC", allow_short: bool = False) -> datetime:

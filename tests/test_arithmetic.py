@@ -34,12 +34,8 @@ from ats import (  # noqa: E402
 
 VECTORS_PATH = ROOT / "docs" / "spec" / "test-vectors-arithmetic.json"
 
-_CANON_RE = re.compile(
-    r"^\s*(T[+-])\s*Δ\s+(\d+)\.(\d)\.(\d)\.(\d)\.(\d+)\s*$"
-)
-_DUR_RE = re.compile(
-    r"^\s*(T[+-])\s*Δd\s+(\d+)\.(\d)\.(\d)\.(\d)\.(\d+)\s*$"
-)
+_CANON_RE = re.compile(r"^\s*(T[+-])\s*Δ\s+(\d+)\.(\d)\.(\d)\.(\d)\.(\d+)\s*$")
+_DUR_RE = re.compile(r"^\s*(T[+-])\s*Δd\s+(\d+)\.(\d)\.(\d)\.(\d)\.(\d+)\s*$")
 
 
 def parse_canonical(s: str) -> ATSDateTime:
@@ -64,7 +60,7 @@ def parse_duration_canonical(s: str) -> ATSDuration:
     sign, kilo, hecto, deka, kin, frac = m.groups()
     integer_days = int(kilo) * 1000 + int(hecto) * 100 + int(deka) * 10 + int(kin)
     frac_padded = frac.ljust(ATS_DECIMALS, "0")[:ATS_DECIMALS]
-    abs_days = Decimal(integer_days) + Decimal(int(frac_padded)) / Decimal(10 ** ATS_DECIMALS)
+    abs_days = Decimal(integer_days) + Decimal(int(frac_padded)) / Decimal(10**ATS_DECIMALS)
     return ATSDuration(-abs_days if sign == "T-" else abs_days)
 
 
@@ -150,7 +146,7 @@ class TestArithmetic(unittest.TestCase):
         # Re-parse and verify floor preserves up to ATS_DECIMALS digits.
         parsed = parse_duration_canonical(canonical)
         diff = abs(d.signed_days - parsed.signed_days)
-        self.assertLess(diff, Decimal(1) / Decimal(10 ** ATS_DECIMALS))
+        self.assertLess(diff, Decimal(1) / Decimal(10**ATS_DECIMALS))
 
 
 if __name__ == "__main__":
