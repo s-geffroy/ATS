@@ -37,50 +37,13 @@
     return escText(s).replace(/"/g, '&quot;');
   }
 
+  // CSS for .ats-search / .ats-search-results is now inlined in
+  // docs/assets/css/style.css so the placeholder reaches its final
+  // dimensions at first paint (CLS prevention). This is a no-op kept
+  // for forward compatibility — if a page loads search.js without the
+  // bundled style.css for some reason, search will work without polish.
   function ensureStyles() {
-    if (document.getElementById('ats-search-style')) return;
-    const css = `
-      .ats-search { position: relative; margin: 0.75rem 0 1.5rem; }
-      .ats-search input {
-        width: 100%;
-        padding: 0.5rem 0.75rem;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        background: var(--bg);
-        color: var(--fg);
-        font-family: inherit;
-        font-size: 0.95rem;
-      }
-      .ats-search-results {
-        position: absolute;
-        top: 100%; left: 0; right: 0;
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        margin-top: 4px;
-        max-height: 360px;
-        overflow-y: auto;
-        z-index: 1500;
-        display: none;
-      }
-      .ats-search-results.visible { display: block; }
-      .ats-search-results a {
-        display: block;
-        padding: 0.5rem 0.75rem;
-        text-decoration: none;
-        color: var(--fg);
-        border-bottom: 1px solid var(--border);
-        font-size: 0.9rem;
-      }
-      .ats-search-results a:hover { background: var(--bg); }
-      .ats-search-results .title { font-weight: 600; color: var(--accent); display: block; }
-      .ats-search-results mark { background: color-mix(in oklab, var(--accent) 30%, transparent); color: inherit; }
-      .ats-search-results .empty { padding: 0.6rem; color: var(--muted); }
-    `;
-    const tag = document.createElement('style');
-    tag.id = 'ats-search-style';
-    tag.textContent = css;
-    document.head.appendChild(tag);
+    // Intentionally empty.
   }
 
   function init() {
