@@ -1,11 +1,11 @@
 {
   "spec_version": "0.7",
-  "utc": "2026-08-12T06:12:09Z",
-  "ats_canonical": "T+ Δ 20.8.4.2.25843",
-  "ats_display": "Δ20.8.4.2-25.8",
+  "utc": "2026-08-12T08:15:08Z",
+  "ats_canonical": "T+ Δ 20.8.4.2.34384",
+  "ats_display": "Δ20.8.4.2-34.3",
   "integer_days": 20842,
-  "fraction_5digit": 25843,
-  "generated_at": "2026-08-12T06:12:09Z",
+  "fraction_5digit": 34384,
+  "generated_at": "2026-08-12T08:15:08Z",
   "cadence_minutes": 60,
   "note": "Hourly snapshot, not a live endpoint. For real-time ATS, use the JS reference at /ATS/assets/js/ats.js or compute locally from the UTC field."
 }
