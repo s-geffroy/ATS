@@ -6,6 +6,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — vers v1.0
 
+### Site — décalage de mise en page desktop (Lighthouse)
+
+- **Cause** : le bouton de thème injecté par `site.js` (chargé en `defer`) après le premier affichage faisait passer `.lang-switch` à la ligne dans l'en-tête desktop ; `<main>` descendait d'environ 35 px. CLS 0,5–0,6 sur les pages mesurées, performance desktop ≈ 75 : le workflow Lighthouse n'était jamais passé depuis sa création.
+- **Correction** : `<span class="theme-toggle-slot">` réservé dans l'en-tête des 28 pages ; `style.css` lui donne la taille du bouton (glyphe fantôme), `site.js` y place le bouton. CLS desktop mesuré à 0,02–0,03, mobile inchangé à 0. Compatible avec un `site.js` ancien resté dans le cache du service worker (l'emplacement vide ne gêne pas l'ancien placement).
+- **`lighthouse.yml`** : Node 22, `actions/checkout`, `setup-node` et `upload-artifact` en v5 (fin de l'avertissement Node 20).
+
 ### `RELEASE-SETUP.md` — walkthrough one-time setup des secrets release
 
 - **Création** (~170 lignes) : version opérationnelle pas-à-pas de [`RELEASE.md §3`](./RELEASE.md#3-one-time-setup-do-this-once-before-the-first-release), avec commandes exactes (gpg, gh CLI, pbcopy) et écrans UI précis (PyPI, npm, GitHub Settings). 10 étapes chronologiques + récap-checklist final. Compté ~30 min.

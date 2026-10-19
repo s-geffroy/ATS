@@ -93,6 +93,21 @@
   opacity: 0.75;
   font-family: inherit;
 }
+/* Space reserved in the page markup for the toggle that site.js injects
+   after first paint: without it the header re-wraps on desktop and pushes
+   <main> down (CLS ≈ 0.6, Lighthouse desktop performance ≈ 75). The ghost
+   glyph mirrors the button's box and disappears once the button is in. */
+.theme-toggle-slot { display: inline-flex; }
+.theme-toggle-slot:empty::before {
+  content: '⊙';
+  visibility: hidden;
+  display: inline-block;
+  border: 1px solid transparent;
+  padding: 0.2rem 0.55rem;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
 .theme-toggle:hover { opacity: 1; }
 .theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 

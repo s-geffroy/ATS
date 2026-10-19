@@ -125,9 +125,12 @@
       render();
     });
 
-    // Place the button just before .lang-switch, or at the end of the header
-    // if no lang-switch exists on the page.
-    if (langSwitch) {
+    // Fill the slot reserved in the markup (no layout shift), else place the
+    // button just before .lang-switch, or at the end of the header.
+    const slot = header.querySelector('.theme-toggle-slot');
+    if (slot) {
+      slot.appendChild(btn);
+    } else if (langSwitch) {
       header.insertBefore(btn, langSwitch);
     } else {
       header.appendChild(btn);
