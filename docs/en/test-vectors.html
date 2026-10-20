@@ -104,7 +104,7 @@
 docker run --rm -v "$PWD:/app" -w /app python:3.13-slim \
   sh -c 'pip install --quiet ".[bridges,tests]" &amp;&amp; python -m unittest discover tests'</code></pre>
       <pre><code>// JavaScript — covers the Earth core + arithmetic
-docker run --rm -v "$PWD:/app" -w /app node:20-slim \
+docker run --rm -v "$PWD:/app" -w /app node:22-slim \
   node tests/test_vectors.mjs
 # 12/12 JS vectors pass</code></pre>
       <p>A claim of conformance to ATS v0.7 means passing the core (12) and arithmetic (12) sets bit-for-bit (<a href="./manifesto.html#section-16">manifesto §16.5</a>). The multi-planetary, bridge sets are optional and must be declared explicitly if claimed.</p>

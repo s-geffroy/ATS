@@ -104,7 +104,7 @@
 docker run --rm -v "$PWD:/app" -w /app python:3.13-slim \
   sh -c 'pip install --quiet ".[bridges,tests]" &amp;&amp; python -m unittest discover tests'</code></pre>
       <pre><code>// JavaScript — couvre le core Terre + arithmétique
-docker run --rm -v "$PWD:/app" -w /app node:20-slim \
+docker run --rm -v "$PWD:/app" -w /app node:22-slim \
   node tests/test_vectors.mjs
 # 12/12 JS vectors pass</code></pre>
       <p>Revendiquer la conformance à ATS v0.7 signifie passer les jeux core (12) et arithmétique (12) bit-à-bit (<a href="./manifeste.html#section-16">manifeste §16.5</a>). Les jeux multi-planétaire et bridges sont optionnels et doivent être déclarés explicitement si revendiqués.</p>

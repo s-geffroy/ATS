@@ -116,7 +116,7 @@ docker run --rm -v "$(pwd):/app" -w /app python:3.11-slim \
   python -m unittest discover tests
 
 # JavaScript — 12 core vectors
-docker run --rm -v "$(pwd):/app" -w /app node:20-slim \
+docker run --rm -v "$(pwd):/app" -w /app node:22-slim \
   node tests/test_vectors.mjs
 
 # Combined run + property-based (Hypothesis 1000+ instants)

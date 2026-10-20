@@ -147,7 +147,7 @@ docker run --rm -v "$(pwd):/app" -w /app python:3.11-slim \
   python -m unittest tests.test_vectors
 
 # JavaScript
-docker run --rm -v "$(pwd):/app" -w /app node:20-slim \
+docker run --rm -v "$(pwd):/app" -w /app node:22-slim \
   node tests/test_vectors.mjs
 
 # Rust
@@ -202,7 +202,7 @@ URL publique : <https://s-geffroy.github.io/ATS/api/now.json>. **Limite explicit
 Le rendu Markdown est exécuté au build :
 
 ```bash
-docker run --rm -v "$PWD:/app" -w /app/scripts node:20-slim \
+docker run --rm -v "$PWD:/app" -w /app/scripts node:22-slim \
   sh -c 'npm install --silent --no-fund --no-audit && node render-md.mjs'
 ```
 

@@ -12,6 +12,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 - **Correction** : `<span class="theme-toggle-slot">` réservé dans l'en-tête des 28 pages ; `style.css` lui donne la taille du bouton (glyphe fantôme), `site.js` y place le bouton. CLS desktop mesuré à 0,02–0,03, mobile inchangé à 0. Compatible avec un `site.js` ancien resté dans le cache du service worker (l'emplacement vide ne gêne pas l'ancien placement).
 - **`lighthouse.yml`** : Node 22, `actions/checkout`, `setup-node` et `upload-artifact` en v5 (fin de l'avertissement Node 20).
 
+### Node 22 / 24
+
+- Node 20 n'est plus maintenu depuis avril 2026. La matrice de CI passe de Node 20/22 à **22/24** ; `release.yml` construit avec Node 22.
+- Les actions des workflows `ci`, `release` et `cron-now` passent en versions Node 24 (`checkout`, `setup-node` v5, `setup-python` v6, `upload-artifact`/`download-artifact` v5).
+- Commandes Docker de la documentation (README, CONTRIBUTING, pages Code et Vecteurs de test) : `node:22-slim`.
+
 ### `RELEASE-SETUP.md` — walkthrough one-time setup des secrets release
 
 - **Création** (~170 lignes) : version opérationnelle pas-à-pas de [`RELEASE.md §3`](./RELEASE.md#3-one-time-setup-do-this-once-before-the-first-release), avec commandes exactes (gpg, gh CLI, pbcopy) et écrans UI précis (PyPI, npm, GitHub Settings). 10 étapes chronologiques + récap-checklist final. Compté ~30 min.

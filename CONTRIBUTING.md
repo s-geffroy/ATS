@@ -67,7 +67,7 @@ cd ATS
 docker run --rm -it -v "$(pwd):/app" -w /app python:3.11-slim python
 
 # Node — interactive REPL
-docker run --rm -it -v "$(pwd):/app" -w /app node:20-slim node
+docker run --rm -it -v "$(pwd):/app" -w /app node:22-slim node
 
 # Linter (Python — ruff)
 docker run --rm -v "$(pwd):/app" -w /app python:3.11-slim \
@@ -86,7 +86,7 @@ docker run --rm -v "$(pwd):/app" -w /app python:3.11-slim \
   python -m unittest discover tests
 
 # JavaScript core
-docker run --rm -v "$(pwd):/app" -w /app node:20-slim \
+docker run --rm -v "$(pwd):/app" -w /app node:22-slim \
   node tests/test_vectors.mjs
 
 # Property-based (Hypothesis, 1000+ instants)
@@ -98,7 +98,7 @@ docker run --rm -v "$(pwd):/app" -w /app python:3.11-slim \
   python -m unittest tests.test_perf
 ```
 
-All commands must exit 0. CI runs the same matrix on Python 3.9 / 3.11 / 3.13 × Node 20 / 22 — see `.github/workflows/ci.yml`.
+All commands must exit 0. CI runs the same matrix on Python 3.9 / 3.11 / 3.13 × Node 22 / 24 — see `.github/workflows/ci.yml`.
 
 If you change a conformance vector or add a new one, regenerate the affected `test-vectors-*.json` file deterministically (the test harness will tell you the exact byte diff to apply). See [`docs/spec/versioning.en.md §4`](docs/spec/versioning.en.md) for the vector-additivity policy.
 
