@@ -30,6 +30,7 @@
 <script defer src="https://www.ligne-de-crete.fr/kit/v1/ldc-kit.js"></script>
 </head>
 <body data-lang="fr">
+  <a class="skip-link" href="#main" style="position:absolute;left:-9999px">Aller au contenu</a>
   <header class="site container">
     <a class="brand" href="./">Δ ATS</a>
     <nav>
@@ -52,7 +53,7 @@
     </span>
   </header>
 
-  <main class="container">
+  <main id="main" class="container" tabindex="-1">
     <h1>Implémentations de référence</h1>
     <p>
       ATS livre <strong>deux implémentations de référence</strong> : Python (<code>code/ats.py</code>) et JavaScript (<code>docs/assets/js/ats.js</code>). Les deux round-trip à l'identique sur tous les fichiers <code>test-vectors-*.json</code>. Rust et Go sont planifiés pour la v1.0 (cf. <a href="../../ROADMAP.md">ROADMAP V1.0-B</a> et <a href="./versioning.html#7-2">versioning §7.2 (3)</a>) ; les implémentations tierces dans n'importe quel langage sont bienvenues sous le contrat de conformité (<a href="./manifeste.html#16-5-conformance">manifeste §16.5</a>).

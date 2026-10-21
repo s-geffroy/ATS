@@ -1025,3 +1025,25 @@ button:hover { background: color-mix(in oklab, Canvas 80%, CanvasText); }
 .hero .lang-pick a:hover {
   background: color-mix(in oklab, Canvas 88%, CanvasText);
 }
+
+/* Lien d'évitement : premier arrêt du clavier, hors écran tant qu'il n'a
+ * pas le focus. Le bandeau ligne de crête (ldc-kit.js) se pose juste après
+ * lui ; <main tabindex="-1"> reçoit le focus quand on l'active.
+ * La balise porte aussi `style="position:absolute;left:-9999px"` : le
+ * service worker sert /assets/ depuis son cache jusqu'au changement de
+ * CACHE_NAME, et une page neuve avec un style.css ancien ne doit pas
+ * afficher le lien. D'où le !important, qui l'emporte sur l'attribut. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0.75rem;
+  z-index: 100;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg);
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+  text-decoration: none;
+}
+.skip-link:focus { left: 0.75rem !important; }
+main:focus { outline: none; }

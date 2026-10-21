@@ -6,6 +6,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 
 ## [Unreleased] — vers v1.0
 
+### Site — lien d'évitement
+
+- **Ajout** : « Aller au contenu » / « Skip to content », premier élément du `<body>` des 29 pages, vers `<main id="main" tabindex="-1">`. Au clavier, il précède désormais l'en-tête et le bandeau ligne de crête, que le kit pose juste après lui.
+- **Hors écran tant qu'il n'a pas le focus** (`.skip-link` dans `style.css`). La balise le cache aussi par un attribut `style` : le service worker sert `/assets/` depuis son cache jusqu'au prochain `CACHE_NAME`, et une page neuve avec un `style.css` ancien ne doit pas l'afficher.
+
 ### Site — décalage de mise en page desktop (Lighthouse)
 
 - **Cause** : le bouton de thème injecté par `site.js` (chargé en `defer`) après le premier affichage faisait passer `.lang-switch` à la ligne dans l'en-tête desktop ; `<main>` descendait d'environ 35 px. CLS 0,5–0,6 sur les pages mesurées, performance desktop ≈ 75 : le workflow Lighthouse n'était jamais passé depuis sa création.
