@@ -1047,3 +1047,10 @@ button:hover { background: color-mix(in oklab, Canvas 80%, CanvasText); }
 }
 .skip-link:focus { left: 0.75rem !important; }
 main:focus { outline: none; }
+
+/* Bandeau ligne de crête : le kit arrive après le premier affichage et
+ * remplit <ldc-bandeau>, posé juste après le lien d'évitement. Sa hauteur
+ * (33 px) est réservée tant que l'élément n'est pas défini, sinon tout le
+ * contenu descendrait d'autant (CLS). Avec un style.css ancien encore en
+ * cache, rien n'est réservé : la page se comporte comme avant. */
+ldc-bandeau:not(:defined) { display: block; height: 33px; }

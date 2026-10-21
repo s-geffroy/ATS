@@ -9,6 +9,7 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) et la no
 ### Site — lien d'évitement
 
 - **Ajout** : « Aller au contenu » / « Skip to content », premier élément du `<body>` des 29 pages, vers `<main id="main" tabindex="-1">`. Au clavier, il précède désormais l'en-tête et le bandeau ligne de crête, que le kit pose juste après lui.
+- **Bandeau ligne de crête** : `<ldc-bandeau>` posé juste après le lien, hauteur réservée (33 px) dans `style.css` tant que le kit n'est pas chargé. La page ne descend plus à l'arrivée du bandeau (CLS desktop ≈ 0,016 → 0).
 - **Hors écran tant qu'il n'a pas le focus** (`.skip-link` dans `style.css`). La balise le cache aussi par un attribut `style` : le service worker sert `/assets/` depuis son cache jusqu'au prochain `CACHE_NAME`, et une page neuve avec un `style.css` ancien ne doit pas l'afficher.
 
 ### Site — décalage de mise en page desktop (Lighthouse)
